@@ -16,5 +16,3 @@ The APIs will provide a facility for the third party client stamp producer to on
 ### License
 
 This code is open source software licensed under the [Apache 2.0 License]("http://www.apache.org/licenses/LICENSE-2.0.html").
-
-
