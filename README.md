@@ -13,6 +13,28 @@ Vaping Stamps APIs will complement HMRC's traditional tax compliance efforts to 
 
 The APIs will provide a facility for the third party client stamp producer to only sell stamps to traders that are approved by HMRC. It will also enable the third party client to forward the necessary information to HMRC which is required to track compliance.  
 
+## Requirements
+```
+Developed using Scala 3 with the Play Framework and suitable to run on JRE 21 or later.
+```
+
+## Running the service
+
+### To run the whole stack under Service Manager
+```
+sm2 --start VAPING_STAMPS_API_ALL
+```
+
+### To control the service locally from the console
+```
+sbt run
+```
+
+To stop the service running:
+```
+sm2 --stop VAPING_STAMPS_API
+```
+
 ### License
 
 This code is open source software licensed under the [Apache 2.0 License]("http://www.apache.org/licenses/LICENSE-2.0.html").
