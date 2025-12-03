@@ -14,22 +14,27 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.platform.controllers
+package uk.gov.hmrc.vapingstampsapi.controllers
+
 
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
-import controllers.Assets
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
+import uk.gov.hmrc.vapingstampsapi.service.HealthService
 
 import javax.inject.{Inject, Singleton}
+import scala.concurrent.ExecutionContext
 
 @Singleton
-class DocumentationController @Inject() (
-  assets: Assets,
-  cc: ControllerComponents
-) extends BackendController(cc):
+class HealthController @Inject()(
+                                  cc: ControllerComponents,
+                                  healthService: HealthService
+                                )(using ec: ExecutionContext)
+  extends BackendController(cc):
 
-  def definition(): Action[AnyContent] =
-    assets.at("/public/api", "definition.json")
-
-  def specification(version: String, file: String): Action[AnyContent] =
-    assets.at(s"/public/api/conf/$version", file)
+  val health: Action[AnyContent] =
+    Action.async { implicit request =>
+      healthService.check().map {
+        case true => Ok("""{"status":"UP"}""")
+        case false => ServiceUnavailable("""{"status":"DOWN","error":"Mongo unreachable"}""")
+      }
+    }

@@ -35,6 +35,34 @@ To stop the service running:
 sm2 --stop VAPING_STAMPS_API
 ```
 
+## Endpoints
+
+### 1. Health Check
+
+The service exposes a simple health-check endpoint used for monitoring and deployment verification.
+
+```
+GET /health
+```
+
+This endpoint reports the operational status of the service and its backing MongoDB instance.
+
+Behaviour
+
+When the application is running:
+
+```
+Returns 200 
+OK
+```
+and when the Service is Unavailable:
+
+```
+Returns 503 
+The service cannot complete the health-check. 
+```
+
+
 ### License
 
 This code is open source software licensed under the [Apache 2.0 License]("http://www.apache.org/licenses/LICENSE-2.0.html").

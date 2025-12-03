@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.platform.controllers
+package uk.gov.hmrc.vapingstampsapi.service
 
-import play.api.mvc.{Action, AnyContent, ControllerComponents}
-import controllers.Assets
-import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
-
+import uk.gov.hmrc.mongo.MongoComponent
+import org.mongodb.scala._
 import javax.inject.{Inject, Singleton}
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class DocumentationController @Inject() (
-  assets: Assets,
-  cc: ControllerComponents
-) extends BackendController(cc):
+class HealthService @Inject()(
+                                mongoComponent: MongoComponent
+                              )(using ec: ExecutionContext):
 
-  def definition(): Action[AnyContent] =
-    assets.at("/public/api", "definition.json")
+  /** Performs a ping command to validate Mongo connectivity. */
+  def check(): Future[Boolean] =
+    val command = org.mongodb.scala.bson.Document("ping" -> 1)
 
-  def specification(version: String, file: String): Action[AnyContent] =
-    assets.at(s"/public/api/conf/$version", file)
+    mongoComponent.database.runCommand(command).toFuture
+      .map(_ => true)
+      .recover(_ => false)
