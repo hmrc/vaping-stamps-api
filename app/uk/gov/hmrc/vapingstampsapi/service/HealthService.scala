@@ -23,13 +23,17 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class HealthService @Inject()(
-                                mongoComponent: MongoComponent
-                              )(using ec: ExecutionContext):
+                               mongoComponent: MongoComponent
+                             )(using ec: ExecutionContext) {
 
-  /** Performs a ping command to validate Mongo connectivity. */
   def check(): Future[Boolean] =
-    val command = org.mongodb.scala.bson.Document("ping" -> 1)
-
-    mongoComponent.database.runCommand(command).toFuture
+    pingMongo()
       .map(_ => true)
       .recover(_ => false)
+
+  def pingMongo(): Future[Unit] =
+    mongoComponent.database
+      .runCommand(org.mongodb.scala.bson.Document("ping" -> 1))
+      .toFuture()
+      .map(_ => ())
+}
