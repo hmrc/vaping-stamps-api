@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.platform.controllers
+package uk.gov.hmrc.vapingstampsapi.platform.controllers
 
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import controllers.Assets
