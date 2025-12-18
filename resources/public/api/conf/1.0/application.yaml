@@ -1,51 +1,131 @@
-openapi: "3.0.3"
+openapi: 3.0.3
 
 info:
+  title: Vaping Stamps API
   version: "1.0"
-  title: Hello World
+  description: |
+    Use this API to verify purchasing operators’ approval to buy vaping duty stamps.
+
+    This API exposes a single endpoint that allows the appointed stamp supplier
+    to perform a daily approval status check against HMRC systems.
+
+    Weekly CSV data submissions are handled separately via SDES using pre-signed URLs
+    and are documented in the Service Guide. They are not implemented as API endpoints.
 
 servers:
-  - url: https://test-api.service.hmrc.gov.uk
-    description: Sandbox
   - url: https://api.service.hmrc.gov.uk
-    description: Production
-
-components:
-  parameters:
-    acceptHeader:
-      name: Accept
-      in: header
-      schema:
-        type: string
-        enum: [
-          "application/vnd.hmrc.1.0+json",
-          "application/vnd.hmrc.1.0+xml"
-        ]
-      required: true
 
 paths:
-  /<your-API-context>/hello-world:
+  /misc/vaping/stamps/approval-status:
     get:
-      summary: Placeholder hello world endpoint
+      summary: Check purchasing operator approval status
       description: |
-        An endpoint that returns "Hello world"
-      tags:
-        - vaping-stamps-api
+        Checks whether a purchasing operator is approved to buy vaping duty stamps.
+      operationId: checkApprovalStatus
+
       parameters:
-        - $ref: '#/components/parameters/acceptHeader'
+        - name: vdsApprovalId
+          in: query
+          required: true
+          description: |
+            Vaping Duty Stamps Approval ID issued by HMRC.
+            Format: 4 letters, 7 numbers, 2 letters.
+            Example format: ABCD1234567EF
+          schema:
+            type: string
+            pattern: "^[A-Z]{4}[0-9]{7}[A-Z]{2}$"
+
+        - name: businessName
+          in: query
+          required: true
+          description: Registered business name of the purchasing operator
+          schema:
+            type: string
+
       responses:
-        200:
-          description: "OK Response"
+        "200":
+          description: Operator record found
           content:
             application/json:
               schema:
                 type: object
+                required:
+                  - approvalStatus
+                  - businessName
+                  - registeredBusinessAddress
+                  - contactName
+                  - contactTelephone
+                  - contactEmail
+                  - approvalNumber
+                  - stampThreshold
                 properties:
-                  message:
+                  approvalStatus:
                     type: string
-              example:
-                {
-                  "message" : "Hello World"
-                }
-      security:
-        - {}
+                    description: Approval status of the operator
+                    example: APPROVED
+                  businessName:
+                    type: string
+                    description: Registered business name
+                  registeredBusinessAddress:
+                    type: string
+                    description: Registered business address
+                  correspondenceAddress:
+                    type: string
+                    description: Correspondence address if different from the registered address
+                  contactName:
+                    type: string
+                    description: Primary contact name
+                  contactTelephone:
+                    type: string
+                    description: Primary contact telephone number
+                  contactEmail:
+                    type: string
+                    format: email
+                    description: Primary contact email address
+                  approvalNumber:
+                    type: string
+                    description: Stamp approval reference number
+                  stampThreshold:
+                    type: number
+                    description: Approved stamp purchase threshold
+
+        "202":
+          description: No record found (operator not approved)
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - approvalStatus
+                properties:
+                  approvalStatus:
+                    type: string
+                    example: NO_RECORD
+                    description: No approval record exists for the supplied identifiers
+
+        "400":
+          description: Bad request
+
+        "401":
+          description: Unauthorised
+
+        "403":
+          description: Forbidden
+
+        "404":
+          description: Not found
+
+        "409":
+          description: Conflict
+
+components:
+  securitySchemes:
+    oauth2:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.service.hmrc.gov.uk/oauth/token
+          scopes: {}
+
+security:
+  - oauth2: []
