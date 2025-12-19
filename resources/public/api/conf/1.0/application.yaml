@@ -4,6 +4,7 @@ info:
   title: Vaping Stamps API
   version: "1.0"
   description: |
+    # Overview
     Use this API to verify purchasing operators’ approval to buy vaping duty stamps.
 
     This API exposes a single endpoint that allows the appointed stamp supplier
@@ -15,13 +16,22 @@ info:
 servers:
   - url: https://api.service.hmrc.gov.uk
 
+tags:
+  - name: Approval status
+    description: Endpoints for checking operator approval to purchase vaping duty stamps
+
 paths:
   /misc/vaping/stamps/approval-status:
     get:
+      tags:
+        - Approval status
       summary: Check purchasing operator approval status
       description: |
         Checks whether a purchasing operator is approved to buy vaping duty stamps.
       operationId: checkApprovalStatus
+
+      security:
+        - applicationRestricted: []
 
       parameters:
         - name: vdsApprovalId
@@ -30,7 +40,7 @@ paths:
           description: |
             Vaping Duty Stamps Approval ID issued by HMRC.
             Format: 4 letters, 7 numbers, 2 letters.
-            Example format: ABCD1234567EF
+            Example: ABCD1234567EF
           schema:
             type: string
             pattern: "^[A-Z]{4}[0-9]{7}[A-Z]{2}$"
@@ -48,84 +58,119 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                required:
-                  - approvalStatus
-                  - businessName
-                  - registeredBusinessAddress
-                  - contactName
-                  - contactTelephone
-                  - contactEmail
-                  - approvalNumber
-                  - stampThreshold
-                properties:
-                  approvalStatus:
-                    type: string
-                    description: Approval status of the operator
-                    example: APPROVED
-                  businessName:
-                    type: string
-                    description: Registered business name
-                  registeredBusinessAddress:
-                    type: string
-                    description: Registered business address
-                  correspondenceAddress:
-                    type: string
-                    description: Correspondence address if different from the registered address
-                  contactName:
-                    type: string
-                    description: Primary contact name
-                  contactTelephone:
-                    type: string
-                    description: Primary contact telephone number
-                  contactEmail:
-                    type: string
-                    format: email
-                    description: Primary contact email address
-                  approvalNumber:
-                    type: string
-                    description: Stamp approval reference number
-                  stampThreshold:
-                    type: number
-                    description: Approved stamp purchase threshold
+                $ref: "#/components/schemas/ApprovedOperatorResponse"
 
-        "202":
-          description: No record found (operator not approved)
+        "204":
+          description: Request processed successfully but no content is returned
+
+        "404":
+          description: No approval record exists for the supplied identifiers
           content:
             application/json:
               schema:
-                type: object
-                required:
-                  - approvalStatus
-                properties:
-                  approvalStatus:
-                    type: string
-                    example: NO_RECORD
-                    description: No approval record exists for the supplied identifiers
+                $ref: "#/components/schemas/ErrorResponse"
 
         "400":
           description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 
         "401":
           description: Unauthorised
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 
         "403":
           description: Forbidden
-
-        "404":
-          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 
         "409":
           description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+        "503":
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 
 components:
   securitySchemes:
-    oauth2:
+    applicationRestricted:
       type: oauth2
+      description: |
+        HMRC supports OAuth 2.0 for authenticating application restricted API requests
+        using an OAuth 2.0 Bearer Token in the AUTHORIZATION header.
+
+        See https://developer.service.hmrc.gov.uk/api-documentation/docs/authorisation/application-restricted-endpoints
+        for details.
       flows:
         clientCredentials:
           tokenUrl: https://api.service.hmrc.gov.uk/oauth/token
           scopes: {}
 
-security:
-  - oauth2: []
+  schemas:
+    ApprovedOperatorResponse:
+      type: object
+      required:
+        - approvalStatus
+        - businessName
+        - registeredBusinessAddress
+        - contactName
+        - contactTelephone
+        - contactEmail
+        - approvalNumber
+        - stampThreshold
+      properties:
+        approvalStatus:
+          type: string
+          example: APPROVED
+        businessName:
+          type: string
+        registeredBusinessAddress:
+          type: string
+        correspondenceAddress:
+          type: string
+        contactName:
+          type: string
+        contactTelephone:
+          type: string
+        contactEmail:
+          type: string
+          format: email
+        approvalNumber:
+          type: string
+        stampThreshold:
+          type: number
+          description: Approved stamp purchase threshold
+
+    ErrorResponse:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          example: INVALID_REQUEST
+        message:
+          type: string
+          example: The supplied approval ID is invalid
