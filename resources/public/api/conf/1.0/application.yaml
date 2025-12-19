@@ -1,51 +1,176 @@
-openapi: "3.0.3"
+openapi: 3.0.3
 
 info:
+  title: Vaping Stamps API
   version: "1.0"
-  title: Hello World
+  description: |
+    # Overview
+    Use this API to verify purchasing operators’ approval to buy vaping duty stamps.
+
+    This API exposes a single endpoint that allows the appointed stamp supplier
+    to perform a daily approval status check against HMRC systems.
+
+    Weekly CSV data submissions are handled separately via SDES using pre-signed URLs
+    and are documented in the Service Guide. They are not implemented as API endpoints.
 
 servers:
-  - url: https://test-api.service.hmrc.gov.uk
-    description: Sandbox
   - url: https://api.service.hmrc.gov.uk
-    description: Production
 
-components:
-  parameters:
-    acceptHeader:
-      name: Accept
-      in: header
-      schema:
-        type: string
-        enum: [
-          "application/vnd.hmrc.1.0+json",
-          "application/vnd.hmrc.1.0+xml"
-        ]
-      required: true
+tags:
+  - name: Approval status
+    description: Endpoints for checking operator approval to purchase vaping duty stamps
 
 paths:
   /<your-API-context>/hello-world:
     get:
-      summary: Placeholder hello world endpoint
-      description: |
-        An endpoint that returns "Hello world"
       tags:
-        - vaping-stamps-api
+        - Approval status
+      summary: Check purchasing operator approval status
+      description: |
+        Checks whether a purchasing operator is approved to buy vaping duty stamps.
+      operationId: checkApprovalStatus
+
+      security:
+        - applicationRestricted: []
+
       parameters:
-        - $ref: '#/components/parameters/acceptHeader'
+        - name: vdsApprovalId
+          in: query
+          required: true
+          description: |
+            Vaping Duty Stamps Approval ID issued by HMRC.
+            Format: 4 letters, 7 numbers, 2 letters.
+            Example: ABCD1234567EF
+          schema:
+            type: string
+            pattern: "^[A-Z]{4}[0-9]{7}[A-Z]{2}$"
+
+        - name: businessName
+          in: query
+          required: true
+          description: Registered business name of the purchasing operator
+          schema:
+            type: string
+
       responses:
-        200:
-          description: "OK Response"
+        "200":
+          description: Operator record found
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-              example:
-                {
-                  "message" : "Hello World"
-                }
-      security:
-        - {}
+                $ref: "#/components/schemas/ApprovedOperatorResponse"
+
+        "204":
+          description: Request processed successfully but no content is returned
+
+        "404":
+          description: No approval record exists for the supplied identifiers
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+        "401":
+          description: Unauthorised
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+        "503":
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+components:
+  securitySchemes:
+    applicationRestricted:
+      type: oauth2
+      description: |
+        HMRC supports OAuth 2.0 for authenticating application restricted API requests
+        using an OAuth 2.0 Bearer Token in the AUTHORIZATION header.
+
+        See https://developer.service.hmrc.gov.uk/api-documentation/docs/authorisation/application-restricted-endpoints
+        for details.
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.service.hmrc.gov.uk/oauth/token
+          scopes: {}
+
+  schemas:
+    ApprovedOperatorResponse:
+      type: object
+      required:
+        - approvalStatus
+        - businessName
+        - registeredBusinessAddress
+        - contactName
+        - contactTelephone
+        - contactEmail
+        - approvalNumber
+        - stampThreshold
+      properties:
+        approvalStatus:
+          type: string
+          example: APPROVED
+        businessName:
+          type: string
+        registeredBusinessAddress:
+          type: string
+        correspondenceAddress:
+          type: string
+        contactName:
+          type: string
+        contactTelephone:
+          type: string
+        contactEmail:
+          type: string
+          format: email
+        approvalNumber:
+          type: string
+        stampThreshold:
+          type: number
+          description: Approved stamp purchase threshold
+
+    ErrorResponse:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          example: INVALID_REQUEST
+        message:
+          type: string
+          example: The supplied approval ID is invalid
