@@ -21,7 +21,7 @@ tags:
     description: Endpoints for checking operator approval to purchase vaping duty stamps
 
 paths:
-  /<your-API-context>/hello-world:
+  /misc/vaping/stamps:
     get:
       tags:
         - Approval status
@@ -63,54 +63,118 @@ paths:
         "204":
           description: Request processed successfully but no content is returned
 
-        "404":
-          description: No approval record exists for the supplied identifiers
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-
         "400":
-          description: Bad request
+          description: |
+            Client error — the request is malformed or fails validation.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                type: object
+                required: [code, message]
+                properties:
+                  code:
+                    type: string
+                    example: INVALID_REQUEST
+                  message:
+                    type: string
+                    example: The request payload is invalid or malformed.
 
         "401":
-          description: Unauthorised
+          description: |
+            Client error — authentication credentials are missing or invalid.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                type: object
+                required: [code, message]
+                properties:
+                  code:
+                    type: string
+                    example: UNAUTHORISED
+                  message:
+                    type: string
+                    example: Authentication credentials are missing or invalid.
 
         "403":
-          description: Forbidden
+          description: |
+            Client error — the client is authenticated but not authorised to perform this action.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                type: object
+                required: [code, message]
+                properties:
+                  code:
+                    type: string
+                    example: FORBIDDEN
+                  message:
+                    type: string
+                    example: You are not authorised to access this resource.
+
+        "404":
+          description: |
+            Client error — no approval record exists for the supplied identifiers.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [code, message]
+                properties:
+                  code:
+                    type: string
+                    example: NOT_FOUND
+                  message:
+                    type: string
+                    example: The requested approval could not be found.
 
         "409":
-          description: Conflict
+          description: |
+            Client error — the request conflicts with the current state of the resource.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                type: object
+                required: [code, message]
+                properties:
+                  code:
+                    type: string
+                    example: CONFLICT
+                  message:
+                    type: string
+                    example: The request conflicts with the current state of the resource.
 
         "500":
-          description: Internal server error
+          description: |
+            Server error — an unexpected internal error occurred while processing the request.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                type: object
+                required: [code, message]
+                properties:
+                  code:
+                    type: string
+                    example: INTERNAL_SERVER_ERROR
+                  message:
+                    type: string
+                    example: An unexpected error occurred while processing the request.
 
         "503":
-          description: Service unavailable
+          description: |
+            Server error — the service is temporarily unavailable.
+            Clients may retry the request later.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                type: object
+                required: [code, message]
+                properties:
+                  code:
+                    type: string
+                    example: SERVICE_UNAVAILABLE
+                  message:
+                    type: string
+                    example: The service is temporarily unavailable. Please try again later.
 
 components:
   securitySchemes:
@@ -143,34 +207,37 @@ components:
         approvalStatus:
           type: string
           example: APPROVED
+
         businessName:
           type: string
+          example: Example Trading Ltd
+
         registeredBusinessAddress:
           type: string
+          example: 10 Example Street, London, SW1A 1AA
+
         correspondenceAddress:
           type: string
+          example: PO Box 123, London, SW1A 2AB
+
         contactName:
           type: string
+          example: Jane Smith
+
         contactTelephone:
           type: string
+          example: "+44 20 7946 0123"
+
         contactEmail:
           type: string
           format: email
+          example: jane.smith@example.com
+
         approvalNumber:
           type: string
+          example: ABCD1234567EF
+
         stampThreshold:
           type: number
           description: Approved stamp purchase threshold
-
-    ErrorResponse:
-      type: object
-      required:
-        - code
-        - message
-      properties:
-        code:
-          type: string
-          example: INVALID_REQUEST
-        message:
-          type: string
-          example: The supplied approval ID is invalid
+          example: 500000
