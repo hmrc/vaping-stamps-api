@@ -1,7 +1,7 @@
 {
   "api": {
     "name": "Vaping Stamps",
-    "description": "Verify purchasing operators’ approval to buy vaping duty stamps and receive approval status changes from HMRC.",
+    "description": "Verify purchasing operators’ approval to buy vaping duty stamps.",
     "context": "misc/vaping/stamps",
     "categories": ["OTHER"],
     "versions": [

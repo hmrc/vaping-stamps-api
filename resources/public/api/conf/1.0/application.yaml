@@ -18,7 +18,7 @@ servers:
 
 tags:
   - name: Approval status
-    description: Endpoints for checking operator approval to purchase vaping duty stamps
+    description: Endpoint for checking operator approval to purchase vaping duty stamps.
 
 paths:
   /misc/vaping/stamps:
@@ -48,20 +48,20 @@ paths:
         - name: businessName
           in: query
           required: true
-          description: Registered business name of the purchasing operator
+          description: Registered business name of the purchasing operator.
           schema:
             type: string
 
       responses:
         "200":
-          description: Operator record found
+          description: Operator record found.
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ApprovedOperatorResponse"
 
         "204":
-          description: Request processed successfully but no content is returned
+          description: Request processed successfully but no content is returned.
 
         "400":
           description: |
@@ -239,5 +239,5 @@ components:
 
         stampThreshold:
           type: number
-          description: Approved stamp purchase threshold
+          description: Approved stamp purchase threshold.
           example: 500000

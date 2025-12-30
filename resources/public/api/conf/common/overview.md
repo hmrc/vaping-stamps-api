@@ -1,4 +1,4 @@
-Use this API to check whether a purchasing operator is approved to buy vaping stamps and to retrieve the operator’s current approval details for compliance purposes.
+Use this API to check whether a purchasing operator is approved to buy vaping stamps.
 
 The API supports the following use case:
 - verifying an operator’s approval status before issuing vaping stamps
