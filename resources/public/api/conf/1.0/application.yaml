@@ -10,9 +10,6 @@ info:
     This API exposes a single endpoint that allows the appointed stamp supplier
     to perform a daily approval status check against HMRC systems.
 
-    Weekly CSV data submissions are handled separately via SDES using pre-signed URLs
-    and are documented in the Service Guide. They are not implemented as API endpoints.
-
 servers:
   - url: https://api.service.hmrc.gov.uk
 
@@ -21,7 +18,7 @@ tags:
     description: Endpoint for checking operator approval to purchase vaping duty stamps.
 
 paths:
-  /misc/vaping/stamps:
+  /misc/vaping/stamps/{vdsApprovalId}/status:
     get:
       tags:
         - Approval status
@@ -35,7 +32,7 @@ paths:
 
       parameters:
         - name: vdsApprovalId
-          in: query
+          in: path
           required: true
           description: |
             Vaping Duty Stamps Approval ID issued by HMRC.
