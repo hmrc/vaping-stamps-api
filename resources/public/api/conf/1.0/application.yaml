@@ -25,6 +25,9 @@ paths:
       summary: Check purchasing operator approval status
       description: |
         Checks whether a purchasing operator is approved to buy vaping duty stamps.
+
+        This API returns JSON responses using HMRC versioned media types.
+        The supplier is expected to send an appropriate Accept header when making requests.
       operationId: checkApprovalStatus
 
       security:
@@ -42,13 +45,6 @@ paths:
             type: string
             pattern: "^[A-Z]{4}[0-9]{7}[A-Z]{2}$"
 
-        - name: businessName
-          in: query
-          required: true
-          description: Registered business name of the purchasing operator.
-          schema:
-            type: string
-
       responses:
         "200":
           description: Operator record found.
@@ -61,8 +57,7 @@ paths:
           description: Request processed successfully but no content is returned.
 
         "400":
-          description: |
-            Client error — the request is malformed or fails validation.
+          description: Client error — the request is malformed or fails validation.
           content:
             application/json:
               schema:
@@ -77,8 +72,7 @@ paths:
                     example: The request payload is invalid or malformed.
 
         "401":
-          description: |
-            Client error — authentication credentials are missing or invalid.
+          description: Client error — authentication credentials are missing or invalid.
           content:
             application/json:
               schema:
@@ -93,8 +87,7 @@ paths:
                     example: Authentication credentials are missing or invalid.
 
         "403":
-          description: |
-            Client error — the client is authenticated but not authorised to perform this action.
+          description: Client error — the client is authenticated but not authorised to perform this action.
           content:
             application/json:
               schema:
@@ -109,8 +102,7 @@ paths:
                     example: You are not authorised to access this resource.
 
         "404":
-          description: |
-            Client error — no approval record exists for the supplied identifiers.
+          description: Client error — no approval record exists for the supplied identifiers.
           content:
             application/json:
               schema:
@@ -125,8 +117,7 @@ paths:
                     example: The requested approval could not be found.
 
         "409":
-          description: |
-            Client error — the request conflicts with the current state of the resource.
+          description: Client error — the request conflicts with the current state of the resource.
           content:
             application/json:
               schema:
@@ -141,8 +132,7 @@ paths:
                     example: The request conflicts with the current state of the resource.
 
         "500":
-          description: |
-            Server error — an unexpected internal error occurred while processing the request.
+          description: Server error — an unexpected internal error occurred while processing the request.
           content:
             application/json:
               schema:
@@ -157,9 +147,7 @@ paths:
                     example: An unexpected error occurred while processing the request.
 
         "503":
-          description: |
-            Server error — the service is temporarily unavailable.
-            Clients may retry the request later.
+          description: Server error — the service is temporarily unavailable.
           content:
             application/json:
               schema:
@@ -203,35 +191,43 @@ components:
       properties:
         approvalStatus:
           type: string
+          description: The current approval status of the purchasing operator.
           example: APPROVED
 
         businessName:
           type: string
+          description: Registered business name of the purchasing operator.
           example: Example Trading Ltd
 
         registeredBusinessAddress:
           type: string
+          description: Registered address of the purchasing operator.
           example: 10 Example Street, London, SW1A 1AA
 
         correspondenceAddress:
           type: string
+          description: Correspondence address if different from the registered address.
           example: PO Box 123, London, SW1A 2AB
 
         contactName:
           type: string
+          description: Primary contact name for the purchasing operator.
           example: Jane Smith
 
         contactTelephone:
           type: string
+          description: Contact telephone number for the purchasing operator.
           example: "+44 20 7946 0123"
 
         contactEmail:
           type: string
           format: email
+          description: Contact email address for the purchasing operator.
           example: jane.smith@example.com
 
         approvalNumber:
           type: string
+          description: HMRC-issued approval number for vaping duty stamps.
           example: ABCD1234567EF
 
         stampThreshold:
