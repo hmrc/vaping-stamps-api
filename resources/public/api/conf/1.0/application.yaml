@@ -204,6 +204,10 @@ components:
         approvalStatus:
           type: string
           description: The current approval status of the purchasing operator.
+          enum:
+            - APPROVED
+            - SUSPENDED
+            - REVOKED
 
         businessName:
           type: string
