@@ -188,49 +188,52 @@ components:
         - contactEmail
         - approvalNumber
         - stampThreshold
+
+      example:
+        approvalStatus: APPROVED
+        businessName: Example Trading Ltd
+        registeredBusinessAddress: 10 Example Street, London, SW1A 1AA
+        correspondenceAddress: PO Box 123, London, SW1A 2AB
+        contactName: Jane Smith
+        contactTelephone: "+44 20 7946 0123"
+        contactEmail: jane.smith@example.com
+        approvalNumber: ABCD1234567EF
+        stampThreshold: 500000
+
       properties:
         approvalStatus:
           type: string
           description: The current approval status of the purchasing operator.
-          example: APPROVED
 
         businessName:
           type: string
           description: Registered business name of the purchasing operator.
-          example: Example Trading Ltd
 
         registeredBusinessAddress:
           type: string
           description: Registered address of the purchasing operator.
-          example: 10 Example Street, London, SW1A 1AA
 
         correspondenceAddress:
           type: string
           description: Correspondence address if different from the registered address.
-          example: PO Box 123, London, SW1A 2AB
 
         contactName:
           type: string
           description: Primary contact name for the purchasing operator.
-          example: Jane Smith
 
         contactTelephone:
           type: string
           description: Contact telephone number for the purchasing operator.
-          example: "+44 20 7946 0123"
 
         contactEmail:
           type: string
           format: email
           description: Contact email address for the purchasing operator.
-          example: jane.smith@example.com
 
         approvalNumber:
           type: string
           description: HMRC-issued approval number for vaping duty stamps.
-          example: ABCD1234567EF
 
         stampThreshold:
           type: number
           description: Approved stamp purchase threshold.
-          example: 500000
