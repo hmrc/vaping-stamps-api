@@ -1,3 +1,1 @@
 # microservice specific routes
-
-GET         /health                 uk.gov.hmrc.vapingstampsapi.controllers.HealthController.health

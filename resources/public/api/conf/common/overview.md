@@ -5,6 +5,7 @@ The API supports the following use case:
 
 The API returns the operator’s approval status and related business information. The stamp supplier uses this information to decide whether stamps can be issued and within what limits.
 
+<<<<<<< HEAD
 This API is read-only and provides the current approval state only. It does not provide historical data, notifications, or real-time change events.
 
 ### Request access to the API
@@ -32,3 +33,6 @@ HMRC may contact you to discuss your request and confirm eligibility.
 If your request is approved, you will receive a confirmation email and your software application will be subscribed to the API.
 
 If you are not signed in, or access has not yet been granted, the Endpoint section will not display a subscription link. You may see 'Not applicable' or 'Sign in to request access' instead.
+=======
+This API is read-only and provides the current approval state only. It does not provide historical data, notifications, or real-time change events.
+>>>>>>> origin/main
