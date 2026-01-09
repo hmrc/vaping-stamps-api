@@ -7,8 +7,6 @@ The API returns the operator’s approval status and related business informatio
 
 This API is read-only and provides the current approval state only. It does not provide historical data, notifications, or real-time change events.
 
-The Vaping Stamps service also includes a secure bulk file upload process for weekly data submission, including stamp sales and scanning data. This bulk upload process forms part of the overall service but operates independently of the API.
-
 ### Request access to the API
 This is a restricted-access API. The endpoint is available only to authorised and approved software applications.
 Because this API is restricted, you must request access before your software application can be subscribed.
