@@ -26,14 +26,14 @@ paths:
       description: |
         Checks whether a purchasing operator is approved to buy vaping duty stamps.
 
-        This API returns JSON responses using HMRC versioned media types.
-        The supplier is expected to send an appropriate Accept header when making requests.
       operationId: checkApprovalStatus
 
       security:
         - applicationRestricted: []
 
       parameters:
+        - $ref: "#/components/parameters/acceptHeader"
+
         - name: vdsApprovalId
           in: path
           required: true
@@ -55,111 +55,77 @@ paths:
 
         "204":
           description: Request processed successfully but no content is returned.
+          content: {}
 
         "400":
           description: Client error — the request is malformed or fails validation.
           content:
             application/json:
               schema:
-                type: object
-                required: [code, message]
-                properties:
-                  code:
-                    type: string
-                    example: INVALID_REQUEST
-                  message:
-                    type: string
-                    example: The request payload is invalid or malformed.
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                code: INVALID_REQUEST
+                message: The request payload is invalid or malformed.
 
         "401":
           description: Client error — authentication credentials are missing or invalid.
           content:
             application/json:
               schema:
-                type: object
-                required: [code, message]
-                properties:
-                  code:
-                    type: string
-                    example: UNAUTHORISED
-                  message:
-                    type: string
-                    example: Authentication credentials are missing or invalid.
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                code: UNAUTHORISED
+                message: Authentication credentials are missing or invalid.
 
         "403":
           description: Client error — the client is authenticated but not authorised to perform this action.
           content:
             application/json:
               schema:
-                type: object
-                required: [code, message]
-                properties:
-                  code:
-                    type: string
-                    example: FORBIDDEN
-                  message:
-                    type: string
-                    example: You are not authorised to access this resource.
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                code: FORBIDDEN
+                message: You are not authorised to access this resource.
 
         "404":
           description: Client error — no approval record exists for the supplied identifiers.
           content:
             application/json:
               schema:
-                type: object
-                required: [code, message]
-                properties:
-                  code:
-                    type: string
-                    example: NOT_FOUND
-                  message:
-                    type: string
-                    example: The requested approval could not be found.
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                code: NOT_FOUND
+                message: The requested approval could not be found.
 
         "409":
           description: Client error — the request conflicts with the current state of the resource.
           content:
             application/json:
               schema:
-                type: object
-                required: [code, message]
-                properties:
-                  code:
-                    type: string
-                    example: CONFLICT
-                  message:
-                    type: string
-                    example: The request conflicts with the current state of the resource.
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                code: CONFLICT
+                message: The request conflicts with the current state of the resource.
 
         "500":
           description: Server error — an unexpected internal error occurred while processing the request.
           content:
             application/json:
               schema:
-                type: object
-                required: [code, message]
-                properties:
-                  code:
-                    type: string
-                    example: INTERNAL_SERVER_ERROR
-                  message:
-                    type: string
-                    example: An unexpected error occurred while processing the request.
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                code: INTERNAL_SERVER_ERROR
+                message: An unexpected error occurred while processing the request.
 
         "503":
           description: Server error — the service is temporarily unavailable.
           content:
             application/json:
               schema:
-                type: object
-                required: [code, message]
-                properties:
-                  code:
-                    type: string
-                    example: SERVICE_UNAVAILABLE
-                  message:
-                    type: string
-                    example: The service is temporarily unavailable. Please try again later.
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                code: SERVICE_UNAVAILABLE
+                message: The service is temporarily unavailable. Please try again later.
 
 components:
   securitySchemes:
@@ -175,6 +141,18 @@ components:
         clientCredentials:
           tokenUrl: https://api.service.hmrc.gov.uk/oauth/token
           scopes: {}
+
+  parameters:
+    acceptHeader:
+      name: Accept
+      in: header
+      required: true
+      description: "Specifies the response format and the [version](/api-documentation/docs/reference-guide#versioning)\
+        \ of the API to be used."
+      schema:
+        type: string
+        enum:
+          - application/vnd.hmrc.1.0+json
 
   schemas:
     ApprovedOperatorResponse:
@@ -206,8 +184,6 @@ components:
           description: The current approval status of the purchasing operator.
           enum:
             - APPROVED
-            - SUSPENDED
-            - REVOKED
 
         businessName:
           type: string
@@ -241,3 +217,14 @@ components:
         stampThreshold:
           type: number
           description: Approved stamp purchase threshold.
+
+    ErrorResponse:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+        message:
+          type: string
