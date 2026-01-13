@@ -26,6 +26,10 @@ paths:
       description: |
         Checks whether a purchasing operator is approved to buy vaping duty stamps.
 
+        **Example request**
+
+        `GET https://api.service.hmrc.gov.uk/misc/vaping/stamps/ABCD1234567EF/status`
+
       operationId: checkApprovalStatus
 
       security:
@@ -255,3 +259,4 @@ components:
           type: string
         message:
           type: string
+
