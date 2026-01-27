@@ -62,6 +62,25 @@ Returns 503
 The service cannot complete the health-check. 
 ```
 
+## Build
+
+### 1. To Format the files we are using 'scalafmt' code formatter
+
+```
+sbt scalafmtCheckAll scalafmtSbtCheck
+```
+
+This will verify formatting and fail if anything is unformatted
+
+```
+sbt scalafmtAll scalafmtSbt
+```
+
+This will:
+
+Reformat all Scala source files
+Reformat .sbt / project/*.scala
+Make scalafmtCheck pass
 
 ### License
 

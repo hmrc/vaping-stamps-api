@@ -13,17 +13,13 @@ import org.mongodb.scala.bson.Document
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class HealthServiceSpec
-  extends AnyWordSpec
-    with Matchers
-    with MockitoSugar
-    with ScalaFutures {
+class HealthServiceSpec extends AnyWordSpec with Matchers with MockitoSugar with ScalaFutures {
 
   "HealthService.check" should {
 
     "return true when Mongo ping succeeds" in {
       val mongoComponent = mock[MongoComponent]
-      val database       = mock[MongoDatabase]
+      val database = mock[MongoDatabase]
 
       when(mongoComponent.database).thenReturn(database)
 

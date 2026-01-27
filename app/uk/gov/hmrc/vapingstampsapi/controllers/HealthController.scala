@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.vapingstampsapi.controllers
 
-
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.vapingstampsapi.service.HealthService
@@ -25,16 +24,16 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 
 @Singleton
-class HealthController @Inject()(
-                                  cc: ControllerComponents,
-                                  healthService: HealthService
-                                )(using ec: ExecutionContext)
-  extends BackendController(cc):
+class HealthController @Inject() (
+  cc: ControllerComponents,
+  healthService: HealthService
+)(using ec: ExecutionContext)
+    extends BackendController(cc):
 
   val health: Action[AnyContent] =
     Action.async { implicit request =>
       healthService.check().map {
-        case true => Ok("""{"status":"UP"}""")
+        case true  => Ok("""{"status":"UP"}""")
         case false => ServiceUnavailable("""{"status":"DOWN","error":"Mongo unreachable"}""")
       }
     }

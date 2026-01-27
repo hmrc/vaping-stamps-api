@@ -10,10 +10,7 @@ import uk.gov.hmrc.vapingstampsapi.service.HealthService
 
 import scala.concurrent.Future
 
-class HealthControllerSpec
-  extends AnyWordSpec
-    with Matchers
-    with MockitoSugar {
+class HealthControllerSpec extends AnyWordSpec with Matchers with MockitoSugar {
 
   "HealthController.health" should {
 
@@ -48,4 +45,3 @@ class HealthControllerSpec
     }
   }
 }
-
