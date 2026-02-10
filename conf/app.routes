@@ -1,1 +1,5 @@
 # microservice specific routes
+
+
+# Approval status summary
+GET   /status/:vdsApprovalId/summary   uk.gov.hmrc.vapingstampsapi.controllers.ApprovalController.retrieveSummary(vdsApprovalId: String)
