@@ -27,10 +27,12 @@ lazy val microservice = Project("vaping-stamps-api", file("."))
   .enablePlugins(play.sbt.PlayScala, SbtDistributablesPlugin)
   .disablePlugins(JUnitXmlReportPlugin) // Required to prevent https://github.com/scalatest/scalatest/issues/1427
   .settings(
-    libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test,
+    libraryDependencies ++=
+      AppDependencies.compile ++
+        AppDependencies.test,
     Compile / unmanagedResourceDirectories += baseDirectory.value / "resources"
   )
-  .settings(CodeCoverageSettings.settings: _*)
+  .settings(CodeCoverageSettings.settings *)
 
 /** --------------------------------
  * Integration tests
