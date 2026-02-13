@@ -30,7 +30,7 @@ class ApprovalController @Inject() (
   def retrieveSummary(vdsApprovalId: String): Action[AnyContent] =
     Action:
       val response = ApprovalSummary(
-        status = "RECEIVED",
+        approvalStatus = "APPROVED",
         businessName = "Acme Vaping Ltd",
         registeredBusinessAddress = "1 Business Park, London, SW1A 1AA",
         correspondenceAddress = "PO Box 123, London, SW1A 2BB",

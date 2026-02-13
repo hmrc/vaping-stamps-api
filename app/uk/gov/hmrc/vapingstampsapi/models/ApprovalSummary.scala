@@ -19,7 +19,7 @@ package uk.gov.hmrc.vapingstampsapi.models
 import play.api.libs.json.{Json, OFormat}
 
 final case class ApprovalSummary(
-  status: String,
+  approvalStatus: String,
   businessName: String,
   registeredBusinessAddress: String,
   correspondenceAddress: String,
