@@ -1,3 +1,19 @@
+/*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package uk.gov.hmrc.vapingstampsapi.connectors
 
 import org.mockito.ArgumentMatchers.any
@@ -26,11 +42,27 @@ class EISConnectorSpec extends AnyWordSpec with Matchers {
 
   "EISConnector.retrieveSummary" should {
 
-    "call the correct URL and return HttpResponse" in {
+    "call the correct URL and return HttpResponse 200" in {
       val approvalId = "AAAA0000200BB"
 
       val stubRequestBuilder = mock(classOf[RequestBuilder])
-      val fakeResponse = HttpResponse(200, """{"approvalStatus":"APPROVED"}""")
+      val fakeResponse = HttpResponse(
+        200,
+        """
+          |{
+          |  "approvalStatus": "APPROVED",
+          |  "businessName": "Acme Vaping Ltd",
+          |  "registeredBusinessAddress": "1 Business Park, London, SW1A 1AA",
+          |  "correspondenceAddress": "PO Box 123, London, SW1A 2BB",
+          |  "contactName": "John Smith",
+          |  "contactTelephone": "02071234567",
+          |  "contactEmail": "john.smith@acmevaping.co.uk",
+          |  "approvalNumber": "AAAA0000200BB",
+          |  "stampThreshold": 10000
+          |}
+          |
+          """.stripMargin
+      )
 
       when(mockHttpClient.get(any())(any())).thenReturn(stubRequestBuilder)
 
@@ -47,6 +79,28 @@ class EISConnectorSpec extends AnyWordSpec with Matchers {
       result.body must include("APPROVED")
 
       verify(stubRequestBuilder).execute[HttpResponse](using HttpReads.Implicits.readRaw)
+
+    }
+
+    "call the correct URL and return HttpResponse 204" in {
+      val approvalId = "AAAA0000204BB"
+
+      val stubRequestBuilder = mock(classOf[RequestBuilder])
+      val noContentResponse = HttpResponse(204, "")
+
+      when(mockHttpClient.get(any())(any())).thenReturn(stubRequestBuilder)
+
+      when(stubRequestBuilder.setHeader(any()))
+        .thenReturn(stubRequestBuilder)
+
+      when(stubRequestBuilder.execute(any[HttpReads[HttpResponse]], any()))
+        .thenReturn(Future(noContentResponse))
+
+      val resultF = connector.retrieveSummary(approvalId)
+      val result = Await.result(resultF, 2.seconds)
+
+      result.status mustBe 204
+      result.body mustBe ""
 
     }
 
