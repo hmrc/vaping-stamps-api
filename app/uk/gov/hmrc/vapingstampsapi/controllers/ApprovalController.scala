@@ -16,29 +16,33 @@
 
 package uk.gov.hmrc.vapingstampsapi.controllers
 
-import javax.inject.*
+import org.slf4j.{Logger, LoggerFactory}
 import play.api.libs.json.Json
 import play.api.mvc.*
-import uk.gov.hmrc.vapingstampsapi.models.ApprovalSummary
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.vapingstampsapi.models.errors.*
+import uk.gov.hmrc.vapingstampsapi.services.ApprovalService
+
+import javax.inject.*
+import scala.concurrent.*
 
 @Singleton
 class ApprovalController @Inject() (
-  cc: ControllerComponents
-) extends AbstractController(cc):
+  cc: ControllerComponents,
+  service: ApprovalService
+)(using ec: ExecutionContext)
+    extends AbstractController(cc):
 
-  // TODO: Implement full approval summary retrieval logic and validation once ETDS is ready.
+  lazy val logger: Logger = LoggerFactory.getLogger("approval-controller")
+  given HeaderCarrier = HeaderCarrier()
+
   def retrieveSummary(vdsApprovalId: String): Action[AnyContent] =
-    Action:
-      val response = ApprovalSummary(
-        approvalStatus = "APPROVED",
-        businessName = "Acme Vaping Ltd",
-        registeredBusinessAddress = "1 Business Park, London, SW1A 1AA",
-        correspondenceAddress = "PO Box 123, London, SW1A 2BB",
-        contactName = "John Smith",
-        contactTelephone = "02071234567",
-        contactEmail = "john.smith@acmevaping.co.uk",
-        approvalNumber = vdsApprovalId,
-        stampThreshold = 10000L
-      )
-
-      Ok(Json.toJson(response))
+    Action.async:
+      service.retrieveSummary(vdsApprovalId).map {
+        case Right(summary) =>
+          Ok(Json.toJson(summary))
+        case Left(ApprovalApiError(status, _)) =>
+          logger.error(s"Downstream service error. Status $status ")
+          Status(status)(Json.obj("message" -> "Downstream service error"))
+        case Left(_) => InternalServerError
+      }
