@@ -42,10 +42,14 @@ class EISConnectorSpec extends AnyWordSpec with Matchers {
 
   "EISConnector.retrieveSummary" should {
 
+    val stubRequestBuilder = mock(classOf[RequestBuilder])
+    when(mockHttpClient.get(any())(any())).thenReturn(stubRequestBuilder)
+    when(stubRequestBuilder.setHeader(any()))
+      .thenReturn(stubRequestBuilder)
+
     "call the correct URL and return HttpResponse 200" in {
       val approvalId = "AAAA0000200BB"
 
-      val stubRequestBuilder = mock(classOf[RequestBuilder])
       val fakeResponse = HttpResponse(
         200,
         """
@@ -64,11 +68,6 @@ class EISConnectorSpec extends AnyWordSpec with Matchers {
           """.stripMargin
       )
 
-      when(mockHttpClient.get(any())(any())).thenReturn(stubRequestBuilder)
-
-      when(stubRequestBuilder.setHeader(any()))
-        .thenReturn(stubRequestBuilder)
-
       when(stubRequestBuilder.execute(any[HttpReads[HttpResponse]], any()))
         .thenReturn(Future(fakeResponse))
 
@@ -85,13 +84,7 @@ class EISConnectorSpec extends AnyWordSpec with Matchers {
     "call the correct URL and return HttpResponse 204" in {
       val approvalId = "AAAA0000204BB"
 
-      val stubRequestBuilder = mock(classOf[RequestBuilder])
       val noContentResponse = HttpResponse(204, "")
-
-      when(mockHttpClient.get(any())(any())).thenReturn(stubRequestBuilder)
-
-      when(stubRequestBuilder.setHeader(any()))
-        .thenReturn(stubRequestBuilder)
 
       when(stubRequestBuilder.execute(any[HttpReads[HttpResponse]], any()))
         .thenReturn(Future(noContentResponse))
@@ -106,13 +99,6 @@ class EISConnectorSpec extends AnyWordSpec with Matchers {
 
     "fail when HttpClient throws exception" in {
       val approvalId = "AAAA0000404BB"
-
-      val stubRequestBuilder = mock(classOf[RequestBuilder])
-
-      when(mockHttpClient.get(any())(any())).thenReturn(stubRequestBuilder)
-
-      when(stubRequestBuilder.setHeader(any()))
-        .thenReturn(stubRequestBuilder)
 
       when(stubRequestBuilder.execute(any[HttpReads[HttpResponse]], any()))
         .thenReturn(Future.failed(new RuntimeException("Internal error")))
