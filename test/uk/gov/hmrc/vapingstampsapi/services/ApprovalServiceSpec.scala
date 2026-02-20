@@ -16,14 +16,15 @@
 
 package uk.gov.hmrc.vapingstampsapi.services
 
+import org.mockito.ArgumentMatchers.*
 import org.mockito.Mockito.*
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import uk.gov.hmrc.http.HeaderCarrier
+import play.api.libs.json.Json
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.vapingstampsapi.connectors.EISConnector
 import uk.gov.hmrc.vapingstampsapi.models.*
 import uk.gov.hmrc.vapingstampsapi.models.errors.*
-import org.mockito.ArgumentMatchers.any
 
 import scala.concurrent.*
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -31,17 +32,18 @@ import scala.concurrent.duration.DurationInt
 
 class ApprovalServiceSpec extends AnyWordSpec with Matchers {
 
-  implicit val hc: HeaderCarrier = HeaderCarrier()
-
   private val mockEisConnector = mock(classOf[EISConnector])
   private val service = new ApprovalService(mockEisConnector)
 
+  given HeaderCarrier = HeaderCarrier()
+
   "ApprovalService.retrieveSummary" should {
 
-    "return connector response" in {
+    "return Right(ApprovalSummary) when downstream returns 200" in {
+
       val approvalId = "AAAA0000200BB"
 
-      val expectedResponse = ApprovalSummary(
+      val approvalSummary = ApprovalSummary(
         approvalStatus = "APPROVED",
         businessName = "Test Ltd",
         registeredBusinessAddress = "Addr",
@@ -53,12 +55,14 @@ class ApprovalServiceSpec extends AnyWordSpec with Matchers {
         stampThreshold = 100L
       )
 
-      when(mockEisConnector.retrieveSummary(any[String])(using any()))
-        .thenReturn(Future.successful(Right(expectedResponse)))
+      val jsonBody = Json.toJson(approvalSummary).toString()
 
-      val result = service.retrieveSummary(approvalId)
+      when(mockEisConnector.retrieveSummary(any[String])(using any[HeaderCarrier]))
+        .thenReturn(Future.successful(HttpResponse(200, jsonBody)))
 
-      Await.result(result, 2.seconds) mustBe Right(expectedResponse)
+      val result = Await.result(service.retrieveSummary(approvalId), 2.seconds)
+
+      result mustBe Right(approvalSummary)
     }
   }
 }

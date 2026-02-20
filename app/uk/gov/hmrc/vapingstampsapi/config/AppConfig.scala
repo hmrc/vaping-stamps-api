@@ -28,14 +28,14 @@ class AppConfig @Inject() (
 
   val appName: String = config.get[String]("appName")
 
-  private val approvalServiceName = "approval-external-api"
+  private val eisServiceName = "eis"
 
   // Base URL resolved via ServicesConfig
-  val approvalExternalBaseUrl: String = servicesConfig.baseUrl(approvalServiceName)
+  val eisBaseUrl: String = servicesConfig.baseUrl(eisServiceName)
 
   // Custom headers
-  val approvalEnvironment: String =
-    config.get[String](s"microservice.services.$approvalServiceName.environment")
+  val eisEnvironment: String =
+    config.get[String](s"microservice.services.$eisServiceName.environment")
 
-  val approvalAuthToken: String =
-    config.get[String](s"microservice.services.$approvalServiceName.token")
+  val eisAuthToken: String =
+    config.get[String](s"microservice.services.$eisServiceName.token")

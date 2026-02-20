@@ -16,22 +16,53 @@
 
 package uk.gov.hmrc.vapingstampsapi.services
 
-import uk.gov.hmrc.http.HeaderCarrier
+import play.api.Logging
+import play.api.libs.json.*
+import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import uk.gov.hmrc.vapingstampsapi.connectors.EISConnector
 import uk.gov.hmrc.vapingstampsapi.models.*
 import uk.gov.hmrc.vapingstampsapi.models.errors.*
 
-import javax.inject.*
 import scala.concurrent.*
+import scala.util.control.NonFatal
+import javax.inject.*
 
 @Singleton
 class ApprovalService @Inject() (
   eisConnector: EISConnector
-)(using ec: ExecutionContext) {
+)(using ec: ExecutionContext)
+    extends Logging:
 
   def retrieveSummary(
     vdsApprovalId: String
-  )(implicit hc: HeaderCarrier): Future[Either[ApprovalError, ApprovalSummary]] =
+  )(using hc: HeaderCarrier): Future[Either[ApprovalError, ApprovalSummary]] =
 
-    eisConnector.retrieveSummary(vdsApprovalId)
-}
+    eisConnector
+      .retrieveSummary(vdsApprovalId)
+      .map { response =>
+        response.status match
+          case 200 =>
+            Json
+              .parse(response.body)
+              .validate[ApprovalSummary]
+              .asEither
+              .left
+              .map(_ =>
+                EisApiError(
+                  500,
+                  "Invalid JSON from downstream"
+                )
+              )
+
+          case status =>
+            Left(EisApiError(status, response.body))
+      }
+      .recover:
+        case e: UpstreamErrorResponse =>
+          Left(EisApiError(e.statusCode, e.message))
+
+        case NonFatal(ex) =>
+          logger.warn(
+            s"[ApprovalService] Downstream EIS unreachable. Cause: ${ex.getMessage}"
+          )
+          Left(EisApiError(503, "Downstream service unavailable"))

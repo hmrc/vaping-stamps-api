@@ -24,6 +24,6 @@ case object ApprovalNotFound extends ApprovalError {
   val message = "Approval not found"
 }
 
-final case class ApprovalApiError(status: Int, body: String) extends ApprovalError {
+final case class EisApiError(status: Int, body: String) extends ApprovalError {
   val message = s"Downstream error: $status"
 }
