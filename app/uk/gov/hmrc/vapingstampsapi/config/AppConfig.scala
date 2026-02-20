@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,26 @@
 
 package uk.gov.hmrc.vapingstampsapi.config
 
-import javax.inject.{Inject, Singleton}
+import javax.inject.*
 import play.api.Configuration
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 @Singleton
-class AppConfig @Inject() (config: Configuration):
+class AppConfig @Inject() (
+  config: Configuration,
+  servicesConfig: ServicesConfig
+):
 
-  val appName: String = config.get[String]("vaping-stamps-api")
+  val appName: String = config.get[String]("appName")
+
+  private val approvalServiceName = "approval-external-api"
+
+  // Base URL resolved via ServicesConfig
+  val approvalExternalBaseUrl: String = servicesConfig.baseUrl(approvalServiceName)
+
+  // Custom headers
+  val approvalEnvironment: String =
+    config.get[String](s"microservice.services.$approvalServiceName.environment")
+
+  val approvalAuthToken: String =
+    config.get[String](s"microservice.services.$approvalServiceName.token")
