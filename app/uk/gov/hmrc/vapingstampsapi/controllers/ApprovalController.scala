@@ -41,7 +41,7 @@ class ApprovalController @Inject() (
       service.retrieveSummary(vdsApprovalId).map {
         case Right(summary) =>
           Ok(Json.toJson(summary))
-        case Left(ApprovalApiError(status, _)) =>
+        case Left(EisApiError(status, _)) =>
           logger.error(s"Downstream service error. Status $status ")
           Status(status)(Json.obj("message" -> "Downstream service error"))
         case Left(_) => InternalServerError

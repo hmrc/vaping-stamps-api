@@ -1,19 +1,3 @@
-/*
- * Copyright 2026 HM Revenue & Customs
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package uk.gov.hmrc.vapingstampsapi.controllers
 
 import org.mockito.ArgumentMatchers.*
@@ -33,19 +17,19 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 class ApprovalControllerSpec extends AnyWordSpec with Matchers {
 
-  given HeaderCarrier = HeaderCarrier()
-
   private val mockService = mock(classOf[ApprovalService])
-
   private val controller =
     new ApprovalController(
       Helpers.stubControllerComponents(),
       mockService
     )
 
+  given HeaderCarrier = HeaderCarrier()
+
   "ApprovalController.retrieveSummary" should {
 
-    "return full approval summary payload for a valid approval ID" in {
+    "return 200 and full approval summary payload for valid ID" in {
+
       val approvalId = "AAAA0000200BB"
 
       val expectedResponse = ApprovalSummary(
@@ -61,7 +45,7 @@ class ApprovalControllerSpec extends AnyWordSpec with Matchers {
       )
 
       when(
-        mockService.retrieveSummary(any[String])(any[HeaderCarrier])
+        mockService.retrieveSummary(any[String])(using any[HeaderCarrier])
       ).thenReturn(Future.successful(Right(expectedResponse)))
 
       val request = FakeRequest(GET, s"/status/$approvalId/summary")
@@ -70,17 +54,25 @@ class ApprovalControllerSpec extends AnyWordSpec with Matchers {
       status(result) mustBe OK
       contentType(result) mustBe Some("application/json")
 
-      val json = contentAsJson(result)
+      contentAsJson(result) mustBe Json.toJson(expectedResponse)
+    }
 
-      (json \ "approvalStatus").as[String] mustBe "APPROVED"
-      (json \ "businessName").as[String] mustBe "Acme Vaping Ltd"
-      (json \ "registeredBusinessAddress").as[String] mustBe "1 Business Park, London, SW1A 1AA"
-      (json \ "correspondenceAddress").as[String] mustBe "PO Box 123, London, SW1A 2BB"
-      (json \ "contactName").as[String] mustBe "John Smith"
-      (json \ "contactTelephone").as[String] mustBe "02071234567"
-      (json \ "contactEmail").as[String] mustBe "john.smith@acmevaping.co.uk"
-      (json \ "approvalNumber").as[String] mustBe approvalId
-      (json \ "stampThreshold").as[Long] mustBe 10000L
+    "return error status when service returns Left(EisApiError)" in {
+
+      val approvalId = "AAAA0000200BB"
+
+      when(
+        mockService.retrieveSummary(any[String])(using any[HeaderCarrier])
+      ).thenReturn(
+        Future.successful(
+          Left(EisApiError(404, "Not found"))
+        )
+      )
+
+      val request = FakeRequest(GET, s"/status/$approvalId/summary")
+      val result = controller.retrieveSummary(approvalId).apply(request)
+
+      status(result) mustBe NOT_FOUND
     }
   }
 }

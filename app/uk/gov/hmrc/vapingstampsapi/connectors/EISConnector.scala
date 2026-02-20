@@ -20,12 +20,9 @@ import org.slf4j.LoggerFactory
 import uk.gov.hmrc.http.*
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.vapingstampsapi.config.AppConfig
-import uk.gov.hmrc.vapingstampsapi.models.*
-import uk.gov.hmrc.vapingstampsapi.models.errors.*
 
 import javax.inject.*
 import scala.concurrent.*
-import scala.util.control.NonFatal
 
 @Singleton
 class EISConnector @Inject() (
@@ -37,47 +34,13 @@ class EISConnector @Inject() (
 
   def retrieveSummary(
     vdsApprovalId: String
-  )(using hc: HeaderCarrier): Future[Either[ApprovalError, ApprovalSummary]] =
+  )(using hc: HeaderCarrier): Future[HttpResponse] =
 
     val url =
-      s"${appConfig.approvalExternalBaseUrl}/approvals/$vdsApprovalId"
+      s"${appConfig.eisBaseUrl}/etds/vaping/stamps/$vdsApprovalId/status"
 
     http
       .get(url"$url")
-      .setHeader("Environment" -> appConfig.approvalEnvironment)
-      .setHeader("Authorization" -> s"Bearer ${appConfig.approvalAuthToken}")
-      .execute[HttpResponse]
-      .map { response =>
-        response.status match
-          case 200 =>
-            response.json
-              .validate[ApprovalSummary]
-              .asEither
-              .left
-              .map(_ => ApprovalApiError(500, "Invalid JSON from downstream"))
-
-          case 404 =>
-            Left(ApprovalNotFound)
-
-          case status =>
-            Left(ApprovalApiError(status, response.body))
-      }
-      .recover { case NonFatal(ex) =>
-        logger.warn(
-          s"[EISConnector] Downstream approval-external-api unreachable. Returning stub. Cause: ${ex.getMessage}"
-        )
-
-        Right(
-          ApprovalSummary(
-            approvalStatus = "APPROVED",
-            businessName = "Acme Vaping Ltd",
-            registeredBusinessAddress = "1 Business Park, London, SW1A 1AA",
-            correspondenceAddress = "PO Box 123, London, SW1A 2BB",
-            contactName = "John Smith",
-            contactTelephone = "02071234567",
-            contactEmail = "john.smith@acmevaping.co.uk",
-            approvalNumber = vdsApprovalId,
-            stampThreshold = 10000L
-          )
-        )
-      }
+      .setHeader("Environment" -> appConfig.eisEnvironment)
+      .setHeader("Authorization" -> s"Bearer ${appConfig.eisAuthToken}")
+      .execute[HttpResponse](using HttpReads.Implicits.readRaw)
