@@ -49,7 +49,7 @@ paths:
             example:
               {
                 "contactEmail": "test@test.com",
-                "vdsApprovalId": "ABCD1234567EF"
+                "vdsApprovalId": "GBVA0000001DS"
               }
 
       responses:
@@ -68,7 +68,7 @@ paths:
                   "contactName": "Jane Smith",
                   "contactTelephone": "+44 20 7946 0123",
                   "contactEmail": "jane.smith@example.com",
-                  "approvalNumber": "ABCD1234567EF",
+                  "approvalNumber": "GBVA0000001DS",
                   "stampThreshold": 500000
                 }
 
@@ -208,7 +208,7 @@ components:
           "contactName": "Jane Smith",
           "contactTelephone": "+44 20 7946 0123",
           "contactEmail": "jane.smith@example.com",
-          "approvalNumber": "ABCD1234567EF",
+          "approvalNumber": "GBVA0000001DS",
           "stampThreshold": 500000
         }
 
@@ -261,10 +261,11 @@ components:
         contactEmail:
           type: string
           format: email
+          pattern: "^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
           description: Contact email address for the purchasing operator.
         vdsApprovalId:
           type: string
-          pattern: "^[A-Z]{4}[0-9]{7}[A-Z]{2}$"
+          pattern: "^GBVA[0-9]{7}DS$"
           description: Vaping Duty Stamps Approval ID issued by HMRC.
 
     ErrorResponse:

@@ -7,7 +7,7 @@
     "versions": [
       {
         "version": "1.0",
-        "status": "BETA",
+        "status": "ALPHA",
         "endpointsEnabled": false,
         "access": {
           "type": "PRIVATE"
