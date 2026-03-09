@@ -261,7 +261,7 @@ components:
         contactEmail:
           type: string
           format: email
-          pattern: "^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
+          pattern: "^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$"
           description: Contact email address for the purchasing operator.
         vdsApprovalId:
           type: string
