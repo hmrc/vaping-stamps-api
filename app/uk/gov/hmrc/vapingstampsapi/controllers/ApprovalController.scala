@@ -16,10 +16,13 @@
 
 package uk.gov.hmrc.vapingstampsapi.controllers
 
-import org.slf4j.{Logger, LoggerFactory}
+import play.api.Logging
 import play.api.libs.json.Json
 import play.api.mvc.*
+import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisedFunctions}
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.http.HeaderCarrierConverter
+import uk.gov.hmrc.vapingstampsapi.controllers.actions.AuthAction
 import uk.gov.hmrc.vapingstampsapi.models.errors.*
 import uk.gov.hmrc.vapingstampsapi.services.ApprovalService
 
@@ -28,21 +31,26 @@ import scala.concurrent.*
 
 @Singleton
 class ApprovalController @Inject() (
+  val authConnector: AuthConnector,
+  authorise: AuthAction,
   cc: ControllerComponents,
   service: ApprovalService
 )(using ec: ExecutionContext)
-    extends AbstractController(cc):
+    extends AbstractController(cc) with AuthorisedFunctions with Logging:
 
-  lazy val logger: Logger = LoggerFactory.getLogger("approval-controller")
-  given HeaderCarrier = HeaderCarrier()
+  def retrieveSummary(
+    vdsApprovalId: String
+  ): Action[AnyContent] =
+    authorise.async:
+      implicit request: RequestHeader =>
+        given hc: HeaderCarrier = HeaderCarrierConverter.fromRequest(request)
 
-  def retrieveSummary(vdsApprovalId: String): Action[AnyContent] =
-    Action.async:
-      service.retrieveSummary(vdsApprovalId).map {
-        case Right(summary) =>
-          Ok(Json.toJson(summary))
-        case Left(EisApiError(status, _)) =>
-          logger.error(s"Downstream service error. Status $status ")
-          Status(status)(Json.obj("message" -> "Downstream service error"))
-        case Left(_) => InternalServerError
-      }
+        logger.info("[retrieveSummary]: authorisation successful")
+        service.retrieveSummary(vdsApprovalId).map {
+          case Right(summary) =>
+            Ok(Json.toJson(summary))
+          case Left(EisApiError(status, error)) =>
+            logger.warn(s"[retrieveSummary] Service Unavailable: $status - $error")
+            Status(status)(Json.obj("message" -> "Service Unavailable: Downstream service error"))
+          case Left(_) => ServiceUnavailable
+        }
