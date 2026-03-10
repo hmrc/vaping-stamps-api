@@ -37,7 +37,7 @@ import uk.gov.hmrc.vapingstampsapi.controllers.actions.AuthAction
 
 import scala.concurrent.*
 
-@Ignore
+@Ignore //TODO: The controller will be significantly changed so fixing tests now is pointless.
 class ApprovalControllerSpec extends AnyWordSpec with Matchers {
 
   given headerCarrier: HeaderCarrier = HeaderCarrier()
