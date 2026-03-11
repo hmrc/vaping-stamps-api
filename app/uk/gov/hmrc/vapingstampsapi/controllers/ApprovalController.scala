@@ -46,3 +46,5 @@ class ApprovalController @Inject() (
           Status(status)(Json.obj("message" -> "Downstream service error"))
         case Left(_) => InternalServerError
       }
+
+  def retrieveStatus(): Action[AnyContent] = Action(NotImplemented)
