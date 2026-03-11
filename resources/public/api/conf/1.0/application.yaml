@@ -33,7 +33,7 @@ paths:
       operationId: checkApprovalStatus
 
       security:
-        - applicationRestricted: [ ]
+        - applicationRestricted: []
 
       parameters:
         - $ref: "#/components/parameters/acceptHeader"
@@ -66,147 +66,6 @@ paths:
                   "contactTelephone": "+44 20 7946 0123",
                   "contactEmail": "jane.smith@example.com",
                   "approvalNumber": "ABCD1234567EF",
-                  "stampThreshold": 500000
-                }
-
-        "204":
-          description: Request processed successfully but no content is returned.
-
-        "400":
-          description: Client error — the request is malformed or fails validation.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-              example:
-                {
-                  "code": "INVALID_REQUEST",
-                  "message": "The request payload is invalid or malformed."
-                }
-
-        "401":
-          description: Client error — authentication credentials are missing or invalid.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-              example:
-                {
-                  "code": "UNAUTHORISED",
-                  "message": "Authentication credentials are missing or invalid."
-                }
-
-        "403":
-          description: Client error — the client is authenticated but not authorised to perform this action.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-              example:
-                {
-                  "code": "FORBIDDEN",
-                  "message": "You are not authorised to access this resource."
-                }
-
-        "404":
-          description: Client error — no approval record exists for the supplied identifiers.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-              example:
-                {
-                  "code": "NOT_FOUND",
-                  "message": "The requested approval could not be found."
-                }
-
-        "409":
-          description: Client error — the request conflicts with the current state of the resource.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-              example:
-                {
-                  "code": "CONFLICT",
-                  "message": "The request conflicts with the current state of the resource."
-                }
-
-        "500":
-          description: Server error — an unexpected internal error occurred while processing the request.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-              example:
-                {
-                  "code": "INTERNAL_SERVER_ERROR",
-                  "message": "An unexpected error occurred while processing the request."
-                }
-
-        "503":
-          description: Server error — the service is temporarily unavailable.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-              example:
-                {
-                  "code": "SERVICE_UNAVAILABLE",
-                  "message": "The service is temporarily unavailable. Please try again later."
-                }
-
-  /misc/vaping/stamps/status:
-    post:
-      tags:
-        - Approval status
-      summary: Check purchasing operator approval status
-      description: |
-        Checks whether a purchasing operator is approved to buy vaping duty stamps.
-
-        **Example request**
-
-        `POST  https://api.service.hmrc.gov.uk/misc/vaping/stamps/status`
-
-      operationId: checkApprovalStatus
-
-      security:
-        - applicationRestricted: []
-
-      parameters:
-        - $ref: "#/components/parameters/acceptHeader"
-
-      requestBody:
-        required: true
-        description: |
-          Vaping approval request
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/ApprovalRequest"
-            example:
-              {
-                "contactEmail": "test@test.com",
-                "vdsApprovalId": "GBVA0000001DS"
-              }
-
-      responses:
-        "200":
-          description: Operator record found.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApprovedOperatorResponse"
-              example:
-                {
-                  "approvalStatus": "APPROVED",
-                  "businessName": "Example Trading Ltd",
-                  "registeredBusinessAddress": "10 Example Street, London, SW1A 1AA",
-                  "correspondenceAddress": "PO Box 123, London, SW1A 2AB",
-                  "contactName": "Jane Smith",
-                  "contactTelephone": "+44 20 7946 0123",
-                  "contactEmail": "jane.smith@example.com",
-                  "approvalNumber": "GBVA0000001DS",
                   "stampThreshold": 500000
                 }
 
@@ -389,22 +248,6 @@ components:
         stampThreshold:
           type: number
           description: Approved stamp purchase threshold.
-
-    ApprovalRequest:
-      type: object
-      required:
-        - contactEmail
-        - vdsApprovalId
-      properties:
-        contactEmail:
-          type: string
-          format: email
-          pattern: "^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$"
-          description: Contact email address for the purchasing operator.
-        vdsApprovalId:
-          type: string
-          pattern: "^GBVA[0-9]{7}DS$"
-          description: Vaping Duty Stamps Approval ID issued by HMRC.
 
     ErrorResponse:
       type: object
