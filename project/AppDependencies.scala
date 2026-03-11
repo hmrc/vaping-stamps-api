@@ -2,7 +2,7 @@ import sbt._
 
 object AppDependencies {
 
-  private val bootstrapVersion = "10.6.0"
+  private val bootstrapVersion = "10.7.0"
 
   // Added: explicit test library versions (Scala 3 compatible)
   private val scalaTestVersion = "3.2.18"
