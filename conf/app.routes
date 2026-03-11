@@ -2,4 +2,6 @@
 
 
 # Approval status summary
-GET   /status/:vdsApprovalId/summary   uk.gov.hmrc.vapingstampsapi.controllers.ApprovalController.retrieveSummary(vdsApprovalId: String)
+GET         /status/:vdsApprovalId/summary        uk.gov.hmrc.vapingstampsapi.controllers.ApprovalController.retrieveSummary(vdsApprovalId: String)
+
+POST        /status                               uk.gov.hmrc.vapingstampsapi.controllers.ApprovalController.retrieveStatus()
