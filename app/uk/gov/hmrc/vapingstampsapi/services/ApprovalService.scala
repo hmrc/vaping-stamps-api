@@ -48,6 +48,7 @@ class ApprovalService @Inject() (
               .asEither
               .left
               .map(_ =>
+                logger.warn("Invalid JSON from downstream")
                 EisApiError(
                   500,
                   "Invalid JSON from downstream"
@@ -55,6 +56,7 @@ class ApprovalService @Inject() (
               )
 
           case status =>
+            logger.info("STATUS" + status + "::" + response.body)
             Left(EisApiError(status, response.body))
       }
       .recover:
@@ -63,6 +65,6 @@ class ApprovalService @Inject() (
 
         case NonFatal(ex) =>
           logger.warn(
-            s"[ApprovalService] Downstream EIS unreachable. Cause: ${ex.getMessage}"
+            s" Downstream EIS unreachable. Cause: ${ex.getMessage}"
           )
           Left(EisApiError(503, "Downstream service unavailable"))
