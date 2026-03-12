@@ -168,7 +168,7 @@ paths:
 
         `POST  https://api.service.hmrc.gov.uk/misc/vaping/stamps/status`
 
-      operationId: checkApprovalStatus
+      operationId: retrieveApprovalStatus
 
       security:
         - applicationRestricted: []
@@ -398,7 +398,6 @@ components:
       properties:
         contactEmail:
           type: string
-          format: email
           pattern: "^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$"
           description: Contact email address for the purchasing operator.
         vdsApprovalId:
