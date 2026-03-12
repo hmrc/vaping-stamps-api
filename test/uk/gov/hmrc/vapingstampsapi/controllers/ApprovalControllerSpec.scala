@@ -22,26 +22,37 @@ import org.scalatest.Ignore
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.libs.json.*
+import play.api.mvc.*
+import play.api.test.Helpers.stubControllerComponents
+
 import play.api.test.*
 import play.api.test.Helpers.*
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.vapingstampsapi.models.*
 import uk.gov.hmrc.vapingstampsapi.models.errors.*
+import uk.gov.hmrc.auth.core.AuthConnector
+import uk.gov.hmrc.mdc.MdcExecutionContext
 import uk.gov.hmrc.vapingstampsapi.services.ApprovalService
+import uk.gov.hmrc.vapingstampsapi.controllers.actions.AuthAction
 
 import scala.concurrent.*
-import scala.concurrent.ExecutionContext.Implicits.global
 
 @Ignore //The controller will be significantly changed so fixing current tests has no value.
 class ApprovalControllerSpec extends AnyWordSpec with Matchers {
 
-  given HeaderCarrier = HeaderCarrier()
+  given headerCarrier: HeaderCarrier = HeaderCarrier()
+  given ec: ExecutionContext = MdcExecutionContext()
 
+  private val mockAuthConnector = mock(classOf[AuthConnector])
+  private val mockAuthorisedAction = mock(classOf[AuthAction])
+  private val mockCc: ControllerComponents = stubControllerComponents()
   private val mockService = mock(classOf[ApprovalService])
 
   private val controller =
     new ApprovalController(
-      Helpers.stubControllerComponents(),
+      mockAuthConnector,
+      mockAuthorisedAction,
+      mockCc,
       mockService
     )
 
@@ -61,6 +72,14 @@ class ApprovalControllerSpec extends AnyWordSpec with Matchers {
         approvalNumber = approvalId,
         stampThreshold = 10000L
       )
+
+      when(
+        mockAuthorisedAction.invokeBlock(any(), any())
+      ).thenReturn(Future.successful(play.api.mvc.Results.NotFound))
+
+      when(
+        mockAuthorisedAction.invokeBlock(any(), any())
+      ).thenReturn(Future.successful(Results.Ok))
 
       when(
         mockService.retrieveSummary(any[String])(using any[HeaderCarrier])
