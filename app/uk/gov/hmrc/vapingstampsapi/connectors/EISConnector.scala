@@ -39,6 +39,8 @@ class EISConnector @Inject() (
     val url =
       s"${appConfig.eisBaseUrl}/etds/vaping/stamps/$vdsApprovalId/status"
 
+    logger.info(s"[EISConnector][retrieveSummary] called: $url")
+
     http
       .get(url"$url")
       .setHeader("Environment" -> appConfig.eisEnvironment)
