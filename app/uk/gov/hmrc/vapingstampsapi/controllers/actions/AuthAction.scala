@@ -35,10 +35,10 @@ import scala.concurrent.{ExecutionContext, Future}
 trait AuthAction extends AuthorisedFunctions with ActionBuilder[Request, AnyContent] with Logging
 
 class AuthActionImpl @Inject() (
-                                 override val authConnector: AuthConnector,
-                                 controllerComponents: ControllerComponents
-                               )(implicit val executionContext: ExecutionContext)
-  extends AuthAction:
+  override val authConnector: AuthConnector,
+  controllerComponents: ControllerComponents
+)(implicit val executionContext: ExecutionContext)
+    extends AuthAction:
 
   val parser: BodyParser[AnyContent] = controllerComponents.parsers.defaultBodyParser
 
