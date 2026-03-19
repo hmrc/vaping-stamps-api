@@ -19,6 +19,7 @@ package uk.gov.hmrc.vapingstampsapi.controllers
 import play.api.Logging
 import play.api.libs.json.Json
 import play.api.mvc.*
+import uk.gov.hmrc.vapingstampsapi.models.ApprovalRequest
 import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisedFunctions}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
@@ -55,4 +56,21 @@ class ApprovalController @Inject() (
           case Left(_) => ServiceUnavailable
         }
 
-  def retrieveStatus(): Action[AnyContent] = Action(NotImplemented)
+  def retrieveStatus(): Action[AnyContent] =
+    authorise.async:
+      implicit request: Request[AnyContent] =>
+        given hc: HeaderCarrier = HeaderCarrierConverter.fromRequest(request)
+
+        request.body.asJson.flatMap(_.validate[ApprovalRequest].asOpt) match
+          case None =>
+            Future.successful(BadRequest(Json.obj("message" -> "Invalid request body")))
+          case Some(approvalRequest) =>
+            logger.info("[retrieveStatus]: authorisation successful")
+            service.retrieveStatus(approvalRequest).map {
+              case Right(summary) =>
+                Ok(Json.toJson(summary))
+              case Left(EisApiError(status, error)) =>
+                logger.warn(s"[retrieveStatus] Service Unavailable: $status - $error")
+                Status(status)(Json.obj("message" -> "Service Unavailable: Downstream service error"))
+              case Left(_) => ServiceUnavailable
+            }
