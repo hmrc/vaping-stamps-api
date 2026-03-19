@@ -28,7 +28,7 @@ import play.api.test.Helpers.stubControllerComponents
 import play.api.test.*
 import play.api.test.Helpers.*
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.vapingstampsapi.models.*
+import uk.gov.hmrc.vapingstampsapi.models.{ApprovalRequest, ApprovalSummary}
 import uk.gov.hmrc.vapingstampsapi.models.errors.*
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.mdc.MdcExecutionContext
@@ -110,6 +110,74 @@ class ApprovalControllerSpec extends AnyWordSpec with Matchers {
       val result = controller.retrieveSummary(approvalId).apply(request)
 
       status(result) mustBe NOT_FOUND
+    }
+  }
+
+  "ApprovalController.retrieveStatus" should {
+
+    val approvalRequest = ApprovalRequest("test@test.com", "GBVA0000001DS")
+
+    val approvalSummary = ApprovalSummary(
+      approvalStatus = "APPROVED",
+      businessName = "Test Ltd",
+      registeredBusinessAddress = "Addr",
+      correspondenceAddress = "Addr2",
+      contactName = "John",
+      contactTelephone = "123",
+      contactEmail = "test@test.com",
+      approvalNumber = "GBVA0000001DS",
+      stampThreshold = 100L
+    )
+
+    "return 200 with JSON body when service returns Right(ApprovalSummary)" in {
+      when(mockAuthorisedAction.invokeBlock(any(), any()))
+        .thenReturn(Future.successful(Results.Ok))
+
+      when(mockService.retrieveStatus(any[ApprovalRequest])(using any[HeaderCarrier]))
+        .thenReturn(Future.successful(Right(approvalSummary)))
+
+      val request = FakeRequest(POST, "/status")
+        .withJsonBody(Json.toJson(approvalRequest))
+      val result = controller.retrieveStatus().apply(request)
+
+      status(result) mustBe OK
+      contentType(result) mustBe Some("application/json")
+      contentAsJson(result) mustBe Json.toJson(approvalSummary)
+    }
+
+    "return BadRequest when request body is missing" in {
+      when(mockAuthorisedAction.invokeBlock(any(), any()))
+        .thenReturn(Future.successful(Results.Ok))
+
+      val request = FakeRequest(POST, "/status")
+      val result = controller.retrieveStatus().apply(request)
+
+      status(result) mustBe BAD_REQUEST
+    }
+
+    "return BadRequest when request body is invalid JSON" in {
+      when(mockAuthorisedAction.invokeBlock(any(), any()))
+        .thenReturn(Future.successful(Results.Ok))
+
+      val request = FakeRequest(POST, "/status")
+        .withJsonBody(Json.obj("unexpected" -> "field"))
+      val result = controller.retrieveStatus().apply(request)
+
+      status(result) mustBe BAD_REQUEST
+    }
+
+    "return ServiceUnavailable when service returns Left" in {
+      when(mockAuthorisedAction.invokeBlock(any(), any()))
+        .thenReturn(Future.successful(Results.Ok))
+
+      when(mockService.retrieveStatus(any[ApprovalRequest])(using any[HeaderCarrier]))
+        .thenReturn(Future.successful(Left(EisApiError(503, "Unavailable"))))
+
+      val request = FakeRequest(POST, "/status")
+        .withJsonBody(Json.toJson(approvalRequest))
+      val result = controller.retrieveStatus().apply(request)
+
+      status(result) mustBe SERVICE_UNAVAILABLE
     }
   }
 }
