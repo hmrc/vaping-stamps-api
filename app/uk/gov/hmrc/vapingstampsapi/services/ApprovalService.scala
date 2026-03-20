@@ -17,13 +17,13 @@
 package uk.gov.hmrc.vapingstampsapi.services
 
 import play.api.Logging
-import play.api.libs.json.*
+import play.api.libs.json.Json
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import uk.gov.hmrc.vapingstampsapi.connectors.EISConnector
 import uk.gov.hmrc.vapingstampsapi.models.{ApprovalRequest, ApprovalSummary}
 import uk.gov.hmrc.vapingstampsapi.models.errors.*
 
-import scala.concurrent.*
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NonFatal
 import javax.inject.*
 
