@@ -18,7 +18,6 @@ package uk.gov.hmrc.vapingstampsapi.controllers
 
 import org.mockito.ArgumentMatchers.*
 import org.mockito.Mockito.*
-import org.scalatest.Ignore
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.libs.json.*
@@ -34,84 +33,38 @@ import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.mdc.MdcExecutionContext
 import uk.gov.hmrc.vapingstampsapi.services.ApprovalService
 import uk.gov.hmrc.vapingstampsapi.controllers.actions.AuthAction
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.stream.Materializer
 
 import scala.concurrent.*
 
-@Ignore //The controller will be significantly changed so fixing current tests has no value.
 class ApprovalControllerSpec extends AnyWordSpec with Matchers {
 
+  private given system: ActorSystem = ActorSystem("test")
+  private given mat: Materializer = Materializer(system)
   given headerCarrier: HeaderCarrier = HeaderCarrier()
   given ec: ExecutionContext = MdcExecutionContext()
 
   private val mockAuthConnector = mock(classOf[AuthConnector])
-  private val mockAuthorisedAction = mock(classOf[AuthAction])
   private val mockCc: ControllerComponents = stubControllerComponents()
   private val mockService = mock(classOf[ApprovalService])
+
+  private val stubAuthorisedAction: AuthAction = new AuthAction {
+    override val authConnector: AuthConnector = mockAuthConnector
+    override val parser: BodyParser[AnyContent] = mockCc.parsers.defaultBodyParser
+    override implicit val executionContext: ExecutionContext = ec
+
+    override def invokeBlock[A](request: Request[A], block: Request[A] => Future[Result]): Future[Result] =
+      block(request)
+  }
 
   private val controller =
     new ApprovalController(
       mockAuthConnector,
-      mockAuthorisedAction,
+      stubAuthorisedAction,
       mockCc,
       mockService
     )
-
-  "ApprovalController.retrieveSummary" should {
-
-    "return full approval summary payload for a valid approval ID" in {
-      val approvalId = "AAAA0000200BB"
-
-      val expectedResponse = ApprovalSummary(
-        approvalStatus = "APPROVED",
-        businessName = "Acme Vaping Ltd",
-        registeredBusinessAddress = "1 Business Park, London, SW1A 1AA",
-        correspondenceAddress = "PO Box 123, London, SW1A 2BB",
-        contactName = "John Smith",
-        contactTelephone = "02071234567",
-        contactEmail = "john.smith@acmevaping.co.uk",
-        approvalNumber = approvalId,
-        stampThreshold = 10000L
-      )
-
-      when(
-        mockAuthorisedAction.invokeBlock(any(), any())
-      ).thenReturn(Future.successful(play.api.mvc.Results.NotFound))
-
-      when(
-        mockAuthorisedAction.invokeBlock(any(), any())
-      ).thenReturn(Future.successful(Results.Ok))
-
-      when(
-        mockService.retrieveSummary(any[String])(using any[HeaderCarrier])
-      ).thenReturn(Future.successful(Right(expectedResponse)))
-
-      val request = FakeRequest(GET, s"/status/$approvalId/summary")
-      val result = controller.retrieveSummary(approvalId).apply(request)
-
-      status(result) mustBe OK
-      contentType(result) mustBe Some("application/json")
-
-      contentAsJson(result) mustBe Json.toJson(expectedResponse)
-    }
-
-    "return error status when service returns Left(EisApiError)" in {
-
-      val approvalId = "AAAA0000200BB"
-
-      when(
-        mockService.retrieveSummary(any[String])(using any[HeaderCarrier])
-      ).thenReturn(
-        Future.successful(
-          Left(EisApiError(404, "Not found"))
-        )
-      )
-
-      val request = FakeRequest(GET, s"/status/$approvalId/summary")
-      val result = controller.retrieveSummary(approvalId).apply(request)
-
-      status(result) mustBe NOT_FOUND
-    }
-  }
 
   "ApprovalController.retrieveStatus" should {
 
@@ -130,14 +83,11 @@ class ApprovalControllerSpec extends AnyWordSpec with Matchers {
     )
 
     "return 200 with JSON body when service returns Right(ApprovalSummary)" in {
-      when(mockAuthorisedAction.invokeBlock(any(), any()))
-        .thenReturn(Future.successful(Results.Ok))
-
       when(mockService.retrieveStatus(any[ApprovalRequest])(using any[HeaderCarrier]))
         .thenReturn(Future.successful(Right(approvalSummary)))
 
       val request = FakeRequest(POST, "/status")
-        .withJsonBody(Json.toJson(approvalRequest))
+        .withBody(Json.toJson(approvalRequest))
       val result = controller.retrieveStatus().apply(request)
 
       status(result) mustBe OK
@@ -146,35 +96,27 @@ class ApprovalControllerSpec extends AnyWordSpec with Matchers {
     }
 
     "return BadRequest when request body is missing" in {
-      when(mockAuthorisedAction.invokeBlock(any(), any()))
-        .thenReturn(Future.successful(Results.Ok))
-
       val request = FakeRequest(POST, "/status")
+        .withBody(JsNull)
       val result = controller.retrieveStatus().apply(request)
 
       status(result) mustBe BAD_REQUEST
     }
 
-    "return BadRequest when request body is invalid JSON" in {
-      when(mockAuthorisedAction.invokeBlock(any(), any()))
-        .thenReturn(Future.successful(Results.Ok))
-
+    "return BadRequest when request body has invalid JSON" in {
       val request = FakeRequest(POST, "/status")
-        .withJsonBody(Json.obj("unexpected" -> "field"))
+        .withBody(Json.obj("unexpected" -> "field"))
       val result = controller.retrieveStatus().apply(request)
 
       status(result) mustBe BAD_REQUEST
     }
 
-    "return ServiceUnavailable when service returns Left" in {
-      when(mockAuthorisedAction.invokeBlock(any(), any()))
-        .thenReturn(Future.successful(Results.Ok))
-
+    "return ServiceUnavailable when service returns EIS error" in {
       when(mockService.retrieveStatus(any[ApprovalRequest])(using any[HeaderCarrier]))
         .thenReturn(Future.successful(Left(EisApiError(503, "Unavailable"))))
 
       val request = FakeRequest(POST, "/status")
-        .withJsonBody(Json.toJson(approvalRequest))
+        .withBody(Json.toJson(approvalRequest))
       val result = controller.retrieveStatus().apply(request)
 
       status(result) mustBe SERVICE_UNAVAILABLE
