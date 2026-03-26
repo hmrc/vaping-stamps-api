@@ -23,7 +23,7 @@ import org.scalatest.wordspec.AnyWordSpec
 import play.api.libs.json.Json
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.vapingstampsapi.connectors.EISConnector
-import uk.gov.hmrc.vapingstampsapi.models.*
+import uk.gov.hmrc.vapingstampsapi.models.{ApprovalRequest, ApprovalSummary}
 import uk.gov.hmrc.vapingstampsapi.models.errors.*
 
 import scala.concurrent.*
@@ -63,6 +63,61 @@ class ApprovalServiceSpec extends AnyWordSpec with Matchers {
       val result = Await.result(service.retrieveSummary(approvalId), 2.seconds)
 
       result mustBe Right(approvalSummary)
+    }
+  }
+
+  "ApprovalService.retrieveStatus" should {
+
+    val approvalRequest = ApprovalRequest("test@test.com", "GBVA0000001DS")
+
+    val approvalSummary = ApprovalSummary(
+      approvalStatus = "APPROVED",
+      businessName = "Test Ltd",
+      registeredBusinessAddress = "Addr",
+      correspondenceAddress = "Addr2",
+      contactName = "John",
+      contactTelephone = "123",
+      contactEmail = "test@test.com",
+      approvalNumber = "GBVA0000001DS",
+      stampThreshold = 100L
+    )
+
+    "return Right(ApprovalSummary) when downstream returns 200 with valid JSON" in {
+      val jsonBody = Json.toJson(approvalSummary).toString()
+
+      when(mockEisConnector.retrieveStatus(any[ApprovalRequest])(using any[HeaderCarrier]))
+        .thenReturn(Future.successful(HttpResponse(200, jsonBody)))
+
+      val result = Await.result(service.retrieveStatus(approvalRequest), 2.seconds)
+
+      result mustBe Right(approvalSummary)
+    }
+
+    "return Left(EisApiError(500, ...)) when downstream returns 200 with JSON that fails schema validation" in {
+      when(mockEisConnector.retrieveStatus(any[ApprovalRequest])(using any[HeaderCarrier]))
+        .thenReturn(Future.successful(HttpResponse(200, """{"unexpected":"field"}""")))
+
+      val result = Await.result(service.retrieveStatus(approvalRequest), 2.seconds)
+
+      result mustBe Left(EisApiError(500, "Invalid JSON from downstream"))
+    }
+
+    "return Left(EisApiError(status, ...)) when downstream returns non-200" in {
+      when(mockEisConnector.retrieveStatus(any[ApprovalRequest])(using any[HeaderCarrier]))
+        .thenReturn(Future.successful(HttpResponse(404, "Not found")))
+
+      val result = Await.result(service.retrieveStatus(approvalRequest), 2.seconds)
+
+      result mustBe Left(EisApiError(404, "Not found"))
+    }
+
+    "return Left(EisApiError(503, ...)) when connector throws NonFatal exception" in {
+      when(mockEisConnector.retrieveStatus(any[ApprovalRequest])(using any[HeaderCarrier]))
+        .thenReturn(Future.failed(new RuntimeException("Connection refused")))
+
+      val result = Await.result(service.retrieveStatus(approvalRequest), 2.seconds)
+
+      result mustBe Left(EisApiError(503, "Downstream service unavailable"))
     }
   }
 }

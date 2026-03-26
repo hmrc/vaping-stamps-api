@@ -17,13 +17,14 @@
 package uk.gov.hmrc.vapingstampsapi.controllers
 
 import play.api.Logging
-import play.api.libs.json.Json
+import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.*
 import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisedFunctions}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import uk.gov.hmrc.vapingstampsapi.controllers.actions.AuthAction
 import uk.gov.hmrc.vapingstampsapi.models.errors.*
+import uk.gov.hmrc.vapingstampsapi.models.{ApprovalRequest, ApprovalSummary}
 import uk.gov.hmrc.vapingstampsapi.services.ApprovalService
 
 import javax.inject.*
@@ -55,4 +56,34 @@ class ApprovalController @Inject() (
           case Left(_) => ServiceUnavailable
         }
 
-  def retrieveStatus(): Action[AnyContent] = Action(NotImplemented)
+  def retrieveStatus(): Action[JsValue] =
+    authorise.async(parse.json):
+      implicit request: Request[JsValue] =>
+        given hc: HeaderCarrier = HeaderCarrierConverter.fromRequest(request)
+
+        request.body
+          .validate[ApprovalRequest]
+          .fold(
+            _ => {
+              logger.error(s"The request payload is invalid or malformed.");
+              Future.successful(
+                BadRequest(
+                  Json.obj("code" -> "INVALID_REQUEST", "message" -> "The request payload is invalid or malformed.")
+                )
+              )
+            },
+            approvalRequest =>
+              logger.info("[retrieveStatus]: authorisation successful")
+              processRequest(approvalRequest)
+          )
+
+  private def processRequest(approvalRequest: ApprovalRequest)(using HeaderCarrier): Future[Result] =
+    service.retrieveStatus(approvalRequest).map {
+      case Right(summary)                   => Ok(Json.toJson(summary))
+      case Left(EisApiError(status, error)) =>
+        logger.warn(s"[retrieveStatus][EIS API Error] Service Unavailable: $status - $error")
+        Status(status)(Json.obj("message" -> "Service Unavailable: Downstream service error"))
+      case Left(_) =>
+        logger.warn("[retrieveStatus]: Service Unavailable")
+        ServiceUnavailable
+    }

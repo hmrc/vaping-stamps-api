@@ -23,6 +23,7 @@ import org.scalatest.wordspec.AnyWordSpec
 import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, HttpResponse}
 import uk.gov.hmrc.vapingstampsapi.config.AppConfig
+import uk.gov.hmrc.vapingstampsapi.models.ApprovalRequest
 
 import scala.concurrent.*
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -108,6 +109,50 @@ class EISConnectorSpec extends AnyWordSpec with Matchers {
       val ex = intercept[RuntimeException](Await.result(resultF, 2.seconds))
       ex.getMessage mustBe "Internal error"
 
+    }
+  }
+
+  "EISConnector.retrieveStatus" should {
+
+    val stubPostRequestBuilder = mock(classOf[RequestBuilder])
+    when(mockHttpClient.post(any())(any())).thenReturn(stubPostRequestBuilder)
+    when(stubPostRequestBuilder.setHeader(any())).thenReturn(stubPostRequestBuilder)
+    when(stubPostRequestBuilder.withBody(any())(any(), any(), any())).thenReturn(stubPostRequestBuilder)
+
+    val approvalRequest = ApprovalRequest("test@test.com", "GBVA0000001DS")
+
+    "return HttpResponse 200 on success" in {
+      val fakeResponse = HttpResponse(
+        200,
+        """{"approvalStatus":"APPROVED","businessName":"Test Ltd","registeredBusinessAddress":"Addr","correspondenceAddress":"Addr2","contactName":"John","contactTelephone":"123","contactEmail":"test@test.com","approvalNumber":"GBVA0000001DS","stampThreshold":100}"""
+      )
+
+      when(stubPostRequestBuilder.execute(any[HttpReads[HttpResponse]], any()))
+        .thenReturn(Future(fakeResponse))
+
+      val result = Await.result(connector.retrieveStatus(approvalRequest), 2.seconds)
+
+      result.status mustBe 200
+      result.body must include("APPROVED")
+    }
+
+    "propagate non-200 HttpResponse from downstream" in {
+      val badResponse = HttpResponse(400, """{"code":"INVALID_REQUEST","message":"Bad request"}""")
+
+      when(stubPostRequestBuilder.execute(any[HttpReads[HttpResponse]], any()))
+        .thenReturn(Future(badResponse))
+
+      val result = Await.result(connector.retrieveStatus(approvalRequest), 2.seconds)
+
+      result.status mustBe 400
+    }
+
+    "fail when HttpClient throws exception" in {
+      when(stubPostRequestBuilder.execute(any[HttpReads[HttpResponse]], any()))
+        .thenReturn(Future.failed(new RuntimeException("Connection refused")))
+
+      val ex = intercept[RuntimeException](Await.result(connector.retrieveStatus(approvalRequest), 2.seconds))
+      ex.getMessage mustBe "Connection refused"
     }
   }
 }

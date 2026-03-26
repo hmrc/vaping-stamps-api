@@ -16,100 +16,169 @@
 
 package uk.gov.hmrc.vapingstampsapi.controllers
 
-import org.mockito.ArgumentMatchers.*
+import com.google.inject.Inject
+import org.apache.pekko.stream.Materializer
+import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.*
-import org.scalatest.Ignore
+import org.scalatest.BeforeAndAfterEach
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.Application
+import play.api.inject.bind
+import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.*
 import play.api.mvc.*
-import play.api.test.Helpers.stubControllerComponents
-
 import play.api.test.*
 import play.api.test.Helpers.*
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.vapingstampsapi.models.*
-import uk.gov.hmrc.vapingstampsapi.models.errors.*
 import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.mdc.MdcExecutionContext
-import uk.gov.hmrc.vapingstampsapi.services.ApprovalService
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.vapingstampsapi.controllers.actions.AuthAction
+import uk.gov.hmrc.vapingstampsapi.models.errors.*
+import uk.gov.hmrc.vapingstampsapi.models.{ApprovalRequest, ApprovalSummary}
+import uk.gov.hmrc.vapingstampsapi.services.ApprovalService
 
 import scala.concurrent.*
 
-@Ignore //The controller will be significantly changed so fixing current tests has no value.
-class ApprovalControllerSpec extends AnyWordSpec with Matchers {
+class StubAuthAction @Inject() (
+  override val authConnector: AuthConnector,
+  cc: ControllerComponents
+)(implicit val executionContext: ExecutionContext)
+    extends AuthAction:
+  override val parser: BodyParser[AnyContent] = cc.parsers.defaultBodyParser
+  override def invokeBlock[A](request: Request[A], block: Request[A] => Future[Result]): Future[Result] =
+    block(request)
 
-  given headerCarrier: HeaderCarrier = HeaderCarrier()
-  given ec: ExecutionContext = MdcExecutionContext()
+class ApprovalControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuite with BeforeAndAfterEach {
 
-  private val mockAuthConnector = mock(classOf[AuthConnector])
-  private val mockAuthorisedAction = mock(classOf[AuthAction])
-  private val mockCc: ControllerComponents = stubControllerComponents()
   private val mockService = mock(classOf[ApprovalService])
+  private val mockAuthConnector = mock(classOf[AuthConnector])
 
-  private val controller =
-    new ApprovalController(
-      mockAuthConnector,
-      mockAuthorisedAction,
-      mockCc,
-      mockService
-    )
-
-  "ApprovalController.retrieveSummary" should {
-
-    "return full approval summary payload for a valid approval ID" in {
-      val approvalId = "AAAA0000200BB"
-
-      val expectedResponse = ApprovalSummary(
-        approvalStatus = "APPROVED",
-        businessName = "Acme Vaping Ltd",
-        registeredBusinessAddress = "1 Business Park, London, SW1A 1AA",
-        correspondenceAddress = "PO Box 123, London, SW1A 2BB",
-        contactName = "John Smith",
-        contactTelephone = "02071234567",
-        contactEmail = "john.smith@acmevaping.co.uk",
-        approvalNumber = approvalId,
-        stampThreshold = 10000L
+  override def fakeApplication(): Application =
+    GuiceApplicationBuilder()
+      .overrides(
+        bind[ApprovalService].toInstance(mockService),
+        bind[AuthConnector].toInstance(mockAuthConnector),
+        bind[AuthAction].to[StubAuthAction]
       )
+      .build()
 
-      when(
-        mockAuthorisedAction.invokeBlock(any(), any())
-      ).thenReturn(Future.successful(play.api.mvc.Results.NotFound))
+  override def beforeEach(): Unit = {
+    reset(mockService)
+    super.beforeEach()
+  }
 
-      when(
-        mockAuthorisedAction.invokeBlock(any(), any())
-      ).thenReturn(Future.successful(Results.Ok))
+  private given mat: Materializer = app.materializer
 
-      when(
-        mockService.retrieveSummary(any[String])(using any[HeaderCarrier])
-      ).thenReturn(Future.successful(Right(expectedResponse)))
+  private lazy val controller = app.injector.instanceOf[ApprovalController]
 
-      val request = FakeRequest(GET, s"/status/$approvalId/summary")
-      val result = controller.retrieveSummary(approvalId).apply(request)
+  val vdsApprovalId = "GBVA0000001DS"
+
+  val approvalSummary = ApprovalSummary(
+    approvalStatus = "APPROVED",
+    businessName = "Acme Vaping Ltd",
+    registeredBusinessAddress = "123 Main Street, Any Town, SW98 1XY",
+    correspondenceAddress = "PO Box 456, Another Town, EC1 2YX",
+    contactName = "John Doe",
+    contactTelephone = "0123456789",
+    contactEmail = "john.doe@example.com",
+    approvalNumber = "GBVA0000001DS",
+    stampThreshold = 10000L
+  )
+
+  val approvalRequest = ApprovalRequest("test@test.com", "GBVA0000001DS")
+
+  "ApprovalController.retrieveStatus" should {
+
+    "return OK with valid JSON body when parameters to the call are valid" in {
+      when(mockService.retrieveStatus(any[ApprovalRequest])(using any[HeaderCarrier]))
+        .thenReturn(Future.successful(Right(approvalSummary)))
+
+      val request = FakeRequest(POST, "/status")
+        .withBody(Json.toJson(approvalRequest))
+      val result = controller.retrieveStatus().apply(request)
 
       status(result) mustBe OK
       contentType(result) mustBe Some("application/json")
-
-      contentAsJson(result) mustBe Json.toJson(expectedResponse)
+      contentAsJson(result) mustBe Json.toJson(approvalSummary)
     }
 
-    "return error status when service returns Left(EisApiError)" in {
+    "return BadRequest when the request body is missing" in {
+      val request = FakeRequest(POST, "/status")
+        .withBody(JsNull)
+      val result = controller.retrieveStatus().apply(request)
 
-      val approvalId = "AAAA0000200BB"
+      status(result) mustBe BAD_REQUEST
+    }
 
-      when(
-        mockService.retrieveSummary(any[String])(using any[HeaderCarrier])
-      ).thenReturn(
-        Future.successful(
-          Left(EisApiError(404, "Not found"))
-        )
-      )
+    "return BadRequest when the request body has invalid JSON" in {
+      val request = FakeRequest(POST, "/status")
+        .withBody(Json.obj("unexpected" -> "field"))
+      val result = controller.retrieveStatus().apply(request)
 
-      val request = FakeRequest(GET, s"/status/$approvalId/summary")
-      val result = controller.retrieveSummary(approvalId).apply(request)
+      status(result) mustBe BAD_REQUEST
+    }
+
+    "return Service unavailable when a downstream EIS error occurs" in {
+      when(mockService.retrieveStatus(any[ApprovalRequest])(using any[HeaderCarrier]))
+        .thenReturn(Future.successful(Left(EisApiError(503, "Unavailable"))))
+
+      val request = FakeRequest(POST, "/status")
+        .withBody(Json.toJson(approvalRequest))
+      val result = controller.retrieveStatus().apply(request)
+
+      status(result) mustBe SERVICE_UNAVAILABLE
+    }
+
+    // TODO: this may get wrapped up in a 204 - awaiting EIS/ETDS schema.
+    "return ServiceUnavailable when an Approval is not found" in {
+      when(mockService.retrieveStatus(any[ApprovalRequest])(using any[HeaderCarrier]))
+        .thenReturn(Future.successful(Left(ApprovalNotFound)))
+
+      val request = FakeRequest(POST, "/status")
+        .withBody(Json.toJson(approvalRequest))
+      val result = controller.retrieveStatus().apply(request)
+
+      status(result) mustBe SERVICE_UNAVAILABLE
+    }
+  }
+
+  // TODO: leaving in for coverage; will probably be removed once we have ETDS confirmation
+  "ApprovalController.retrieveSummary" should {
+
+    "return 200 with JSON body when service returns Right(ApprovalSummary)" in {
+      when(mockService.retrieveSummary(eqTo(vdsApprovalId))(using any[HeaderCarrier]))
+        .thenReturn(Future.successful(Right(approvalSummary)))
+
+      val result = controller
+        .retrieveSummary(vdsApprovalId)
+        .apply(FakeRequest(GET, s"/status/$vdsApprovalId/summary"))
+
+      status(result) mustBe OK
+      contentType(result) mustBe Some("application/json")
+      contentAsJson(result) mustBe Json.toJson(approvalSummary)
+    }
+
+    "return the EIS status code when service returns Left(EisApiError)" in {
+      when(mockService.retrieveSummary(eqTo(vdsApprovalId))(using any[HeaderCarrier]))
+        .thenReturn(Future.successful(Left(EisApiError(404, "Not found"))))
+
+      val result = controller
+        .retrieveSummary(vdsApprovalId)
+        .apply(FakeRequest(GET, s"/status/$vdsApprovalId/summary"))
 
       status(result) mustBe NOT_FOUND
+    }
+
+    "return Service Unavailable when service returns Left with non-EIS error" in {
+      when(mockService.retrieveSummary(eqTo(vdsApprovalId))(using any[HeaderCarrier]))
+        .thenReturn(Future.successful(Left(ApprovalNotFound)))
+
+      val result = controller
+        .retrieveSummary(vdsApprovalId)
+        .apply(FakeRequest(GET, s"/status/$vdsApprovalId/summary"))
+
+      status(result) mustBe SERVICE_UNAVAILABLE
     }
   }
 }
