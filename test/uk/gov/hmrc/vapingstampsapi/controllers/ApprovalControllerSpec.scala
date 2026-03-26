@@ -77,11 +77,11 @@ class ApprovalControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppP
   val approvalSummary = ApprovalSummary(
     approvalStatus = "APPROVED",
     businessName = "Acme Vaping Ltd",
-    registeredBusinessAddress = "1 Business Park, London, SW1A 1AA",
-    correspondenceAddress = "PO Box 123, London, SW1A 2BB",
-    contactName = "John Smith",
-    contactTelephone = "02071234567",
-    contactEmail = "john.smith@acmevaping.co.uk",
+    registeredBusinessAddress = "123 Main Street, Any Town, SW98 1XY",
+    correspondenceAddress = "PO Box 456, Another Town, EC1 2YX",
+    contactName = "John Doe",
+    contactTelephone = "0123456789",
+    contactEmail = "john.doe@example.com",
     approvalNumber = "GBVA0000001DS",
     stampThreshold = 10000L
   )
