@@ -126,7 +126,8 @@ class EISConnectorSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuit
       stubEndpointForPost(400, "The request payload is invalid or malformed.")
       val result = Await.result(connector.retrieveStatus(approvalRequest), 2.seconds)
 
-      result mustBe Left(HttpResponse(400, "The request payload is invalid or malformed."))
+      result.left.map(_.status) mustBe Left(400)
+      result.left.map(_.body) mustBe Left("The request payload is invalid or malformed.")
     }
   }
 }
