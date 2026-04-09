@@ -35,7 +35,7 @@ import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.vapingstampsapi.controllers.actions.AuthAction
 import uk.gov.hmrc.vapingstampsapi.models.errors.*
-import uk.gov.hmrc.vapingstampsapi.models.{ApprovalRequest, ApprovalSummary}
+import uk.gov.hmrc.vapingstampsapi.models.{ApprovalRequest, ApprovalSummaryResponse}
 import uk.gov.hmrc.vapingstampsapi.services.ApprovalService
 
 import scala.concurrent.*
@@ -74,7 +74,7 @@ class ApprovalControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppP
 
   val vdsApprovalId = "GBVA0000001DS"
 
-  val approvalSummary = ApprovalSummary(
+  val approvalSummary = ApprovalSummaryResponse(
     approvalStatus = "APPROVED",
     businessName = "Acme Vaping Ltd",
     registeredBusinessAddress = "123 Main Street, Any Town, SW98 1XY",

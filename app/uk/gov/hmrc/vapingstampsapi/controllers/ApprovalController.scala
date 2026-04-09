@@ -20,11 +20,11 @@ import play.api.Logging
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.*
 import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisedFunctions}
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import uk.gov.hmrc.vapingstampsapi.controllers.actions.AuthAction
 import uk.gov.hmrc.vapingstampsapi.models.errors.*
-import uk.gov.hmrc.vapingstampsapi.models.{ApprovalRequest, ApprovalSummary}
+import uk.gov.hmrc.vapingstampsapi.models.{ApprovalRequest, ApprovalSummaryResponse}
 import uk.gov.hmrc.vapingstampsapi.services.ApprovalService
 
 import javax.inject.*
@@ -79,11 +79,9 @@ class ApprovalController @Inject() (
 
   private def processRequest(approvalRequest: ApprovalRequest)(using HeaderCarrier): Future[Result] =
     service.retrieveStatus(approvalRequest).map {
-      case Right(summary)                   => Ok(Json.toJson(summary))
-      case Left(EisApiError(status, error)) =>
-        logger.warn(s"[retrieveStatus][EIS API Error] Service Unavailable: $status - $error")
-        Status(status)(Json.obj("message" -> "Service Unavailable: Downstream service error"))
-      case Left(_) =>
-        logger.warn("[retrieveStatus]: Service Unavailable")
-        ServiceUnavailable
+      case Right(summary)                => Ok(Json.toJson(summary))
+      case Left(HttpResponse(204, _, _)) => NoContent
+      case Left(response)                =>
+        logger.warn(s"[retrieveStatus][EIS API Error] Service Unavailable: ${response.status} - ${response.body}")
+        Status(response.status)(response.json)
     }

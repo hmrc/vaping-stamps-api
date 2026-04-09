@@ -23,7 +23,7 @@ import org.scalatest.wordspec.AnyWordSpec
 import play.api.libs.json.Json
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.vapingstampsapi.connectors.EISConnector
-import uk.gov.hmrc.vapingstampsapi.models.{ApprovalRequest, ApprovalSummary}
+import uk.gov.hmrc.vapingstampsapi.models.{ApprovalRequest, ApprovalSummaryResponse}
 import uk.gov.hmrc.vapingstampsapi.models.errors.*
 
 import scala.concurrent.*
@@ -43,7 +43,7 @@ class ApprovalServiceSpec extends AnyWordSpec with Matchers {
 
       val approvalId = "AAAA0000200BB"
 
-      val approvalSummary = ApprovalSummary(
+      val approvalSummary = ApprovalSummaryResponse(
         approvalStatus = "APPROVED",
         businessName = "Test Ltd",
         registeredBusinessAddress = "Addr",
@@ -70,7 +70,7 @@ class ApprovalServiceSpec extends AnyWordSpec with Matchers {
 
     val approvalRequest = ApprovalRequest("test@test.com", "GBVA0000001DS")
 
-    val approvalSummary = ApprovalSummary(
+    val approvalSummary = ApprovalSummaryResponse(
       approvalStatus = "APPROVED",
       businessName = "Test Ltd",
       registeredBusinessAddress = "Addr",
