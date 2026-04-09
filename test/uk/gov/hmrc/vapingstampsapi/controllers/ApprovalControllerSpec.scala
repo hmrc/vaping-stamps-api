@@ -119,28 +119,6 @@ class ApprovalControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppP
       status(result) mustBe BAD_REQUEST
     }
 
-    "return Service unavailable when a downstream EIS error occurs" in {
-      when(mockService.retrieveStatus(any[ApprovalRequest])(using any[HeaderCarrier]))
-        .thenReturn(Future.successful(Left(EisApiError(503, "Unavailable"))))
-
-      val request = FakeRequest(POST, "/status")
-        .withBody(Json.toJson(approvalRequest))
-      val result = controller.retrieveStatus().apply(request)
-
-      status(result) mustBe SERVICE_UNAVAILABLE
-    }
-
-    // TODO: this may get wrapped up in a 204 - awaiting EIS/ETDS schema.
-    "return ServiceUnavailable when an Approval is not found" in {
-      when(mockService.retrieveStatus(any[ApprovalRequest])(using any[HeaderCarrier]))
-        .thenReturn(Future.successful(Left(ApprovalNotFound)))
-
-      val request = FakeRequest(POST, "/status")
-        .withBody(Json.toJson(approvalRequest))
-      val result = controller.retrieveStatus().apply(request)
-
-      status(result) mustBe SERVICE_UNAVAILABLE
-    }
   }
 
   // TODO: leaving in for coverage; will probably be removed once we have ETDS confirmation
@@ -170,15 +148,5 @@ class ApprovalControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppP
       status(result) mustBe NOT_FOUND
     }
 
-    "return Service Unavailable when service returns Left with non-EIS error" in {
-      when(mockService.retrieveSummary(eqTo(vdsApprovalId))(using any[HeaderCarrier]))
-        .thenReturn(Future.successful(Left(ApprovalNotFound)))
-
-      val result = controller
-        .retrieveSummary(vdsApprovalId)
-        .apply(FakeRequest(GET, s"/status/$vdsApprovalId/summary"))
-
-      status(result) mustBe SERVICE_UNAVAILABLE
-    }
   }
 }

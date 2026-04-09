@@ -22,9 +22,7 @@ import com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, Suite}
 
-trait WiremockHelper
-  extends BeforeAndAfterAll
-    with BeforeAndAfterEach {
+trait WiremockHelper extends BeforeAndAfterAll with BeforeAndAfterEach {
   this: Suite =>
 
   protected val server: WireMockServer =
@@ -46,22 +44,24 @@ trait WiremockHelper
   }
 
   def stubEndpointForGet(status: Int, body: String, vdsApprovalId: String): StubMapping =
-    server.stubFor(get(urlEqualTo(s"/etds/vaping/stamps/$vdsApprovalId/status"))
-      .willReturn(
-        aResponse()
-          .withStatus(status)
-          .withHeader("Content-Type", "application/json")
-          .withBody(body)
-      )
+    server.stubFor(
+      get(urlEqualTo(s"/etds/vaping/stamps/$vdsApprovalId/status"))
+        .willReturn(
+          aResponse()
+            .withStatus(status)
+            .withHeader("Content-Type", "application/json")
+            .withBody(body)
+        )
     )
 
   def stubEndpointForPost(status: Int, body: String): StubMapping =
-    server.stubFor(post(urlEqualTo("/etds/vaping/stamps/status"))
-      .willReturn(
-        aResponse()
-          .withStatus(status)
-          .withHeader("Content-Type", "application/json")
-          .withBody(body)
-      )
+    server.stubFor(
+      post(urlEqualTo("/etds/vaping/stamps/status"))
+        .willReturn(
+          aResponse()
+            .withStatus(status)
+            .withHeader("Content-Type", "application/json")
+            .withBody(body)
+        )
     )
 }

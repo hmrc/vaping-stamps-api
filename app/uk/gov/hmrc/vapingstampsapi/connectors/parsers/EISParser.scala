@@ -44,12 +44,12 @@ object EISParser {
     override def read(method: String, url: String, response: HttpResponse): EISResponse =
       response.status match {
         case OK =>
-          response.json.validate[ApprovalSummaryResponse].fold(
-            errors => {
-              Left(HttpResponse(500, "Received invalid response"))
-            },
-            Right(_)
-          )
+          response.json
+            .validate[ApprovalSummaryResponse]
+            .fold(
+              errors => Left(HttpResponse(500, "Received invalid response")),
+              Right(_)
+            )
         case _ => Left(response)
       }
   }
