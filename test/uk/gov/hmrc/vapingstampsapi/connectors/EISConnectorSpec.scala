@@ -16,43 +16,37 @@
 
 package uk.gov.hmrc.vapingstampsapi.connectors
 
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.*
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
-import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, HttpResponse}
-import uk.gov.hmrc.vapingstampsapi.config.AppConfig
-import uk.gov.hmrc.vapingstampsapi.models.ApprovalRequest
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.Application
+import play.api.inject.guice.GuiceApplicationBuilder
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.vapingstampsapi.models.{ApprovalRequest, ApprovalSummaryResponse}
+import uk.gov.hmrc.vapingstampsapi.utils.WiremockHelper
 
 import scala.concurrent.*
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.DurationInt
 
-class EISConnectorSpec extends AnyWordSpec with Matchers {
-
-  private val mockHttpClient = mock(classOf[HttpClientV2])
-  private val mockAppConfig = mock(classOf[AppConfig])
-  private val connector = new EISConnector(mockHttpClient, mockAppConfig)
-
-  when(mockAppConfig.eisBaseUrl).thenReturn("http://localhost:1234")
-  when(mockAppConfig.eisEnvironment).thenReturn("test-env")
-  when(mockAppConfig.eisAuthToken).thenReturn("auth-token")
+class EISConnectorSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuite with WiremockHelper {
 
   given hc: HeaderCarrier = HeaderCarrier()
 
-  "EISConnector.retrieveSummary" should {
+  override def fakeApplication(): Application = GuiceApplicationBuilder()
+    .configure(
+      "microservice.services.eis.port" -> server.port()
+    )
+    .build()
 
-    val stubRequestBuilder = mock(classOf[RequestBuilder])
-    when(mockHttpClient.get(any())(any())).thenReturn(stubRequestBuilder)
-    when(stubRequestBuilder.setHeader(any()))
-      .thenReturn(stubRequestBuilder)
+  lazy val connector: EISConnector =
+    app.injector.instanceOf[EISConnector]
+
+  "EISConnector.retrieveSummary" should {
 
     "call the correct URL and return HttpResponse 200" in {
       val approvalId = "AAAA0000200BB"
 
-      val fakeResponse = HttpResponse(
-        200,
+      val responseBody =
         """
           |{
           |  "approvalStatus": "APPROVED",
@@ -67,29 +61,19 @@ class EISConnectorSpec extends AnyWordSpec with Matchers {
           |}
           |
           """.stripMargin
-      )
 
-      when(stubRequestBuilder.execute(any[HttpReads[HttpResponse]], any()))
-        .thenReturn(Future(fakeResponse))
-
+      stubEndpointForGet(200, responseBody, approvalId)
       val resultF = connector.retrieveSummary(approvalId)
       val result = Await.result(resultF, 2.seconds)
 
       result.status mustBe 200
       result.body must include("APPROVED")
 
-      verify(stubRequestBuilder).execute[HttpResponse](using HttpReads.Implicits.readRaw)
-
     }
 
     "call the correct URL and return HttpResponse 204" in {
       val approvalId = "AAAA0000204BB"
-
-      val noContentResponse = HttpResponse(204, "")
-
-      when(stubRequestBuilder.execute(any[HttpReads[HttpResponse]], any()))
-        .thenReturn(Future(noContentResponse))
-
+      stubEndpointForGet(204, "", approvalId)
       val resultF = connector.retrieveSummary(approvalId)
       val result = Await.result(resultF, 2.seconds)
 
@@ -98,61 +82,52 @@ class EISConnectorSpec extends AnyWordSpec with Matchers {
 
     }
 
-    "fail when HttpClient throws exception" in {
-      val approvalId = "AAAA0000404BB"
-
-      when(stubRequestBuilder.execute(any[HttpReads[HttpResponse]], any()))
-        .thenReturn(Future.failed(new RuntimeException("Internal error")))
-
-      val resultF = connector.retrieveSummary(approvalId)
-
-      val ex = intercept[RuntimeException](Await.result(resultF, 2.seconds))
-      ex.getMessage mustBe "Internal error"
-
-    }
   }
 
   "EISConnector.retrieveStatus" should {
 
-    val stubPostRequestBuilder = mock(classOf[RequestBuilder])
-    when(mockHttpClient.post(any())(any())).thenReturn(stubPostRequestBuilder)
-    when(stubPostRequestBuilder.setHeader(any())).thenReturn(stubPostRequestBuilder)
-    when(stubPostRequestBuilder.withBody(any())(any(), any(), any())).thenReturn(stubPostRequestBuilder)
-
     val approvalRequest = ApprovalRequest("test@test.com", "GBVA0000001DS")
+    val responseBody =
+      """
+        |{
+        |  "approvalStatus": "APPROVED",
+        |  "businessName": "Acme Vaping Ltd",
+        |  "registeredBusinessAddress": "1 Business Park, London, SW1A 1AA",
+        |  "correspondenceAddress": "PO Box 123, London, SW1A 2BB",
+        |  "contactName": "John Smith",
+        |  "contactTelephone": "02071234567",
+        |  "contactEmail": "john.smith@acmevaping.co.uk",
+        |  "approvalNumber": "AAAA0000200BB",
+        |  "stampThreshold": 10000
+        |}
+        |
+         """.stripMargin
 
     "return HttpResponse 200 on success" in {
-      val fakeResponse = HttpResponse(
-        200,
-        """{"approvalStatus":"APPROVED","businessName":"Test Ltd","registeredBusinessAddress":"Addr","correspondenceAddress":"Addr2","contactName":"John","contactTelephone":"123","contactEmail":"test@test.com","approvalNumber":"GBVA0000001DS","stampThreshold":100}"""
-      )
-
-      when(stubPostRequestBuilder.execute(any[HttpReads[HttpResponse]], any()))
-        .thenReturn(Future(fakeResponse))
-
+      stubEndpointForPost(200, responseBody)
       val result = Await.result(connector.retrieveStatus(approvalRequest), 2.seconds)
 
-      result.status mustBe 200
-      result.body must include("APPROVED")
+      result mustBe Right(
+        ApprovalSummaryResponse(
+          "APPROVED",
+          "Acme Vaping Ltd",
+          "1 Business Park, London, SW1A 1AA",
+          "PO Box 123, London, SW1A 2BB",
+          "John Smith",
+          "02071234567",
+          "john.smith@acmevaping.co.uk",
+          "AAAA0000200BB",
+          10000
+        )
+      )
     }
 
     "propagate non-200 HttpResponse from downstream" in {
-      val badResponse = HttpResponse(400, """{"code":"INVALID_REQUEST","message":"Bad request"}""")
-
-      when(stubPostRequestBuilder.execute(any[HttpReads[HttpResponse]], any()))
-        .thenReturn(Future(badResponse))
-
+      stubEndpointForPost(400, "The request payload is invalid or malformed.")
       val result = Await.result(connector.retrieveStatus(approvalRequest), 2.seconds)
 
-      result.status mustBe 400
-    }
-
-    "fail when HttpClient throws exception" in {
-      when(stubPostRequestBuilder.execute(any[HttpReads[HttpResponse]], any()))
-        .thenReturn(Future.failed(new RuntimeException("Connection refused")))
-
-      val ex = intercept[RuntimeException](Await.result(connector.retrieveStatus(approvalRequest), 2.seconds))
-      ex.getMessage mustBe "Connection refused"
+      result.left.map(_.status) mustBe Left(400)
+      result.left.map(_.body) mustBe Left("The request payload is invalid or malformed.")
     }
   }
 }

@@ -32,10 +32,10 @@ import play.api.mvc.*
 import play.api.test.*
 import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.vapingstampsapi.controllers.actions.AuthAction
 import uk.gov.hmrc.vapingstampsapi.models.errors.*
-import uk.gov.hmrc.vapingstampsapi.models.{ApprovalRequest, ApprovalSummary}
+import uk.gov.hmrc.vapingstampsapi.models.{ApprovalRequest, ApprovalSummaryResponse}
 import uk.gov.hmrc.vapingstampsapi.services.ApprovalService
 
 import scala.concurrent.*
@@ -74,7 +74,7 @@ class ApprovalControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppP
 
   val vdsApprovalId = "GBVA0000001DS"
 
-  val approvalSummary = ApprovalSummary(
+  val approvalSummary = ApprovalSummaryResponse(
     approvalStatus = "APPROVED",
     businessName = "Acme Vaping Ltd",
     registeredBusinessAddress = "123 Main Street, Any Town, SW98 1XY",
@@ -103,6 +103,20 @@ class ApprovalControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppP
       contentAsJson(result) mustBe Json.toJson(approvalSummary)
     }
 
+    "return NoContent when the service returns HttpResponse with status 204" in {
+      val httpResponse204 = HttpResponse(204, Json.obj("message" -> "No content").toString)
+      when(mockService.retrieveStatus(any[ApprovalRequest])(using any[HeaderCarrier]))
+        .thenReturn(Future.successful(Left(httpResponse204)))
+
+      val request = FakeRequest(POST, "/status")
+        .withBody(Json.toJson(approvalRequest))
+      val result = controller.retrieveStatus().apply(request)
+
+      status(result) mustBe NO_CONTENT
+      contentType(result) mustBe None
+      contentAsString(result) mustBe empty
+    }
+
     "return BadRequest when the request body is missing" in {
       val request = FakeRequest(POST, "/status")
         .withBody(JsNull)
@@ -119,28 +133,26 @@ class ApprovalControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppP
       status(result) mustBe BAD_REQUEST
     }
 
-    "return Service unavailable when a downstream EIS error occurs" in {
+    "return 403 with JSON body when service returns Left(HttpResponse) with status 403" in {
+      val errorJson =
+        Json.obj("code" -> "FORBIDDEN", "message" -> "You are not authorised to access this resource")
+
+      val httpResponse =
+        HttpResponse(403, errorJson.toString())
+
       when(mockService.retrieveStatus(any[ApprovalRequest])(using any[HeaderCarrier]))
-        .thenReturn(Future.successful(Left(EisApiError(503, "Unavailable"))))
+        .thenReturn(Future.successful(Left(httpResponse)))
 
       val request = FakeRequest(POST, "/status")
         .withBody(Json.toJson(approvalRequest))
+
       val result = controller.retrieveStatus().apply(request)
 
-      status(result) mustBe SERVICE_UNAVAILABLE
+      status(result) mustBe FORBIDDEN
+      contentType(result) mustBe Some("application/json")
+      contentAsJson(result) mustBe errorJson
     }
 
-    // TODO: this may get wrapped up in a 204 - awaiting EIS/ETDS schema.
-    "return ServiceUnavailable when an Approval is not found" in {
-      when(mockService.retrieveStatus(any[ApprovalRequest])(using any[HeaderCarrier]))
-        .thenReturn(Future.successful(Left(ApprovalNotFound)))
-
-      val request = FakeRequest(POST, "/status")
-        .withBody(Json.toJson(approvalRequest))
-      val result = controller.retrieveStatus().apply(request)
-
-      status(result) mustBe SERVICE_UNAVAILABLE
-    }
   }
 
   // TODO: leaving in for coverage; will probably be removed once we have ETDS confirmation
@@ -170,15 +182,5 @@ class ApprovalControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppP
       status(result) mustBe NOT_FOUND
     }
 
-    "return Service Unavailable when service returns Left with non-EIS error" in {
-      when(mockService.retrieveSummary(eqTo(vdsApprovalId))(using any[HeaderCarrier]))
-        .thenReturn(Future.successful(Left(ApprovalNotFound)))
-
-      val result = controller
-        .retrieveSummary(vdsApprovalId)
-        .apply(FakeRequest(GET, s"/status/$vdsApprovalId/summary"))
-
-      status(result) mustBe SERVICE_UNAVAILABLE
-    }
   }
 }

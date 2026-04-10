@@ -17,11 +17,13 @@
 package uk.gov.hmrc.vapingstampsapi.connectors
 
 import org.slf4j.LoggerFactory
-import play.api.libs.json._
+import play.api.libs.json.*
 import play.api.libs.ws.writeableOf_JsValue
 import uk.gov.hmrc.http.*
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.vapingstampsapi.config.AppConfig
+import uk.gov.hmrc.vapingstampsapi.connectors.parsers.EISParser.EISResponse
+import uk.gov.hmrc.vapingstampsapi.connectors.parsers.EISParser.EISResponseReads
 import uk.gov.hmrc.vapingstampsapi.models.ApprovalRequest
 
 import javax.inject.*
@@ -52,7 +54,7 @@ class EISConnector @Inject() (
 
   def retrieveStatus(
     request: ApprovalRequest
-  )(using hc: HeaderCarrier): Future[HttpResponse] =
+  )(using hc: HeaderCarrier): Future[EISResponse] =
 
     val url = s"${appConfig.eisBaseUrl}/etds/vaping/stamps/status"
 
@@ -63,4 +65,4 @@ class EISConnector @Inject() (
       .setHeader("Environment" -> appConfig.eisEnvironment)
       .setHeader("Authorization" -> s"Bearer ${appConfig.eisAuthToken}")
       .withBody(Json.toJson(request))
-      .execute[HttpResponse](using HttpReads.Implicits.readRaw)
+      .execute[EISResponse]

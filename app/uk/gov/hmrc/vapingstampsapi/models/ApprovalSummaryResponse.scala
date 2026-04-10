@@ -18,7 +18,7 @@ package uk.gov.hmrc.vapingstampsapi.models
 
 import play.api.libs.json.{Json, OFormat}
 
-final case class ApprovalSummary(
+final case class ApprovalSummaryResponse(
   approvalStatus: String,
   businessName: String,
   registeredBusinessAddress: String,
@@ -30,6 +30,6 @@ final case class ApprovalSummary(
   stampThreshold: Long
 )
 
-object ApprovalSummary {
-  given OFormat[ApprovalSummary] = Json.format[ApprovalSummary]
+object ApprovalSummaryResponse {
+  given OFormat[ApprovalSummaryResponse] = Json.format[ApprovalSummaryResponse]
 }
