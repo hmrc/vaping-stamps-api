@@ -133,6 +133,26 @@ class ApprovalControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppP
       status(result) mustBe BAD_REQUEST
     }
 
+    "return 403 with JSON body when service returns Left(HttpResponse) with status 403" in {
+      val errorJson =
+        Json.obj("code" -> "FORBIDDEN", "message" -> "You are not authorised to access this resource")
+
+      val httpResponse =
+        HttpResponse(403, errorJson.toString())
+
+      when(mockService.retrieveStatus(any[ApprovalRequest])(using any[HeaderCarrier]))
+        .thenReturn(Future.successful(Left(httpResponse)))
+
+      val request = FakeRequest(POST, "/status")
+        .withBody(Json.toJson(approvalRequest))
+
+      val result = controller.retrieveStatus().apply(request)
+
+      status(result) mustBe FORBIDDEN
+      contentType(result) mustBe Some("application/json")
+      contentAsJson(result) mustBe errorJson
+    }
+
   }
 
   // TODO: leaving in for coverage; will probably be removed once we have ETDS confirmation
