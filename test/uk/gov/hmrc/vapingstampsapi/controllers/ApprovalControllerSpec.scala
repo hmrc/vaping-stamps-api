@@ -32,7 +32,7 @@ import play.api.mvc.*
 import play.api.test.*
 import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.vapingstampsapi.controllers.actions.AuthAction
 import uk.gov.hmrc.vapingstampsapi.models.errors.*
 import uk.gov.hmrc.vapingstampsapi.models.{ApprovalRequest, ApprovalSummaryResponse}
@@ -101,6 +101,20 @@ class ApprovalControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppP
       status(result) mustBe OK
       contentType(result) mustBe Some("application/json")
       contentAsJson(result) mustBe Json.toJson(approvalSummary)
+    }
+
+    "return NoContent when the service returns HttpResponse with status 204" in {
+      val httpResponse204 = HttpResponse(204, Json.obj("message" -> "No content").toString)
+      when(mockService.retrieveStatus(any[ApprovalRequest])(using any[HeaderCarrier]))
+        .thenReturn(Future.successful(Left(httpResponse204)))
+
+      val request = FakeRequest(POST, "/status")
+        .withBody(Json.toJson(approvalRequest))
+      val result = controller.retrieveStatus().apply(request)
+
+      status(result) mustBe NO_CONTENT
+      contentType(result) mustBe None
+      contentAsString(result) mustBe empty
     }
 
     "return BadRequest when the request body is missing" in {
