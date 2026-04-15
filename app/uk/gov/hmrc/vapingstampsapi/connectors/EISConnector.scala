@@ -39,7 +39,7 @@ class EISConnector @Inject() (
 
   def retrieveSummary(
     vdsApprovalId: String
-  )(using hc: HeaderCarrier): Future[HttpResponse] =
+  )(using hc: HeaderCarrier): Future[EISResponse] =
 
     val url =
       s"${appConfig.eisBaseUrl}/etds/vaping/stamps/$vdsApprovalId/status"
@@ -50,7 +50,7 @@ class EISConnector @Inject() (
       .get(url"$url")
       .setHeader("Environment" -> appConfig.eisEnvironment)
       .setHeader("Authorization" -> s"Bearer ${appConfig.eisAuthToken}")
-      .execute[HttpResponse](using HttpReads.Implicits.readRaw)
+      .execute[EISResponse]
 
   def retrieveStatus(
     request: ApprovalRequest

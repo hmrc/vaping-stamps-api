@@ -24,7 +24,6 @@ import org.scalatestplus.mockito.MockitoSugar
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.vapingstampsapi.connectors.EISConnector
 import uk.gov.hmrc.vapingstampsapi.models.*
-import uk.gov.hmrc.vapingstampsapi.models.errors.*
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -72,32 +71,32 @@ class ApprovalServiceSpec extends AnyWordSpec with Matchers with MockitoSugar wi
 
     "return Right(ApprovalSummaryResponse) when downstream returns 200 with valid JSON" in {
       when(mockConnector.retrieveSummary(approvalId))
-        .thenReturn(Future.successful(HttpResponse(200, validJson)))
+        .thenReturn(Future.successful(Right(approvalSummary)))
 
       val result = service.retrieveSummary(approvalId).futureValue
 
       result mustBe Right(approvalSummary)
     }
 
-    "return EisApiError when downstream returns 200 with invalid JSON" in {
+    "propagate Left(HttpResponse) when downstream returns an error" in {
+      val errorResponse =
+        HttpResponse(
+          400,
+          """{"code":"INVALID_REQUEST","message":"The request payload is invalid or malformed."}"""
+        )
+
       when(mockConnector.retrieveSummary(approvalId))
-        .thenReturn(Future.successful(HttpResponse(200, """{"invalid":"json"}""")))
+        .thenReturn(Future.successful(Left(errorResponse)))
 
       val result = service.retrieveSummary(approvalId).futureValue
 
-      result mustBe Left(EisApiError(500, "Invalid JSON from downstream"))
+      result.left.map(_.status) mustBe Left(400)
+      result.left.map(_.body) mustBe Left(
+        """{"code":"INVALID_REQUEST","message":"The request payload is invalid or malformed."}"""
+      )
     }
 
-    "return EisApiError when downstream returns non-200 status" in {
-      when(mockConnector.retrieveSummary(approvalId))
-        .thenReturn(Future.successful(HttpResponse(400, "Bad Request")))
-
-      val result = service.retrieveSummary(approvalId).futureValue
-
-      result mustBe Left(EisApiError(400, "Bad Request"))
-    }
-
-    "return EisApiError when UpstreamErrorResponse is thrown" in {
+    "return Left(HttpResponse) when UpstreamErrorResponse is thrown" in {
       when(mockConnector.retrieveSummary(approvalId))
         .thenReturn(
           Future.failed(
@@ -107,16 +106,18 @@ class ApprovalServiceSpec extends AnyWordSpec with Matchers with MockitoSugar wi
 
       val result = service.retrieveSummary(approvalId).futureValue
 
-      result mustBe Left(EisApiError(400, "Bad Request"))
+      result.left.map(_.status) mustBe Left(400)
+      result.left.map(_.body) mustBe Left("Bad Request")
     }
 
-    "return EisApiError when downstream service is unavailable" in {
+    "return 503 when a non-fatal exception occurs" in {
       when(mockConnector.retrieveSummary(approvalId))
-        .thenReturn(Future.failed(new RuntimeException("Connection refused")))
+        .thenReturn(Future.failed(new RuntimeException("Timeout")))
 
       val result = service.retrieveSummary(approvalId).futureValue
 
-      result mustBe Left(EisApiError(503, "Downstream service unavailable"))
+      result.left.map(_.status) mustBe Left(503)
+      result.left.map(_.body) mustBe Left("Downstream service unavailable")
     }
   }
 
