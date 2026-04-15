@@ -23,7 +23,6 @@ import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisedFunctions}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import uk.gov.hmrc.vapingstampsapi.controllers.actions.AuthAction
-import uk.gov.hmrc.vapingstampsapi.models.errors.*
 import uk.gov.hmrc.vapingstampsapi.models.{ApprovalRequest, ApprovalSummaryResponse}
 import uk.gov.hmrc.vapingstampsapi.services.ApprovalService
 
@@ -48,12 +47,11 @@ class ApprovalController @Inject() (
 
         logger.info("[retrieveSummary]: authorisation successful")
         service.retrieveSummary(vdsApprovalId).map {
-          case Right(summary) =>
-            Ok(Json.toJson(summary))
-          case Left(EisApiError(status, error)) =>
-            logger.warn(s"[retrieveSummary] Service Unavailable: $status - $error")
-            Status(status)(Json.obj("message" -> "Service Unavailable: Downstream service error"))
-          case Left(_) => ServiceUnavailable
+          case Right(summary)                => Ok(Json.toJson(summary))
+          case Left(HttpResponse(204, _, _)) => NoContent
+          case Left(response)                =>
+            logger.warn(s"[retrieveSummary][EIS API Error] Service Unavailable: ${response.status} - ${response.body}")
+            Status(response.status)(response.json)
         }
 
   def retrieveStatus(): Action[JsValue] =

@@ -43,8 +43,9 @@ class EISConnectorSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuit
 
   "EISConnector.retrieveSummary" should {
 
+    val approvalId = "AAAA0000200BB"
+
     "call the correct URL and return HttpResponse 200" in {
-      val approvalId = "AAAA0000200BB"
 
       val responseBody =
         """
@@ -66,20 +67,28 @@ class EISConnectorSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuit
       val resultF = connector.retrieveSummary(approvalId)
       val result = Await.result(resultF, 2.seconds)
 
-      result.status mustBe 200
-      result.body must include("APPROVED")
+      result mustBe Right(
+        ApprovalSummaryResponse(
+          "APPROVED",
+          "Acme Vaping Ltd",
+          "1 Business Park, London, SW1A 1AA",
+          "PO Box 123, London, SW1A 2BB",
+          "John Smith",
+          "02071234567",
+          "john.smith@acmevaping.co.uk",
+          "AAAA0000200BB",
+          10000
+        )
+      )
 
     }
 
-    "call the correct URL and return HttpResponse 204" in {
-      val approvalId = "AAAA0000204BB"
-      stubEndpointForGet(204, "", approvalId)
-      val resultF = connector.retrieveSummary(approvalId)
-      val result = Await.result(resultF, 2.seconds)
+    "propagate non-200 HttpResponse from downstream" in {
+      stubEndpointForGet(400, "The request payload is invalid or malformed.", approvalId)
+      val result = Await.result(connector.retrieveSummary(approvalId), 2.seconds)
 
-      result.status mustBe 204
-      result.body mustBe ""
-
+      result.left.map(_.status) mustBe Left(400)
+      result.left.map(_.body) mustBe Left("The request payload is invalid or malformed.")
     }
 
   }

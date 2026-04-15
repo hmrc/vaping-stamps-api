@@ -18,7 +18,7 @@ package uk.gov.hmrc.vapingstampsapi.controllers
 
 import com.google.inject.Inject
 import org.apache.pekko.stream.Materializer
-import org.mockito.ArgumentMatchers.{any, eq as eqTo}
+import org.mockito.ArgumentMatchers.{any, anyString, eq as eqTo}
 import org.mockito.Mockito.*
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.matchers.must.Matchers
@@ -34,7 +34,6 @@ import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.vapingstampsapi.controllers.actions.AuthAction
-import uk.gov.hmrc.vapingstampsapi.models.errors.*
 import uk.gov.hmrc.vapingstampsapi.models.{ApprovalRequest, ApprovalSummaryResponse}
 import uk.gov.hmrc.vapingstampsapi.services.ApprovalService
 
@@ -88,15 +87,19 @@ class ApprovalControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppP
 
   val approvalRequest = ApprovalRequest("test@test.com", "GBVA0000001DS")
 
+  val getRequest = FakeRequest(GET, s"/status/$vdsApprovalId/summary")
+  val postRequest: FakeRequest[JsValue] = FakeRequest(POST, "/status").withBody(Json.toJson(approvalRequest))
+
+  val errorJson: JsObject =
+    Json.obj("code" -> "FORBIDDEN", "message" -> "You are not authorised to access this resource")
+
   "ApprovalController.retrieveStatus" should {
 
     "return OK with valid JSON body when parameters to the call are valid" in {
       when(mockService.retrieveStatus(any[ApprovalRequest])(using any[HeaderCarrier]))
         .thenReturn(Future.successful(Right(approvalSummary)))
 
-      val request = FakeRequest(POST, "/status")
-        .withBody(Json.toJson(approvalRequest))
-      val result = controller.retrieveStatus().apply(request)
+      val result = controller.retrieveStatus().apply(postRequest)
 
       status(result) mustBe OK
       contentType(result) mustBe Some("application/json")
@@ -108,9 +111,7 @@ class ApprovalControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppP
       when(mockService.retrieveStatus(any[ApprovalRequest])(using any[HeaderCarrier]))
         .thenReturn(Future.successful(Left(httpResponse204)))
 
-      val request = FakeRequest(POST, "/status")
-        .withBody(Json.toJson(approvalRequest))
-      val result = controller.retrieveStatus().apply(request)
+      val result = controller.retrieveStatus().apply(postRequest)
 
       status(result) mustBe NO_CONTENT
       contentType(result) mustBe None
@@ -134,9 +135,6 @@ class ApprovalControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppP
     }
 
     "return 403 with JSON body when service returns Left(HttpResponse) with status 403" in {
-      val errorJson =
-        Json.obj("code" -> "FORBIDDEN", "message" -> "You are not authorised to access this resource")
-
       val httpResponse =
         HttpResponse(403, errorJson.toString())
 
@@ -155,31 +153,43 @@ class ApprovalControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppP
 
   }
 
-  // TODO: leaving in for coverage; will probably be removed once we have ETDS confirmation
   "ApprovalController.retrieveSummary" should {
 
-    "return 200 with JSON body when service returns Right(ApprovalSummary)" in {
-      when(mockService.retrieveSummary(eqTo(vdsApprovalId))(using any[HeaderCarrier]))
+    "return OK with valid request parameters" in {
+      when(mockService.retrieveSummary(anyString())(using any[HeaderCarrier]))
         .thenReturn(Future.successful(Right(approvalSummary)))
 
-      val result = controller
-        .retrieveSummary(vdsApprovalId)
-        .apply(FakeRequest(GET, s"/status/$vdsApprovalId/summary"))
+      val result = controller.retrieveSummary(vdsApprovalId).apply(getRequest)
 
       status(result) mustBe OK
       contentType(result) mustBe Some("application/json")
       contentAsJson(result) mustBe Json.toJson(approvalSummary)
     }
 
-    "return the EIS status code when service returns Left(EisApiError)" in {
-      when(mockService.retrieveSummary(eqTo(vdsApprovalId))(using any[HeaderCarrier]))
-        .thenReturn(Future.successful(Left(EisApiError(404, "Not found"))))
+    "return NoContent when the service returns HttpResponse with status 204" in {
+      val httpResponse204 = HttpResponse(204, Json.obj("message" -> "No content").toString)
+      when(mockService.retrieveSummary(anyString())(using any[HeaderCarrier]))
+        .thenReturn(Future.successful(Left(httpResponse204)))
 
-      val result = controller
-        .retrieveSummary(vdsApprovalId)
-        .apply(FakeRequest(GET, s"/status/$vdsApprovalId/summary"))
+      val result = controller.retrieveSummary(vdsApprovalId).apply(getRequest)
 
-      status(result) mustBe NOT_FOUND
+      status(result) mustBe NO_CONTENT
+      contentType(result) mustBe None
+      contentAsString(result) mustBe empty
+    }
+
+    "return 403 with JSON body when service returns Left(HttpResponse) with status 403" in {
+      val httpResponse =
+        HttpResponse(403, errorJson.toString())
+
+      when(mockService.retrieveSummary(anyString())(using any[HeaderCarrier]))
+        .thenReturn(Future.successful(Left(httpResponse)))
+
+      val result = controller.retrieveSummary(vdsApprovalId).apply(getRequest)
+
+      status(result) mustBe FORBIDDEN
+      contentType(result) mustBe Some("application/json")
+      contentAsJson(result) mustBe errorJson
     }
 
   }
