@@ -18,7 +18,7 @@ package uk.gov.hmrc.vapingstampsapi.controllers
 
 import com.google.inject.Inject
 import org.apache.pekko.stream.Materializer
-import org.mockito.ArgumentMatchers.{any, anyString, eq as eqTo}
+import org.mockito.ArgumentMatchers.{any, anyString}
 import org.mockito.Mockito.*
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.matchers.must.Matchers

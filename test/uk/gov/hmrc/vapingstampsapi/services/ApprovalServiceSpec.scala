@@ -39,21 +39,6 @@ class ApprovalServiceSpec extends AnyWordSpec with Matchers with MockitoSugar wi
   private val approvalRequest =
     ApprovalRequest("test@test.com", "GBVA0000001DS")
 
-  private val validJson =
-    """
-      |{
-      |  "approvalStatus": "APPROVED",
-      |  "businessName": "Acme Vaping Ltd",
-      |  "registeredBusinessAddress": "1 Business Park, London, SW1A 1AA",
-      |  "correspondenceAddress": "PO Box 123, London, SW1A 2BB",
-      |  "contactName": "John Smith",
-      |  "contactTelephone": "02071234567",
-      |  "contactEmail": "john.smith@acmevaping.co.uk",
-      |  "approvalNumber": "AAAA0000200BB",
-      |  "stampThreshold": 10000
-      |}
-      |""".stripMargin
-
   private val approvalSummary =
     ApprovalSummaryResponse(
       "APPROVED",
