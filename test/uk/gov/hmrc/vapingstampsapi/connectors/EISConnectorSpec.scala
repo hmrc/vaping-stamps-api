@@ -111,9 +111,16 @@ class EISConnectorSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuit
         |}
         |
          """.stripMargin
+    val requestBody =
+      """
+        |{
+        |  "contactEmail": "test@test.com",
+        |  "vdsApprovalId": "GBVA0000001DS"
+        |}
+        |""".stripMargin
 
     "return HttpResponse 200 on success" in {
-      stubEndpointForPost(200, responseBody)
+      stubEndpointForPost(200, requestBody, responseBody)
       val result = Await.result(connector.retrieveStatus(approvalRequest), 2.seconds)
 
       result mustBe Right(
@@ -132,7 +139,7 @@ class EISConnectorSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuit
     }
 
     "propagate non-200 HttpResponse from downstream" in {
-      stubEndpointForPost(400, "The request payload is invalid or malformed.")
+      stubEndpointForPost(400, requestBody, "The request payload is invalid or malformed.")
       val result = Await.result(connector.retrieveStatus(approvalRequest), 2.seconds)
 
       result.left.map(_.status) mustBe Left(400)

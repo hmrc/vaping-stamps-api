@@ -22,8 +22,7 @@ import play.api.libs.ws.writeableOf_JsValue
 import uk.gov.hmrc.http.*
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.vapingstampsapi.config.AppConfig
-import uk.gov.hmrc.vapingstampsapi.connectors.parsers.EISParser.EISResponse
-import uk.gov.hmrc.vapingstampsapi.connectors.parsers.EISParser.EISResponseReads
+import uk.gov.hmrc.vapingstampsapi.connectors.parsers.EISParser.{EISResponse, EISResponseReads}
 import uk.gov.hmrc.vapingstampsapi.models.ApprovalRequest
 
 import javax.inject.*

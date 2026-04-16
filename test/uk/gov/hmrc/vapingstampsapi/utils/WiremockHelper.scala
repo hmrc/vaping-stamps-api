@@ -17,7 +17,7 @@
 package uk.gov.hmrc.vapingstampsapi.utils
 
 import com.github.tomakehurst.wiremock.WireMockServer
-import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, post, urlEqualTo}
+import com.github.tomakehurst.wiremock.client.WireMock.*
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, Suite}
@@ -54,14 +54,15 @@ trait WiremockHelper extends BeforeAndAfterAll with BeforeAndAfterEach {
         )
     )
 
-  def stubEndpointForPost(status: Int, body: String): StubMapping =
+  def stubEndpointForPost(status: Int, requestBody: String, responseBody: String): StubMapping =
     server.stubFor(
       post(urlEqualTo("/etds/vaping/stamps/status"))
+        .withRequestBody(equalToJson(requestBody))
         .willReturn(
           aResponse()
             .withStatus(status)
             .withHeader("Content-Type", "application/json")
-            .withBody(body)
+            .withBody(responseBody)
         )
     )
 }
