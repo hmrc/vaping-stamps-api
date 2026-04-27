@@ -1,6 +1,6 @@
 vars {
   environment: qa
   base_url: https://api.qa.tax.service.gov.uk
-  client_id: Q8AN6uZGswnKIqB91pwSGBM00W4N
-  client_secret: test
+  client_id: {{process.env.QA_CLIENT_ID}}
+  client_secret: {{process.env.QA_CLIENT_SECRET}}
 }
