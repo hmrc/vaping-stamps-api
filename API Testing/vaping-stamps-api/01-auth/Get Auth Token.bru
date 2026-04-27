@@ -5,8 +5,8 @@ meta {
 }
 
 post {
-  url: {{url}}/oauth/token
-  body: form
+  url: {{base_url}}/oauth/token
+  body: formUrlEncoded
   auth: none
 }
 
@@ -14,7 +14,7 @@ headers {
   Content-Type: application/x-www-form-urlencoded
 }
 
-body:form {
+body:form-urlencoded {
   client_id: {{client_id}}
   client_secret: {{client_secret}}
   grant_type: client_credentials
