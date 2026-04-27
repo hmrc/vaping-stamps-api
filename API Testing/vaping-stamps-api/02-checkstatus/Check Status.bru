@@ -1,0 +1,14 @@
+meta {
+  name: Get Vaping Stamp Status
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{url}}/misc/vaping/stamps/status
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{access_token}}
+}

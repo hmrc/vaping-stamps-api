@@ -1,0 +1,15 @@
+{
+  "version": "1",
+  "name": "API Testing",
+  "type": "collection",
+  "collections": [
+    {
+      "name": "vaping-stamps-api",
+      "path": "vaping-stamps-api"
+    }
+  ],
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}
