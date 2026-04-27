@@ -22,26 +22,9 @@ Most of the team uses the [Bruno desktop application](https://www.usebruno.com/d
 
 1. Download and install Bruno from https://www.usebruno.com/downloads
 2. Open Bruno and select "Open Collection"
-3. Navigate to the `API Testing` folder and open any of the collection folders
-4. Select the `local` environment from the environment dropdown
-5. Run individual requests or use "Run Folder" to execute multiple tests
+3. Update .env file with in `API Testing` folder and update it with real values
+4. Navigate to the `API Testing` folder and open any of the collection folders
+5. Select the environment from the environment dropdown
+6. Run individual requests or use "Run Folder" to execute multiple tests
 
-### Using the Bruno CLI
 
-Alternatively, you can use the Bruno CLI:
-
-1. Install the CLI globally:
-   ```bash
-   npm install -g @usebruno/cli
-   ```
-
-2. Run tests from the `API Testing` directory:
-   ```bash
-   cd "API Testing"
-
-   # Run vaping-stamps-api tests
-   bru run vaping-stamps-api --env local -r
-   
-   ```
-
-The `-r` flag runs tests recursively through all subfolders.
