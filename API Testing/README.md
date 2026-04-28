@@ -18,6 +18,6 @@ Most of the team uses the [Bruno desktop application](https://www.usebruno.com/d
 3. Update .env file with in `API Testing` folder and update it with real values
 4. Navigate to the `API Testing` folder and open any of the collection folders
 5. Select the environment from the environment dropdown
-6. Run individual requests or use "Run Folder" to execute multiple tests
+6. Run individual requests
 
 
