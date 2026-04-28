@@ -7,14 +7,7 @@ This directory contains [Bruno](https://www.usebruno.com/) collections for the V
 ## Directory Structure
 
 - **`vaping-stamps-api/`**: Example calls and simple tests for the submission service API endpoints.
-- **`environments/`**: Configuration for `local`, `staging`, `qa`, and `externaltest`.
-
-## Running Tests
-
-### Local Environment Only
-
-**Tests should be run locally.** Running the full test suites against deployed environments is not recommended because:
-
+- **`environments/`**: Configuration for `staging`, `qa`, and `externaltest`.
 
 ### Using the Bruno GUI
 
