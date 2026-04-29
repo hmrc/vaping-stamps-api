@@ -1,0 +1,22 @@
+meta {
+  name: Get Vaping Stamp Status
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{base_url}}/misc/vaping/stamps/status
+  body: json
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{access_token}}
+}
+
+body:json {
+    {
+      "vdsApprovalId": "GBVA0000200DS",
+      "contactEmail": "test@example.com"
+    }
+}
