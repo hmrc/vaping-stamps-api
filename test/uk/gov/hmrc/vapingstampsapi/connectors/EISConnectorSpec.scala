@@ -52,16 +52,18 @@ class EISConnectorSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuit
           |{
           |  "approvalStatus": "APPROVED",
           |  "businessName": "Acme Vaping Ltd",
-          |  "registeredBusinessAddress": "1 Business Park, London, SW1A 1AA",
-          |  "correspondenceAddress": "PO Box 123, London, SW1A 2BB",
+          |  "addressLine1": "1 Business Park",
+          |  "addressLine2": "London",
+          |  "addressLine3": null,
+          |  "addressLine4": null,
+          |  "addressLine5": null,
+          |  "postCode": "SW1A 1AA",
           |  "contactName": "John Smith",
-          |  "contactTelephone": "02071234567",
-          |  "contactEmail": "john.smith@acmevaping.co.uk",
-          |  "approvalNumber": "AAAA0000200BB",
-          |  "stampThreshold": 10000
+          |  "telephoneNumber": "02071234567",
+          |  "stampsThreshold": 10000
           |}
           |
-          """.stripMargin
+           """.stripMargin
 
       stubEndpointForGet(200, responseBody, approvalId)
       val resultF = connector.retrieveSummary(approvalId)
@@ -71,12 +73,14 @@ class EISConnectorSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuit
         ApprovalSummaryResponse(
           "APPROVED",
           "Acme Vaping Ltd",
-          "1 Business Park, London, SW1A 1AA",
-          "PO Box 123, London, SW1A 2BB",
-          "John Smith",
-          "02071234567",
-          "john.smith@acmevaping.co.uk",
-          "AAAA0000200BB",
+          "1 Business Park",
+          Some("London"),
+          None,
+          None,
+          None,
+          "SW1A 1AA",
+          Some("John Smith"),
+          Some("02071234567"),
           10000
         )
       )
@@ -101,16 +105,18 @@ class EISConnectorSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuit
         |{
         |  "approvalStatus": "APPROVED",
         |  "businessName": "Acme Vaping Ltd",
-        |  "registeredBusinessAddress": "1 Business Park, London, SW1A 1AA",
-        |  "correspondenceAddress": "PO Box 123, London, SW1A 2BB",
+        |  "addressLine1": "1 Business Park",
+        |  "addressLine2": "London",
+        |  "addressLine3": null,
+        |  "addressLine4": null,
+        |  "addressLine5": null,
+        |  "postCode": "SW1A 1AA",
         |  "contactName": "John Smith",
-        |  "contactTelephone": "02071234567",
-        |  "contactEmail": "john.smith@acmevaping.co.uk",
-        |  "approvalNumber": "AAAA0000200BB",
-        |  "stampThreshold": 10000
+        |  "telephoneNumber": "02071234567",
+        |  "stampsThreshold": 10000
         |}
         |
-         """.stripMargin
+          """.stripMargin
     val requestBody =
       """
         |{
@@ -127,12 +133,14 @@ class EISConnectorSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuit
         ApprovalSummaryResponse(
           "APPROVED",
           "Acme Vaping Ltd",
-          "1 Business Park, London, SW1A 1AA",
-          "PO Box 123, London, SW1A 2BB",
-          "John Smith",
-          "02071234567",
-          "john.smith@acmevaping.co.uk",
-          "AAAA0000200BB",
+          "1 Business Park",
+          Some("London"),
+          None,
+          None,
+          None,
+          "SW1A 1AA",
+          Some("John Smith"),
+          Some("02071234567"),
           10000
         )
       )
