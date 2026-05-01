@@ -50,22 +50,19 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
       "Authorization" -> "Bearer 123"
     )
 
-     "return 200 with Summary data" in {
-       val responseBody = """
-                            |{
-                            |  "approvalStatus": "APPROVED",
-                            |  "businessName": "Acme Vaping Ltd",
-                            |  "addressLine1": "1 Business Park",
-                            |  "addressLine2": "London",
-                            |  "addressLine3": null,
-                            |  "addressLine4": null,
-                            |  "addressLine5": null,
-                            |  "postCode": "SW1A 1AA",
-                            |  "contactName": "John Smith",
-                            |  "telephoneNumber": "02071234567",
-                            |  "stampsThreshold": 10000
-                            |}
-                            |
+    "return 200 with Summary data" in {
+      val responseBody = """
+                           |{
+                           |  "approvalStatus": "APPROVED",
+                           |  "businessName": "Acme Vaping Ltd",
+                           |  "addressLine1": "1 Business Park",
+                           |  "addressLine2": "London",
+                           |  "postCode": "SW1A 1AA",
+                           |  "contactName": "John Smith",
+                           |  "telephoneNumber": "02071234567",
+                           |  "stampsThreshold": 10000
+                           |}
+                           |
            """.stripMargin
 
       val request = FakeRequest(GET, "/status/AAAA0000200BB/summary")
@@ -137,22 +134,19 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
           |}
           |""".stripMargin
 
-       val responseBody =
-         """
-           |{
-           |  "approvalStatus": "APPROVED",
-           |  "businessName": "Acme Vaping Ltd",
-           |  "addressLine1": "1 Business Park",
-           |  "addressLine2": "London",
-           |  "addressLine3": null,
-           |  "addressLine4": null,
-           |  "addressLine5": null,
-           |  "postCode": "SW1A 1AA",
-           |  "contactName": "John Smith",
-           |  "telephoneNumber": "02071234567",
-           |  "stampsThreshold": 10000
-           |}
-           |
+      val responseBody =
+        """
+          |{
+          |  "approvalStatus": "APPROVED",
+          |  "businessName": "Acme Vaping Ltd",
+          |  "addressLine1": "1 Business Park",
+          |  "addressLine2": "London",
+          |  "postCode": "SW1A 1AA",
+          |  "contactName": "John Smith",
+          |  "telephoneNumber": "02071234567",
+          |  "stampsThreshold": 10000
+          |}
+          |
                  """.stripMargin
 
       val request = FakeRequest(POST, "/status")
