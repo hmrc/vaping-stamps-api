@@ -43,24 +43,32 @@ class ApprovalServiceSpec extends AnyWordSpec with Matchers with MockitoSugar wi
 
   private val approvalSummary =
     ApprovalSummaryResponse(
-      "APPROVED",
-      "Acme Vaping Ltd",
-      "1 Business Park, London, SW1A 1AA",
-      "PO Box 123, London, SW1A 2BB",
-      "John Smith",
-      "02071234567",
-      10000
+      approvalStatus = "APPROVED",
+      businessName = "Acme Vaping Ltd",
+      addressLine1 = "1 Business Park",
+      addressLine2 = Some("London"),
+      addressLine3 = None,
+      addressLine4 = None,
+      addressLine5 = None,
+      postCode = "SW1A 1AA",
+      contactName = Some("John Smith"),
+      telephoneNumber = Some("02071234567"),
+      stampsThreshold = 10000
     )
 
   private val enrichedApprovalSummary =
     EnrichedApprovalSummary(
       "APPROVED",
       "Acme Vaping Ltd",
-      "1 Business Park, London, SW1A 1AA",
-      "PO Box 123, London, SW1A 2BB",
+      "1 Business Park",
+      Some("London"),
+      None,
+      None,
+      None,
+      "SW1A 1AA",
       "test@test.com",
-      "John Smith",
-      "02071234567",
+      Some("John Smith"),
+      Some("02071234567"),
       10000
     )
 

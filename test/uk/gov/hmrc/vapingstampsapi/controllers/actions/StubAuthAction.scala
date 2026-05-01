@@ -23,10 +23,10 @@ import uk.gov.hmrc.auth.core.AuthConnector
 import scala.concurrent.{ExecutionContext, Future}
 
 class StubAuthAction @Inject() (
-                                 override val authConnector: AuthConnector,
-                                 cc: ControllerComponents
-                               )(implicit val executionContext: ExecutionContext)
-  extends AuthAction:
+  override val authConnector: AuthConnector,
+  cc: ControllerComponents
+)(implicit val executionContext: ExecutionContext)
+    extends AuthAction:
   override val parser: BodyParser[AnyContent] = cc.parsers.defaultBodyParser
   override def invokeBlock[A](request: Request[A], block: Request[A] => Future[Result]): Future[Result] =
     block(request)

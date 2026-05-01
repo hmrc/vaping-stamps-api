@@ -55,14 +55,15 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
                            |{
                            |  "approvalStatus": "APPROVED",
                            |  "businessName": "Acme Vaping Ltd",
-                           |  "registeredBusinessAddress": "1 Business Park, London, SW1A 1AA",
-                           |  "correspondenceAddress": "PO Box 123, London, SW1A 2BB",
+                           |  "addressLine1": "1 Business Park",
+                           |  "addressLine2": "London",
+                           |  "postCode": "SW1A 1AA",
                            |  "contactName": "John Smith",
-                           |  "contactTelephone": "02071234567",
-                           |  "stampThreshold": 10000
+                           |  "telephoneNumber": "02071234567",
+                           |  "stampsThreshold": 10000
                            |}
                            |
-          """.stripMargin
+           """.stripMargin
 
       val request = FakeRequest(GET, "/status/AAAA0000200BB/summary")
         .withHeaders(defaultHeaders*)
@@ -115,6 +116,7 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
       response.map(status) mustBe Some(INTERNAL_SERVER_ERROR)
       response.map(contentAsJson) mustBe Some(Json.parse(responseBody))
     }
+
   }
 
   "POST /status" must {
@@ -138,29 +140,31 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
           |{
           |  "approvalStatus": "APPROVED",
           |  "businessName": "Acme Vaping Ltd",
-          |  "registeredBusinessAddress": "1 Business Park, London, SW1A 1AA",
-          |  "correspondenceAddress": "PO Box 123, London, SW1A 2BB",
+          |  "addressLine1": "1 Business Park",
+          |  "addressLine2": "London",
+          |  "postCode": "SW1A 1AA",
           |  "contactName": "John Smith",
-          |  "contactTelephone": "02071234567",
-          |  "stampThreshold": 10000
+          |  "telephoneNumber": "02071234567",
+          |  "stampsThreshold": 10000
           |}
           |
-                """.stripMargin
+          |""".stripMargin
 
       val expectedResponse =
         """
           |{
           |  "approvalStatus": "APPROVED",
           |  "businessName": "Acme Vaping Ltd",
-          |  "registeredBusinessAddress": "1 Business Park, London, SW1A 1AA",
-          |  "correspondenceAddress": "PO Box 123, London, SW1A 2BB",
-          |  "contactName": "John Smith",
-          |  "contactTelephone": "02071234567",
+          |  "addressLine1": "1 Business Park",
+          |  "addressLine2": "London",
+          |  "postCode": "SW1A 1AA",
           |  "contactEmail": "example@email.com",
-          |  "stampThreshold": 10000
+          |  "contactName": "John Smith",
+          |  "telephoneNumber": "02071234567",
+          |  "stampsThreshold": 10000
           |}
           |
-                """.stripMargin
+          |""".stripMargin
 
       val request = FakeRequest(POST, "/status")
         .withHeaders(defaultHeaders*)
@@ -189,8 +193,7 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
           |  "code": "Invalid approvalId",
           |  "message": "An Invalid request has been made"
           |}
-          |
-                   """.stripMargin
+          |""".stripMargin
 
       val request = FakeRequest(POST, "/status")
         .withHeaders(defaultHeaders*)
@@ -231,6 +234,106 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
 
       response.map(status) mustBe Some(INTERNAL_SERVER_ERROR)
       response.map(contentAsJson) mustBe Some(Json.parse(responseBody))
+    }
+
+    "return 200 with Summary data including all optional fields" in {
+      val requestBody =
+        """
+          |{
+          |  "contactEmail": "example@email.com",
+          |  "vdsApprovalId": "AAAA0000200BB"
+          |}
+          |""".stripMargin
+
+      val responseBody =
+        """
+          |{
+          |  "approvalStatus": "APPROVED",
+          |  "businessName": "Acme Vaping Ltd",
+          |  "addressLine1": "1 Business Park",
+          |  "addressLine2": "London",
+          |  "addressLine3": "Greater London",
+          |  "addressLine4": "United Kingdom",
+          |  "addressLine5": "Europe",
+          |  "postCode": "SW1A 1AA",
+          |  "contactName": "John Smith",
+          |  "telephoneNumber": "02071234567",
+          |  "stampsThreshold": 10000
+          |}
+          |""".stripMargin
+
+      val expectedResponse =
+        """
+          |{
+          |  "approvalStatus": "APPROVED",
+          |  "businessName": "Acme Vaping Ltd",
+          |  "addressLine1": "1 Business Park",
+          |  "addressLine2": "London",
+          |  "addressLine3": "Greater London",
+          |  "addressLine4": "United Kingdom",
+          |  "addressLine5": "Europe",
+          |  "postCode": "SW1A 1AA",
+          |  "contactEmail": "example@email.com",
+          |  "contactName": "John Smith",
+          |  "telephoneNumber": "02071234567",
+          |  "stampsThreshold": 10000
+          |}
+          |""".stripMargin
+
+      val request = FakeRequest(POST, "/status")
+        .withHeaders(defaultHeaders*)
+        .withBody(requestBody)
+
+      stubEndpointForPost(200, requestBody, responseBody)
+
+      val response: Option[Future[Result]] = route(app, request)
+
+      response.map(status) mustBe Some(OK)
+      response.map(contentAsJson) mustBe Some(Json.parse(expectedResponse))
+    }
+
+    "return 200 with Summary data with only mandatory fields" in {
+      val requestBody =
+        """
+          |{
+          |  "contactEmail": "example@email.com",
+          |  "vdsApprovalId": "AAAA0000200BB"
+          |}
+          |""".stripMargin
+
+      val responseBody =
+        """
+          |{
+          |  "approvalStatus": "APPROVED",
+          |  "businessName": "Acme Vaping Ltd",
+          |  "addressLine1": "1 Business Park",
+          |  "postCode": "SW1A 1AA",        
+          |  "stampsThreshold": 10000
+          |}
+          |""".stripMargin
+
+      val expectedResponse =
+        """
+          |{
+          |  "approvalStatus": "APPROVED",
+          |  "businessName": "Acme Vaping Ltd",
+          |  "addressLine1": "1 Business Park",
+          |  "postCode": "SW1A 1AA",
+          |  "contactEmail": "example@email.com",
+          |  "stampsThreshold": 10000
+          |}
+          |""".stripMargin
+
+      val request = FakeRequest(POST, "/status/")
+        .withHeaders(defaultHeaders*)
+        .withBody(requestBody)
+
+      stubEndpointForPost(200, requestBody, responseBody)
+
+      val response: Option[Future[Result]] = route(app, request)
+
+      response.map(status) mustBe Some(OK)
+      response.map(contentAsJson) mustBe Some(Json.parse(expectedResponse))
     }
   }
 }

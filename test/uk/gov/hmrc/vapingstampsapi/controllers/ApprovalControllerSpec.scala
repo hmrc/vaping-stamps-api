@@ -66,22 +66,30 @@ class ApprovalControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppP
   val approvalSummary = ApprovalSummaryResponse(
     approvalStatus = "APPROVED",
     businessName = "Acme Vaping Ltd",
-    registeredBusinessAddress = "123 Main Street, Any Town, SW98 1XY",
-    correspondenceAddress = "PO Box 456, Another Town, EC1 2YX",
-    contactName = "John Doe",
-    contactTelephone = "0123456789",
-    stampThreshold = 10000L
+    addressLine1 = "123 Main Street",
+    addressLine2 = Some("Any Town"),
+    addressLine3 = None,
+    addressLine4 = None,
+    addressLine5 = None,
+    postCode = "SW98 1XY",
+    contactName = Some("John Doe"),
+    telephoneNumber = Some("0123456789"),
+    stampsThreshold = 10000L
   )
 
   val enrichedApprovalSummary = EnrichedApprovalSummary(
     approvalStatus = "APPROVED",
     businessName = "Acme Vaping Ltd",
-    registeredBusinessAddress = "123 Main Street, Any Town, SW98 1XY",
-    correspondenceAddress = "PO Box 456, Another Town, EC1 2YX",
-    contactName = "John Doe",
+    addressLine1 = "123 Main Street",
+    addressLine2 = Some("Any Town"),
+    addressLine3 = None,
+    addressLine4 = None,
+    addressLine5 = None,
+    postCode = "SW98 1XY",
     contactEmail = "test@test.com",
-    contactTelephone = "0123456789",
-    stampThreshold = 10000L
+    contactName = Some("John Doe"),
+    telephoneNumber = Some("0123456789"),
+    stampsThreshold = 10000L
   )
 
   val approvalRequest = ApprovalRequest("test@test.com", "GBVA0000001DS")

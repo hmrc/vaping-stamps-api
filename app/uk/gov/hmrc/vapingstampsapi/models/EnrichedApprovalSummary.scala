@@ -18,16 +18,20 @@ package uk.gov.hmrc.vapingstampsapi.models
 
 import play.api.libs.json.{Json, Writes}
 
-case class EnrichedApprovalSummary (
-                                     approvalStatus: String,
-                                     businessName: String,
-                                     registeredBusinessAddress: String,
-                                     correspondenceAddress: String,
-                                     contactEmail: String,
-                                     contactName: String,
-                                     contactTelephone: String,
-                                     stampThreshold: Long
-                                   )
+case class EnrichedApprovalSummary(
+  approvalStatus: String,
+  businessName: String,
+  addressLine1: String,
+  addressLine2: Option[String],
+  addressLine3: Option[String],
+  addressLine4: Option[String],
+  addressLine5: Option[String],
+  postCode: String,
+  contactEmail: String,
+  contactName: Option[String],
+  telephoneNumber: Option[String],
+  stampsThreshold: Long
+)
 
 object EnrichedApprovalSummary {
   implicit val writes: Writes[EnrichedApprovalSummary] = Json.writes[EnrichedApprovalSummary]
