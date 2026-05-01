@@ -116,6 +116,58 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
       response.map(status) mustBe Some(INTERNAL_SERVER_ERROR)
       response.map(contentAsJson) mustBe Some(Json.parse(responseBody))
     }
+
+    "return 200 with Summary data including all optional fields" in {
+      val responseBody = """
+                           |{
+                           |  "approvalStatus": "APPROVED",
+                           |  "businessName": "Acme Vaping Ltd",
+                           |  "addressLine1": "1 Business Park",
+                           |  "addressLine2": "London",
+                           |  "addressLine3": "Greater London",
+                           |  "addressLine4": "United Kingdom",
+                           |  "addressLine5": "Europe",
+                           |  "postCode": "SW1A 1AA",
+                           |  "contactName": "John Smith",
+                           |  "telephoneNumber": "02071234567",
+                           |  "stampsThreshold": 10000
+                           |}
+                           |
+           """.stripMargin
+
+      val request = FakeRequest(GET, "/status/AAAA0000200BB/summary")
+        .withHeaders(defaultHeaders*)
+
+      stubEndpointForGet(200, responseBody, "AAAA0000200BB")
+
+      val response: Option[Future[Result]] = route(app, request)
+
+      response.map(status) mustBe Some(OK)
+      response.map(contentAsJson) mustBe Some(Json.parse(responseBody))
+    }
+
+    "return 200 with Summary data with only mandatory fields" in {
+      val responseBody = """
+                           |{
+                           |  "approvalStatus": "APPROVED",
+                           |  "businessName": "Acme Vaping Ltd",
+                           |  "addressLine1": "1 Business Park",
+                           |  "postCode": "SW1A 1AA",
+                           |  "stampsThreshold": 10000
+                           |}
+                           |
+           """.stripMargin
+
+      val request = FakeRequest(GET, "/status/AAAA0000200BB/summary")
+        .withHeaders(defaultHeaders*)
+
+      stubEndpointForGet(200, responseBody, "AAAA0000200BB")
+
+      val response: Option[Future[Result]] = route(app, request)
+
+      response.map(status) mustBe Some(OK)
+      response.map(contentAsJson) mustBe Some(Json.parse(responseBody))
+    }
   }
 
   "POST /status" must {
