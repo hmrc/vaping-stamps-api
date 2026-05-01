@@ -16,10 +16,11 @@
 
 package uk.gov.hmrc.vapingstampsapi.services
 
+import cats.data.EitherT
 import play.api.Logging
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.vapingstampsapi.connectors.EISConnector
-import uk.gov.hmrc.vapingstampsapi.models.{ApprovalRequest, ApprovalSummaryResponse}
+import uk.gov.hmrc.vapingstampsapi.models.{ApprovalRequest, ApprovalSummaryResponse, EnrichedApprovalSummary}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NonFatal
@@ -49,16 +50,7 @@ class ApprovalService @Inject() (
 
   def retrieveStatus(
     request: ApprovalRequest
-  )(using hc: HeaderCarrier): Future[Either[HttpResponse, ApprovalSummaryResponse]] =
-
+  )(using hc: HeaderCarrier): EitherT[Future, HttpResponse, EnrichedApprovalSummary] =
     eisConnector
       .retrieveStatus(request)
-      .recover:
-        case e: UpstreamErrorResponse =>
-          Left(HttpResponse(e.statusCode, e.message))
-
-        case NonFatal(ex) =>
-          logger.warn(
-            s"Downstream EIS unreachable. Cause: ${ex.getMessage}"
-          )
-          Left(HttpResponse(503, "Downstream service unavailable"))
+      .map(_.toEnrichedApprovalSummary(request.contactEmail))

@@ -27,7 +27,7 @@ import play.api.libs.json.Json
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, POST, contentAsJson, defaultAwaitTimeout, route, status, writeableOf_AnyContentAsEmpty}
-import uk.gov.hmrc.vapingstampsapi.controllers.actions.AuthAction
+import uk.gov.hmrc.vapingstampsapi.controllers.actions.{AuthAction, StubAuthAction}
 import uk.gov.hmrc.vapingstampsapi.utils.WiremockHelper
 
 import scala.concurrent.Future
@@ -59,8 +59,6 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
                            |  "correspondenceAddress": "PO Box 123, London, SW1A 2BB",
                            |  "contactName": "John Smith",
                            |  "contactTelephone": "02071234567",
-                           |  "contactEmail": "john.smith@acmevaping.co.uk",
-                           |  "approvalNumber": "AAAA0000200BB",
                            |  "stampThreshold": 10000
                            |}
                            |
@@ -144,8 +142,21 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
           |  "correspondenceAddress": "PO Box 123, London, SW1A 2BB",
           |  "contactName": "John Smith",
           |  "contactTelephone": "02071234567",
-          |  "contactEmail": "john.smith@acmevaping.co.uk",
-          |  "approvalNumber": "AAAA0000200BB",
+          |  "stampThreshold": 10000
+          |}
+          |
+                """.stripMargin
+
+      val expectedResponse =
+        """
+          |{
+          |  "approvalStatus": "APPROVED",
+          |  "businessName": "Acme Vaping Ltd",
+          |  "registeredBusinessAddress": "1 Business Park, London, SW1A 1AA",
+          |  "correspondenceAddress": "PO Box 123, London, SW1A 2BB",
+          |  "contactName": "John Smith",
+          |  "contactTelephone": "02071234567",
+          |  "contactEmail": "example@email.com",
           |  "stampThreshold": 10000
           |}
           |
@@ -160,7 +171,7 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
       val response: Option[Future[Result]] = route(app, request)
 
       response.map(status) mustBe Some(OK)
-      response.map(contentAsJson) mustBe Some(Json.parse(responseBody))
+      response.map(contentAsJson) mustBe Some(Json.parse(expectedResponse))
     }
 
     "return 400 error when invalid Id is passed" in {

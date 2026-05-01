@@ -32,7 +32,7 @@ object EISParser {
             .validate[ApprovalSummaryResponse]
             .fold(
               errors => Left(HttpResponse(500, "Received invalid response")),
-              Right(_)
+              summaryResponse => Right(summaryResponse)
             )
         case _ => Left(response)
       }

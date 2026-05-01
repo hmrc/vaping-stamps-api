@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.vapingstampsapi.services
 
+import cats.data.EitherT
 import org.mockito.Mockito.*
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.must.Matchers
@@ -25,7 +26,8 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.vapingstampsapi.connectors.EISConnector
 import uk.gov.hmrc.vapingstampsapi.models.*
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.duration.DurationInt
+import scala.concurrent.{Await, ExecutionContext, Future}
 
 class ApprovalServiceSpec extends AnyWordSpec with Matchers with MockitoSugar with ScalaFutures {
 
@@ -47,8 +49,18 @@ class ApprovalServiceSpec extends AnyWordSpec with Matchers with MockitoSugar wi
       "PO Box 123, London, SW1A 2BB",
       "John Smith",
       "02071234567",
-      "john.smith@acmevaping.co.uk",
-      "AAAA0000200BB",
+      10000
+    )
+
+  private val enrichedApprovalSummary =
+    EnrichedApprovalSummary(
+      "APPROVED",
+      "Acme Vaping Ltd",
+      "1 Business Park, London, SW1A 1AA",
+      "PO Box 123, London, SW1A 2BB",
+      "test@test.com",
+      "John Smith",
+      "02071234567",
       10000
     )
 
@@ -110,11 +122,11 @@ class ApprovalServiceSpec extends AnyWordSpec with Matchers with MockitoSugar wi
 
     "return Right(ApprovalSummaryResponse) when downstream returns 200" in {
       when(mockConnector.retrieveStatus(approvalRequest))
-        .thenReturn(Future.successful(Right(approvalSummary)))
+        .thenReturn(EitherT(Future.successful(Right(approvalSummary))))
 
-      val result = service.retrieveStatus(approvalRequest).futureValue
+      val result = Await.result(service.retrieveStatus(approvalRequest).value, 2.seconds)
 
-      result mustBe Right(approvalSummary)
+      result mustBe Right(enrichedApprovalSummary)
     }
 
     "propagate Left(HttpResponse) when downstream returns an error" in {
@@ -125,38 +137,14 @@ class ApprovalServiceSpec extends AnyWordSpec with Matchers with MockitoSugar wi
         )
 
       when(mockConnector.retrieveStatus(approvalRequest))
-        .thenReturn(Future.successful(Left(errorResponse)))
+        .thenReturn(EitherT(Future.successful(Left(errorResponse))))
 
-      val result = service.retrieveStatus(approvalRequest).futureValue
+      val result = Await.result(service.retrieveStatus(approvalRequest).value, 2.seconds)
 
       result.left.map(_.status) mustBe Left(400)
       result.left.map(_.body) mustBe Left(
         """{"code":"INVALID_REQUEST","message":"The request payload is invalid or malformed."}"""
       )
-    }
-
-    "return Left(HttpResponse) when UpstreamErrorResponse is thrown" in {
-      when(mockConnector.retrieveStatus(approvalRequest))
-        .thenReturn(
-          Future.failed(
-            UpstreamErrorResponse("Bad Request", 400)
-          )
-        )
-
-      val result = service.retrieveStatus(approvalRequest).futureValue
-
-      result.left.map(_.status) mustBe Left(400)
-      result.left.map(_.body) mustBe Left("Bad Request")
-    }
-
-    "return 503 when a non-fatal exception occurs" in {
-      when(mockConnector.retrieveStatus(approvalRequest))
-        .thenReturn(Future.failed(new RuntimeException("Timeout")))
-
-      val result = service.retrieveStatus(approvalRequest).futureValue
-
-      result.left.map(_.status) mustBe Left(503)
-      result.left.map(_.body) mustBe Left("Downstream service unavailable")
     }
   }
 }
