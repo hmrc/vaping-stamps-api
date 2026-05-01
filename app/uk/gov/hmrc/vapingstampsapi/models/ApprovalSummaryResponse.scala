@@ -21,13 +21,15 @@ import play.api.libs.json.{Json, OFormat}
 final case class ApprovalSummaryResponse(
   approvalStatus: String,
   businessName: String,
-  registeredBusinessAddress: String,
-  correspondenceAddress: String,
-  contactName: String,
-  contactTelephone: String,
-  contactEmail: String,
-  approvalNumber: String,
-  stampThreshold: Long
+  addressLine1: String,
+  addressLine2: Option[String] = None,
+  addressLine3: Option[String] = None,
+  addressLine4: Option[String] = None,
+  addressLine5: Option[String] = None,
+  postCode: String,
+  contactName: Option[String] = None,
+  telephoneNumber: Option[String] = None,
+  stampsThreshold: Long
 )
 
 object ApprovalSummaryResponse {
