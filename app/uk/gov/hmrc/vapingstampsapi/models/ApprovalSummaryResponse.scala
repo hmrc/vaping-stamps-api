@@ -30,7 +30,23 @@ final case class ApprovalSummaryResponse(
   contactName: Option[String] = None,
   telephoneNumber: Option[String] = None,
   stampsThreshold: Long
-)
+) {
+  def toEnrichedApprovalSummary(email: String): EnrichedApprovalSummary =
+    EnrichedApprovalSummary(
+      approvalStatus,
+      businessName,
+      addressLine1,
+      addressLine2,
+      addressLine3,
+      addressLine4,
+      addressLine5,
+      postCode,
+      email,
+      contactName,
+      telephoneNumber,
+      stampsThreshold
+    )
+}
 
 object ApprovalSummaryResponse {
   given OFormat[ApprovalSummaryResponse] = Json.format[ApprovalSummaryResponse]
