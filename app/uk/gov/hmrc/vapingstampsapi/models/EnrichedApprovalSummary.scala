@@ -34,5 +34,5 @@ case class EnrichedApprovalSummary(
 )
 
 object EnrichedApprovalSummary {
-  implicit val writes: Writes[EnrichedApprovalSummary] = Json.writes[EnrichedApprovalSummary]
+  given writes: Writes[EnrichedApprovalSummary] = Json.writes[EnrichedApprovalSummary]
 }
