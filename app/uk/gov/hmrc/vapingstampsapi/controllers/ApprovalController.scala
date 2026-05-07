@@ -47,9 +47,8 @@ class ApprovalController @Inject() (
 
         logger.info("[retrieveSummary]: authorisation successful")
         service.retrieveSummary(vdsApprovalId).map {
-          case Right(summary)                => Ok(Json.toJson(summary))
-          case Left(HttpResponse(204, _, _)) => NoContent
-          case Left(response)                =>
+          case Right(summary) => Ok(Json.toJson(summary))
+          case Left(response) =>
             logger.warn(s"[retrieveSummary][EIS API Error] Service Unavailable: ${response.status} - ${response.body}")
             Status(response.status)(response.json)
         }
@@ -81,10 +80,7 @@ class ApprovalController @Inject() (
       .fold(
         response =>
           logger.warn(s"[retrieveStatus][EIS API Error] Service Unavailable: ${response.status} - ${response.body}")
-          if (response.status == NO_CONTENT) NoContent
-          else {
-            Status(response.status)(response.json)
-          }
+          Status(response.status)(response.json)
         ,
         summary => Ok(Json.toJson(summary))
       )
