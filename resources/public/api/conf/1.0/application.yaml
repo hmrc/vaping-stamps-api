@@ -76,9 +76,10 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
               example:
-                "errorCode": ["001", "002", "003"],
-                "errorMessage": "Header or schema validation failure"
-              }
+                {
+                  "errorCode": ["001", "002", "003"],
+                  "errorMessage": "Header or schema validation failure"
+                }
 
         "401":
           description: Client error — authentication credentials are missing or invalid.
