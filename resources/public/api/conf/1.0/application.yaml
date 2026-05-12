@@ -58,15 +58,17 @@ paths:
                 $ref: "#/components/schemas/ApprovedOperatorResponse"
               example:
                 {
-                  "approvalStatus": "APPROVED",
-                  "businessName": "Example Trading Ltd",
-                  "registeredBusinessAddress": "10 Example Street, London, SW1A 1AA",
-                  "correspondenceAddress": "PO Box 123, London, SW1A 2AB",
-                  "contactName": "Jane Smith",
-                  "contactTelephone": "+44 20 7946 0123",
-                  "contactEmail": "jane.smith@example.com",
-                  "approvalNumber": "ABCD1234567EF",
-                  "stampThreshold": 500000
+                  approvalStatus: "APPROVED",
+                  businessName: "Example Trading Ltd",
+                  addressLine1: "Address Line 1",
+                  addressLine2: "Address Line 2",
+                  addressLine3: "Address Line 3",
+                  addressLine4: "Address Line 4",
+                  addressLine5: "Address Line 5",
+                  postCode: "SW1A 1AA",
+                  contactName: "Jane Smith",
+                  telephoneNumber: "+44 20 7946 0123",
+                  stampsThreshold: 500000
                 }
 
         "400":
@@ -74,7 +76,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: "#/components/schemas/4xxErrorResponse"
               example:
                 {
                   "errorCode": ["001", "002", "003"],
@@ -117,24 +119,12 @@ paths:
                   "message": "The requested approval could not be found."
                 }
 
-        "422":
-          description: Business error — no approval record exists with the combination of values provided.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-              example:
-                {
-                  "errorCode": ["001", "002", "003"],
-                  "errorMessage": "Business validation failure"
-                }
-
         "500":
           description: Server error — an unexpected internal error occurred while processing the request.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: "#/components/schemas/5xxErrorResponse"
               example:
                 {
                   "message": "Service Unavailable"
@@ -183,30 +173,29 @@ paths:
                 $ref: "#/components/schemas/ApprovedOperatorResponse"
               example:
                 {
-                  "approvalStatus": "APPROVED",
-                  "businessName": "Example Trading Ltd",
-                  "registeredBusinessAddress": "10 Example Street, London, SW1A 1AA",
-                  "correspondenceAddress": "PO Box 123, London, SW1A 2AB",
-                  "contactName": "Jane Smith",
-                  "contactTelephone": "+44 20 7946 0123",
-                  "contactEmail": "jane.smith@example.com",
-                  "approvalNumber": "GBVA0000001DS",
-                  "stampThreshold": 500000
+                  approvalStatus: "APPROVED",
+                  businessName: "Example Trading Ltd",
+                  addressLine1: "Address Line 1",
+                  addressLine2: "Address Line 2",
+                  addressLine3: "Address Line 3",
+                  addressLine4: "Address Line 4",
+                  addressLine5: "Address Line 5",
+                  postCode: "SW1A 1AA",
+                  contactName: "Jane Smith",
+                  telephoneNumber: "+44 20 7946 0123",
+                  stampsThreshold: 500000
                 }
-
-        "204":
-          description: Request processed successfully but no content is returned.
 
         "400":
           description: Client error — the request is malformed or fails validation.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: "#/components/schemas/4xxErrorResponse"
               example:
                 {
-                  "code": "INVALID_REQUEST",
-                  "message": "The request payload is invalid or malformed."
+                  "errorCode": [ "001", "002", "003" ],
+                  "errorMessage": "Header or schema validation failure"
                 }
 
         "401":
@@ -234,27 +223,28 @@ paths:
                 }
 
         "404":
-          description: Client error — no approval record exists for the supplied identifiers.
+          description: Not Found error - Requested endpoint does not exist in service.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: "#/components/schemas/NotFoundErrorResponse"
               example:
                 {
-                  "code": "NOT_FOUND",
-                  "message": "The requested approval could not be found."
+                  "statusCode": 404,
+                  "message": "URI not found",
+                  "requested": "/url-not-in-service"
                 }
 
-        "409":
-          description: Client error — the request conflicts with the current state of the resource.
+        "422":
+          description: Business error — no approval record exists with the combination of values provided.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: "#/components/schemas/4xxErrorResponse"
               example:
                 {
-                  "code": "CONFLICT",
-                  "message": "The request conflicts with the current state of the resource."
+                  "errorCode": [ "001", "002", "003" ],
+                  "errorMessage": "Business validation failure"
                 }
 
         "500":
@@ -262,23 +252,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: "#/components/schemas/5xxErrorResponse"
               example:
                 {
-                  "code": "INTERNAL_SERVER_ERROR",
-                  "message": "An unexpected error occurred while processing the request."
-                }
-
-        "503":
-          description: Server error — the service is temporarily unavailable.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-              example:
-                {
-                  "code": "SERVICE_UNAVAILABLE",
-                  "message": "The service is temporarily unavailable. Please try again later."
+                  "message": "Service Unavailable"
                 }
 
 components:
@@ -314,25 +291,26 @@ components:
       required:
         - approvalStatus
         - businessName
-        - registeredBusinessAddress
-        - contactName
-        - contactTelephone
+        - addressLine1
+        - postCode
         - contactEmail
-        - approvalNumber
-        - stampThreshold
+        - stampsThreshold
 
       example:
         {
-          "approvalStatus": "APPROVED",
-          "businessName": "Example Trading Ltd",
-          "registeredBusinessAddress": "10 Example Street, London, SW1A 1AA",
-          "correspondenceAddress": "PO Box 123, London, SW1A 2AB",
-          "contactName": "Jane Smith",
-          "contactTelephone": "+44 20 7946 0123",
-          "contactEmail": "jane.smith@example.com",
-          "approvalNumber": "GBVA0000001DS",
-          "stampThreshold": 500000
+          approvalStatus: "APPROVED",
+          businessName: "Example Trading Ltd",
+          addressLine1: "Address Line 1",
+          addressLine2: "Address Line 2",
+          addressLine3: "Address Line 3",
+          addressLine4: "Address Line 4",
+          addressLine5: "Address Line 5",
+          postCode: "SW1A 1AA",
+          contactName: "Jane Smith",
+          telephoneNumber: "+44 20 7946 0123",
+          stampsThreshold: 500000
         }
+
 
       properties:
         approvalStatus:
@@ -345,13 +323,29 @@ components:
           type: string
           description: Registered business name of the purchasing operator.
 
-        registeredBusinessAddress:
+        addressLine1:
           type: string
-          description: Registered address of the purchasing operator.
+          description: First line of business' address
 
-        correspondenceAddress:
+        addressLine2:
           type: string
-          description: Correspondence address if different from the registered address.
+          description: Second line of business' address
+
+        addressLine3:
+          type: string
+          description: Third line of business' address
+
+        addressLine4:
+          type: string
+          description: Fourth line of business' address
+
+        addressLine5:
+          type: string
+          description: Fifth line of business' address
+
+        postCode:
+          type: string
+          description: Postal Code for business' address
 
         contactName:
           type: string
@@ -366,11 +360,7 @@ components:
           format: email
           description: Contact email address for the purchasing operator.
 
-        approvalNumber:
-          type: string
-          description: HMRC-issued approval number for vaping duty stamps.
-
-        stampThreshold:
+        stampsThreshold:
           type: number
           description: Approved stamp purchase threshold.
 
@@ -397,5 +387,40 @@ components:
       properties:
         code:
           type: string
+        message:
+          type: string
+
+    NotFoundErrorResponse:
+      type: object
+      required:
+        - statusCode
+        - message
+        - requested
+      properties:
+        statusCode:
+          type: number
+        message:
+          type: string
+        requested:
+          type: string
+
+    4xxErrorResponse:
+      type: object
+      required:
+        - errorCode
+        - errorMessage
+      properties:
+        errorCode:
+          type: array
+          items:
+            type: string
+        errorMessage:
+          type: string
+
+    5xxErrorResponse:
+      type: object
+      required:
+        - message
+      properties:
         message:
           type: string
