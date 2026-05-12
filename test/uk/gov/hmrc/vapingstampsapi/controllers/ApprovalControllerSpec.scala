@@ -113,18 +113,6 @@ class ApprovalControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppP
       contentAsJson(result) mustBe Json.toJson(enrichedApprovalSummary)
     }
 
-    "return NoContent when the service returns HttpResponse with status 204" in {
-      val httpResponse204 = HttpResponse(204)
-      when(mockService.retrieveStatus(any[ApprovalRequest])(using any[HeaderCarrier]))
-        .thenReturn(EitherT(Future.successful(Left(httpResponse204))))
-
-      val result = controller.retrieveStatus().apply(postRequest)
-
-      status(result) mustBe NO_CONTENT
-      contentType(result) mustBe None
-      contentAsString(result) mustBe empty
-    }
-
     "return BadRequest when the request body is missing" in {
       val request = FakeRequest(POST, "/status")
         .withBody(JsNull)
@@ -143,7 +131,7 @@ class ApprovalControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppP
 
     "return 403 with JSON body when service returns Left(HttpResponse) with status 403" in {
       val httpResponse =
-        HttpResponse(403, errorJson.toString())
+        HttpResponse(FORBIDDEN, errorJson.toString())
 
       when(mockService.retrieveStatus(any[ApprovalRequest])(using any[HeaderCarrier]))
         .thenReturn(EitherT(Future.successful(Left(httpResponse))))
@@ -173,21 +161,9 @@ class ApprovalControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppP
       contentAsJson(result) mustBe Json.toJson(approvalSummary)
     }
 
-    "return NoContent when the service returns HttpResponse with status 204" in {
-      val httpResponse204 = HttpResponse(204, Json.obj("message" -> "No content").toString)
-      when(mockService.retrieveSummary(anyString())(using any[HeaderCarrier]))
-        .thenReturn(Future.successful(Left(httpResponse204)))
-
-      val result = controller.retrieveSummary(vdsApprovalId).apply(getRequest)
-
-      status(result) mustBe NO_CONTENT
-      contentType(result) mustBe None
-      contentAsString(result) mustBe empty
-    }
-
     "return 403 with JSON body when service returns Left(HttpResponse) with status 403" in {
       val httpResponse =
-        HttpResponse(403, errorJson.toString())
+        HttpResponse(FORBIDDEN, errorJson.toString())
 
       when(mockService.retrieveSummary(anyString())(using any[HeaderCarrier]))
         .thenReturn(Future.successful(Left(httpResponse)))

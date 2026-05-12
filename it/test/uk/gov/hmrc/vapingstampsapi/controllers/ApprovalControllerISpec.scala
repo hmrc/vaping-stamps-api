@@ -20,7 +20,7 @@ import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
-import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, OK}
+import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_FOUND, OK, UNPROCESSABLE_ENTITY}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
@@ -219,8 +219,8 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
       val responseBody =
         """
           |{
-          |  "code": "Server Error",
-          |  "message": "An unexpected Error has occurred downstream"
+          |  "datetime": "2021-12-17T09:30:47Z",
+          |  "message": "An unexpected error occurred while processing the request."
           |}
           |""".stripMargin
 
@@ -233,6 +233,64 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
       val response: Option[Future[Result]] = route(app, request)
 
       response.map(status) mustBe Some(INTERNAL_SERVER_ERROR)
+      response.map(contentAsJson) mustBe Some(Json.parse(responseBody))
+    }
+
+    "return 422 error when downstream Business error with 422 status is returned" in {
+      val requestBody =
+        """
+          |{
+          |  "contactEmail": "example@email.com",
+          |  "vdsApprovalId": "AAAA0000200BB"
+          |}
+          |""".stripMargin
+
+      val responseBody =
+        """
+          |{
+          |  "datetime": "2021-12-17T09:30:47Z",
+          |  "errorCode": ["001"],
+          |  "errorMessage": "Business validation failure."
+          |}
+          |""".stripMargin
+
+      val request = FakeRequest(POST, "/status")
+        .withHeaders(defaultHeaders*)
+        .withBody(requestBody)
+
+      stubEndpointForPost(422, requestBody, responseBody)
+
+      val response: Option[Future[Result]] = route(app, request)
+
+      response.map(status) mustBe Some(UNPROCESSABLE_ENTITY)
+      response.map(contentAsJson) mustBe Some(Json.parse(responseBody))
+    }
+
+    "return 404 when request is made to url that doesn't exist" in {
+      val requestBody =
+        """
+          |{
+          |  "contactEmail": "example@email.com",
+          |  "vdsApprovalId": "AAAA0000200BB"
+          |}
+          |""".stripMargin
+
+      val responseBody =
+        """
+          |{
+          |  "statusCode": 404,
+          |  "message": "URI not found",
+          |  "requested": "/url-not-in-service"
+          |}
+          |""".stripMargin
+
+      val request = FakeRequest(POST, "/url-not-in-service")
+        .withHeaders(defaultHeaders*)
+        .withBody(requestBody)
+
+      val response: Option[Future[Result]] = route(app, request)
+
+      response.map(status) mustBe Some(NOT_FOUND)
       response.map(contentAsJson) mustBe Some(Json.parse(responseBody))
     }
 
