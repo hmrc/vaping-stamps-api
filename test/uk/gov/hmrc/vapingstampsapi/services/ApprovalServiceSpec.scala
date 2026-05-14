@@ -22,7 +22,7 @@ import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.vapingstampsapi.connectors.EISConnector
 import uk.gov.hmrc.vapingstampsapi.models.*
 
@@ -37,7 +37,6 @@ class ApprovalServiceSpec extends AnyWordSpec with Matchers with MockitoSugar wi
   private val mockConnector = mock[EISConnector]
   private val service = new ApprovalService(mockConnector)
 
-  private val approvalId = "AAAA0000200BB"
   private val approvalRequest =
     ApprovalRequest("test@test.com", "GBVA0000001DS")
 
@@ -71,60 +70,6 @@ class ApprovalServiceSpec extends AnyWordSpec with Matchers with MockitoSugar wi
       Some("02071234567"),
       10000
     )
-
-  "ApprovalService.retrieveSummary" should {
-
-    "return Right(ApprovalSummaryResponse) when downstream returns 200 with valid JSON" in {
-      when(mockConnector.retrieveSummary(approvalId))
-        .thenReturn(Future.successful(Right(approvalSummary)))
-
-      val result = service.retrieveSummary(approvalId).futureValue
-
-      result mustBe Right(approvalSummary)
-    }
-
-    "propagate Left(HttpResponse) when downstream returns an error" in {
-      val errorResponse =
-        HttpResponse(
-          400,
-          """{"code":"INVALID_REQUEST","message":"The request payload is invalid or malformed."}"""
-        )
-
-      when(mockConnector.retrieveSummary(approvalId))
-        .thenReturn(Future.successful(Left(errorResponse)))
-
-      val result = service.retrieveSummary(approvalId).futureValue
-
-      result.left.map(_.status) mustBe Left(400)
-      result.left.map(_.body) mustBe Left(
-        """{"code":"INVALID_REQUEST","message":"The request payload is invalid or malformed."}"""
-      )
-    }
-
-    "return Left(HttpResponse) when UpstreamErrorResponse is thrown" in {
-      when(mockConnector.retrieveSummary(approvalId))
-        .thenReturn(
-          Future.failed(
-            UpstreamErrorResponse("Bad Request", 400)
-          )
-        )
-
-      val result = service.retrieveSummary(approvalId).futureValue
-
-      result.left.map(_.status) mustBe Left(400)
-      result.left.map(_.body) mustBe Left("Bad Request")
-    }
-
-    "return 503 when a non-fatal exception occurs" in {
-      when(mockConnector.retrieveSummary(approvalId))
-        .thenReturn(Future.failed(new RuntimeException("Timeout")))
-
-      val result = service.retrieveSummary(approvalId).futureValue
-
-      result.left.map(_.status) mustBe Left(503)
-      result.left.map(_.body) mustBe Left("Downstream service unavailable")
-    }
-  }
 
   "ApprovalService.retrieveStatus" should {
 

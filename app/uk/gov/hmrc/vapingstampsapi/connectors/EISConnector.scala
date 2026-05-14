@@ -37,21 +37,6 @@ class EISConnector @Inject() (
 
   private val logger = LoggerFactory.getLogger(getClass)
 
-  def retrieveSummary(
-    vdsApprovalId: String
-  )(using hc: HeaderCarrier): Future[EISResponse] =
-
-    val url =
-      s"${appConfig.eisBaseUrl}/etds/vaping/stamps/$vdsApprovalId/status"
-
-    logger.info(s"[EISConnector][retrieveSummary] called: $url")
-
-    http
-      .get(url"$url")
-      .setHeader("Environment" -> appConfig.eisEnvironment)
-      .setHeader("Authorization" -> s"Bearer ${appConfig.eisAuthToken}")
-      .execute[EISResponse]
-
   def retrieveStatus(
     request: ApprovalRequest
   )(using hc: HeaderCarrier): EitherT[Future, HttpResponse, ApprovalSummaryResponse] =

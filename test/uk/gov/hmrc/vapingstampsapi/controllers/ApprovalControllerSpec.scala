@@ -18,7 +18,7 @@ package uk.gov.hmrc.vapingstampsapi.controllers
 
 import cats.data.EitherT
 import org.apache.pekko.stream.Materializer
-import org.mockito.ArgumentMatchers.{any, anyString}
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.*
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.matchers.must.Matchers
@@ -61,8 +61,6 @@ class ApprovalControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppP
 
   private lazy val controller = app.injector.instanceOf[ApprovalController]
 
-  val vdsApprovalId = "GBVA0000001DS"
-
   val approvalSummary = ApprovalSummaryResponse(
     approvalStatus = "APPROVED",
     businessName = "Acme Vaping Ltd",
@@ -94,7 +92,6 @@ class ApprovalControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppP
 
   val approvalRequest = ApprovalRequest("test@test.com", "GBVA0000001DS")
 
-  val getRequest = FakeRequest(GET, s"/status/$vdsApprovalId/summary")
   val postRequest: FakeRequest[JsValue] = FakeRequest(POST, "/status").withBody(Json.toJson(approvalRequest))
 
   val errorJson: JsObject =
@@ -140,35 +137,6 @@ class ApprovalControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppP
         .withBody(Json.toJson(approvalRequest))
 
       val result = controller.retrieveStatus().apply(request)
-
-      status(result) mustBe FORBIDDEN
-      contentType(result) mustBe Some("application/json")
-      contentAsJson(result) mustBe errorJson
-    }
-
-  }
-
-  "ApprovalController.retrieveSummary" should {
-
-    "return OK with valid request parameters" in {
-      when(mockService.retrieveSummary(anyString())(using any[HeaderCarrier]))
-        .thenReturn(Future.successful(Right(approvalSummary)))
-
-      val result = controller.retrieveSummary(vdsApprovalId).apply(getRequest)
-
-      status(result) mustBe OK
-      contentType(result) mustBe Some("application/json")
-      contentAsJson(result) mustBe Json.toJson(approvalSummary)
-    }
-
-    "return 403 with JSON body when service returns Left(HttpResponse) with status 403" in {
-      val httpResponse =
-        HttpResponse(FORBIDDEN, errorJson.toString())
-
-      when(mockService.retrieveSummary(anyString())(using any[HeaderCarrier]))
-        .thenReturn(Future.successful(Left(httpResponse)))
-
-      val result = controller.retrieveSummary(vdsApprovalId).apply(getRequest)
 
       status(result) mustBe FORBIDDEN
       contentType(result) mustBe Some("application/json")
