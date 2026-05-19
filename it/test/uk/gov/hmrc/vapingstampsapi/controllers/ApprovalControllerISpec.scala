@@ -20,13 +20,13 @@ import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
-import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_FOUND, OK, UNPROCESSABLE_ENTITY}
+import play.api.http.Status.*
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
 import play.api.mvc.Result
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{GET, POST, contentAsJson, defaultAwaitTimeout, route, status, writeableOf_AnyContentAsEmpty}
+import play.api.test.Helpers.{POST, contentAsJson, defaultAwaitTimeout, route, status}
 import uk.gov.hmrc.vapingstampsapi.controllers.actions.{AuthAction, StubAuthAction}
 import uk.gov.hmrc.vapingstampsapi.utils.WiremockHelper
 
@@ -42,82 +42,6 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
       bind[AuthAction].to[StubAuthAction]
     )
     .build()
-
-  "GET /status/:vdsApprovalId/summary" must {
-
-    val defaultHeaders: Seq[(String, String)] = Seq(
-      "Accept"        -> "application/vnd.hmrc.1.0+json",
-      "Authorization" -> "Bearer 123"
-    )
-
-    "return 200 with Summary data" in {
-      val responseBody = """
-                           |{
-                           |  "approvalStatus": "APPROVED",
-                           |  "businessName": "Acme Vaping Ltd",
-                           |  "addressLine1": "1 Business Park",
-                           |  "addressLine2": "London",
-                           |  "postCode": "SW1A 1AA",
-                           |  "contactName": "John Smith",
-                           |  "telephoneNumber": "02071234567",
-                           |  "stampsThreshold": 10000
-                           |}
-                           |
-           """.stripMargin
-
-      val request = FakeRequest(GET, "/status/AAAA0000200BB/summary")
-        .withHeaders(defaultHeaders*)
-
-      stubEndpointForGet(200, responseBody, "AAAA0000200BB")
-
-      val response: Option[Future[Result]] = route(app, request)
-
-      response.map(status) mustBe Some(OK)
-      response.map(contentAsJson) mustBe Some(Json.parse(responseBody))
-    }
-
-    "return 400 error when invalid Id is passed" in {
-      val responseBody =
-        """
-          |{
-          |  "code": "Invalid approvalId",
-          |  "message": "An Invalid request has been made"
-          |}
-          |
-               """.stripMargin
-
-      val request = FakeRequest(GET, "/status/AAAA0000200/summary")
-        .withHeaders(defaultHeaders*)
-
-      stubEndpointForGet(400, responseBody, "AAAA0000200")
-
-      val response: Option[Future[Result]] = route(app, request)
-
-      response.map(status) mustBe Some(BAD_REQUEST)
-      response.map(contentAsJson) mustBe Some(Json.parse(responseBody))
-    }
-
-    "return 500 error when downstream error is returned" in {
-      val responseBody =
-        """
-          |{
-          |  "code": "Server Error",
-          |  "message": "An unexpected Error has occurred downstream"
-          |}
-          |""".stripMargin
-
-      val request = FakeRequest(GET, "/status/AAAA0000200BB/summary")
-        .withHeaders(defaultHeaders*)
-
-      stubEndpointForGet(500, responseBody, "AAAA0000200BB")
-
-      val response: Option[Future[Result]] = route(app, request)
-
-      response.map(status) mustBe Some(INTERNAL_SERVER_ERROR)
-      response.map(contentAsJson) mustBe Some(Json.parse(responseBody))
-    }
-
-  }
 
   "POST /status" must {
 

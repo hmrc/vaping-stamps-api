@@ -27,7 +27,7 @@ sm2 --start VAPING_STAMPS_API_ALL
 
 ### To control the service locally from the console
 ```
-sbt run
+sbt run '7011'
 ```
 
 To stop the service running:

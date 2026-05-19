@@ -20,7 +20,7 @@ import play.api.Logging
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.*
 import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisedFunctions}
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import uk.gov.hmrc.vapingstampsapi.controllers.actions.AuthAction
 import uk.gov.hmrc.vapingstampsapi.models.{ApprovalRequest, EnrichedApprovalSummary}
@@ -37,21 +37,6 @@ class ApprovalController @Inject() (
   service: ApprovalService
 )(using ec: ExecutionContext)
     extends AbstractController(cc) with AuthorisedFunctions with Logging:
-
-  def retrieveSummary(
-    vdsApprovalId: String
-  ): Action[AnyContent] =
-    authorise.async:
-      implicit request: RequestHeader =>
-        given hc: HeaderCarrier = HeaderCarrierConverter.fromRequest(request)
-
-        logger.info("[retrieveSummary]: authorisation successful")
-        service.retrieveSummary(vdsApprovalId).map {
-          case Right(summary) => Ok(Json.toJson(summary))
-          case Left(response) =>
-            logger.warn(s"[retrieveSummary][EIS API Error] Service Unavailable: ${response.status} - ${response.body}")
-            Status(response.status)(response.json)
-        }
 
   def retrieveStatus(): Action[JsValue] =
     authorise.async(parse.json):
