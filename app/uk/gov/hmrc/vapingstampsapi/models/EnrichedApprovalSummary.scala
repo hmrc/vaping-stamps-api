@@ -27,7 +27,7 @@ case class EnrichedApprovalSummary(
   addressLine4: Option[String],
   addressLine5: Option[String],
   postCode: String,
-  vdsEmail: String,
+  contactEmail: String,
   contactName: Option[String],
   telephoneNumber: Option[String],
   stampsThreshold: Long

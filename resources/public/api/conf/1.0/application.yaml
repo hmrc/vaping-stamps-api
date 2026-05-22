@@ -181,7 +181,7 @@ components:
         - businessName
         - addressLine1
         - postCode
-        - vdsEmail
+        - contactEmail
         - stampsThreshold
 
       example:
@@ -243,7 +243,7 @@ components:
           type: string
           description: Contact telephone number for the purchasing operator.
 
-        vdsEmail:
+        contactEmail:
           type: string
           format: email
           description: Contact email address for the purchasing operator.

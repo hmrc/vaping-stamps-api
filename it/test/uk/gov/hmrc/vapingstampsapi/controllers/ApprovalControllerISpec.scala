@@ -82,7 +82,7 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
           |  "addressLine1": "1 Business Park",
           |  "addressLine2": "London",
           |  "postCode": "SW1A 1AA",
-          |  "vdsEmail": "example@email.com",
+          |  "contactEmail": "example@email.com",
           |  "contactName": "John Smith",
           |  "telephoneNumber": "02071234567",
           |  "stampsThreshold": 10000
@@ -255,7 +255,7 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
           |  "addressLine4": "United Kingdom",
           |  "addressLine5": "Europe",
           |  "postCode": "SW1A 1AA",
-          |  "vdsEmail": "example@email.com",
+          |  "contactEmail": "example@email.com",
           |  "contactName": "John Smith",
           |  "telephoneNumber": "02071234567",
           |  "stampsThreshold": 10000
