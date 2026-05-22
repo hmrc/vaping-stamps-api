@@ -64,8 +64,8 @@ class EISConnectorSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuit
     val requestBody =
       """
         |{
-        |  "contactEmail": "test@test.com",
-        |  "vdsApprovalId": "GBVA0000001DS"
+        |  "vdsEmail": "test@test.com",
+        |  "stampsReferenceNumber": "GBVA0000001DS"
         |}
         |""".stripMargin
 

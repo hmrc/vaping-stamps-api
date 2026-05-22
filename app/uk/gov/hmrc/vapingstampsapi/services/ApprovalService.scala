@@ -36,4 +36,4 @@ class ApprovalService @Inject() (
   )(using hc: HeaderCarrier): EitherT[Future, HttpResponse, EnrichedApprovalSummary] =
     eisConnector
       .retrieveStatus(request)
-      .map(_.toEnrichedApprovalSummary(request.contactEmail))
+      .map(_.toEnrichedApprovalSummary(request.vdsEmail))

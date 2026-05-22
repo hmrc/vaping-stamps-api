@@ -84,7 +84,7 @@ class ApprovalControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppP
     addressLine4 = None,
     addressLine5 = None,
     postCode = "SW98 1XY",
-    contactEmail = "test@test.com",
+    vdsEmail = "test@test.com",
     contactName = Some("John Doe"),
     telephoneNumber = Some("0123456789"),
     stampsThreshold = 10000L

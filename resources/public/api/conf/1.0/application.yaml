@@ -48,8 +48,8 @@ paths:
               $ref: "#/components/schemas/ApprovalRequest"
             example:
               {
-                "contactEmail": "test@test.com",
-                "vdsApprovalId": "GBVA0000001DS"
+                "vdsEmail": "test@test.com",
+                "stampsReferenceNumber": "GBVA0000001DS"
               }
 
       responses:
@@ -181,7 +181,7 @@ components:
         - businessName
         - addressLine1
         - postCode
-        - contactEmail
+        - vdsEmail
         - stampsThreshold
 
       example:
@@ -243,7 +243,7 @@ components:
           type: string
           description: Contact telephone number for the purchasing operator.
 
-        contactEmail:
+        vdsEmail:
           type: string
           format: email
           description: Contact email address for the purchasing operator.
@@ -255,14 +255,14 @@ components:
     ApprovalRequest:
       type: object
       required:
-        - contactEmail
-        - vdsApprovalId
+        - vdsEmail
+        - stampsReferenceNumber
       properties:
-        contactEmail:
+        vdsEmail:
           type: string
           pattern: "^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$"
           description: Contact email address for the purchasing operator.
-        vdsApprovalId:
+        stampsReferenceNumber:
           type: string
           pattern: "^GBVA[0-9]{7}DS$"
           description: Vaping Duty Stamps Approval ID issued by HMRC.
