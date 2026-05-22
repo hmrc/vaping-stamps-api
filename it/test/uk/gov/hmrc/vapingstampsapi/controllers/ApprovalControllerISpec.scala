@@ -301,7 +301,7 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
           |  "businessName": "Acme Vaping Ltd",
           |  "addressLine1": "1 Business Park",
           |  "postCode": "SW1A 1AA",
-          |  "vdsEmail": "example@email.com",
+          |  "contactEmail": "example@email.com",
           |  "stampsThreshold": 10000
           |}
           |""".stripMargin
