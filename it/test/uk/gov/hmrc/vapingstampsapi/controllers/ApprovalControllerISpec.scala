@@ -54,8 +54,8 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
       val requestBody =
         """
           |{
-          |  "contactEmail": "example@email.com",
-          |  "vdsApprovalId": "AAAA0000200BB"
+          |  "vdsEmail": "example@email.com",
+          |  "stampsReferenceNumber": "AAAA0000200BB"
           |}
           |""".stripMargin
 
@@ -106,8 +106,8 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
       val requestBody =
         """
           |{
-          |  "contactEmail": "example@email.com",
-          |  "vdsApprovalId": "AAAA0000200"
+          |  "vdsEmail": "example@email.com",
+          |  "stampsReferenceNumber": "AAAA0000200"
           |}
           |""".stripMargin
 
@@ -135,8 +135,8 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
       val requestBody =
         """
           |{
-          |  "contactEmail": "example@email.com",
-          |  "vdsApprovalId": "AAAA0000200BB"
+          |  "vdsEmail": "example@email.com",
+          |  "stampsReferenceNumber": "AAAA0000200BB"
           |}
           |""".stripMargin
 
@@ -164,8 +164,8 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
       val requestBody =
         """
           |{
-          |  "contactEmail": "example@email.com",
-          |  "vdsApprovalId": "AAAA0000200BB"
+          |  "vdsEmail": "example@email.com",
+          |  "stampsReferenceNumber": "AAAA0000200BB"
           |}
           |""".stripMargin
 
@@ -194,8 +194,8 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
       val requestBody =
         """
           |{
-          |  "contactEmail": "example@email.com",
-          |  "vdsApprovalId": "AAAA0000200BB"
+          |  "vdsEmail": "example@email.com",
+          |  "stampsReferenceNumber": "AAAA0000200BB"
           |}
           |""".stripMargin
 
@@ -222,8 +222,8 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
       val requestBody =
         """
           |{
-          |  "contactEmail": "example@email.com",
-          |  "vdsApprovalId": "AAAA0000200BB"
+          |  "vdsEmail": "example@email.com",
+          |  "stampsReferenceNumber": "AAAA0000200BB"
           |}
           |""".stripMargin
 
@@ -278,8 +278,8 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
       val requestBody =
         """
           |{
-          |  "contactEmail": "example@email.com",
-          |  "vdsApprovalId": "AAAA0000200BB"
+          |  "vdsEmail": "example@email.com",
+          |  "stampsReferenceNumber": "AAAA0000200BB"
           |}
           |""".stripMargin
 
