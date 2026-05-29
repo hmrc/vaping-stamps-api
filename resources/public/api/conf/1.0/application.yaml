@@ -209,6 +209,7 @@ components:
           description: The current approval status of the purchasing operator.
           enum:
             - APPROVED
+            - NOT APPROVED
 
         businessName:
           type: string
