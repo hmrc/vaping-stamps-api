@@ -11,7 +11,8 @@ info:
     to perform a daily approval status check against HMRC systems.
 
 servers:
-  - url: https://api.service.hmrc.gov.uk
+  - url: https://test-api.service.hmrc.gov.uk
+    description: Sandbox
 
 tags:
   - name: Approval status
@@ -22,7 +23,7 @@ paths:
     post:
       tags:
         - Approval status
-      summary: Check purchasing operator approval status
+      summary: Check purchasing operator approval status - [Test only]
       description: |
         Checks whether a purchasing operator is approved to buy vaping duty stamps.
 
@@ -79,11 +80,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/4xxErrorResponse"
+                $ref: "#/components/schemas/400ErrorResponse"
               example:
                 {
-                  "errorCode": [ "001", "002", "003" ],
-                  "errorMessage": "Header or schema validation failure"
+                  "code": "BAD_REQUEST",
+                  "message": "Request sent is invalid",
+                  "errors": ["001", "002"]
                 }
 
         "401":
@@ -128,11 +130,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/4xxErrorResponse"
+                $ref: "#/components/schemas/422ErrorResponse"
               example:
                 {
-                  "errorCode": [ "001", "002", "003" ],
-                  "errorMessage": "Business validation failure"
+                  "code": "UNPROCCESSABLE_ENTITY",
+                  "message": "Business error has occurred",
+                  "errors": [ "001", "002" ]
                 }
 
         "500":
@@ -292,18 +295,57 @@ components:
         requested:
           type: string
 
-    4xxErrorResponse:
+    400ErrorResponse:
       type: object
       required:
-        - errorCode
-        - errorMessage
+        - code
+        - message
+        - errors
       properties:
-        errorCode:
+        code:
           type: array
           items:
             type: string
-        errorMessage:
+        message:
           type: string
+        errors:
+          type: array
+          items:
+            type: string
+            enum: ["001", "002", "003", "004", "005", "006", "007", "008"]
+          description: |
+            * "001" - Missing Accept Header
+            * "002" - Incorrect Accept Header
+            * "003" - Missing Authorization Header
+            * "004" - Incorrect Authorization Header
+            * "005" - Missing stampsReferenceNumber Header
+            * "006" - Incorrect stampsReferenceNumber Header
+            * "007" - Missing vdsEmail Header
+            * "008" - Incorrect vdsEmail Header
+
+
+
+    422ErrorResponse:
+      type: object
+      required:
+        - code
+        - message
+        - errors
+      properties:
+        code:
+          type: array
+          items:
+            type: string
+        message:
+          type: string
+        errors:
+          type: array
+          items:
+            type: string
+            enum: [ "001", "002"]
+          description: |
+            * "001" - stampsReferenceNumber not found in ETDS
+            * "002" - vdsEmail not found in ETDS
 
     5xxErrorResponse:
       type: object
