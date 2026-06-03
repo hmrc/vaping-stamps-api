@@ -25,6 +25,7 @@ import org.scalatestplus.mockito.MockitoSugar
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.vapingstampsapi.connectors.EISConnector
 import uk.gov.hmrc.vapingstampsapi.models.*
+import uk.gov.hmrc.vapingstampsapi.models.errors.ApprovalStatus.{Approved, Not_Approved}
 
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{Await, ExecutionContext, Future}
@@ -42,7 +43,7 @@ class ApprovalServiceSpec extends AnyWordSpec with Matchers with MockitoSugar wi
 
   private val approvalSummary =
     ApprovalSummaryResponse(
-      approvalStatus = "APPROVED",
+      approvalStatus = Approved,
       businessName = "Acme Vaping Ltd",
       addressLine1 = "1 Business Park",
       addressLine2 = Some("London"),
@@ -57,7 +58,38 @@ class ApprovalServiceSpec extends AnyWordSpec with Matchers with MockitoSugar wi
 
   private val enrichedApprovalSummary =
     EnrichedApprovalSummary(
-      "APPROVED",
+      Approved,
+      "Acme Vaping Ltd",
+      "1 Business Park",
+      Some("London"),
+      None,
+      None,
+      None,
+      "SW1A 1AA",
+      "test@test.com",
+      Some("John Smith"),
+      Some("02071234567"),
+      10000
+    )
+
+  private val notApprovedSummary =
+    ApprovalSummaryResponse(
+      approvalStatus = Not_Approved,
+      businessName = "Acme Vaping Ltd",
+      addressLine1 = "1 Business Park",
+      addressLine2 = Some("London"),
+      addressLine3 = None,
+      addressLine4 = None,
+      addressLine5 = None,
+      postCode = "SW1A 1AA",
+      contactName = Some("John Smith"),
+      telephoneNumber = Some("02071234567"),
+      stampsThreshold = 10000
+    )
+
+  private val enrichedNotApprovedSummary =
+    EnrichedApprovalSummary(
+      Not_Approved,
       "Acme Vaping Ltd",
       "1 Business Park",
       Some("London"),

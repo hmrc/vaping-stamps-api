@@ -17,9 +17,10 @@
 package uk.gov.hmrc.vapingstampsapi.models
 
 import play.api.libs.json.{Json, OFormat}
+import uk.gov.hmrc.vapingstampsapi.models.errors.ApprovalStatus
 
 final case class ApprovalSummaryResponse(
-  approvalStatus: String,
+  approvalStatus: ApprovalStatus,
   businessName: String,
   addressLine1: String,
   addressLine2: Option[String] = None,

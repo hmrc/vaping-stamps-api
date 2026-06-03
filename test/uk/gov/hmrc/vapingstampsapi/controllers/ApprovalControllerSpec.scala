@@ -33,6 +33,7 @@ import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.vapingstampsapi.controllers.actions.{AuthAction, StubAuthAction, StubValidateRequestAction, ValidateRequestAction}
+import uk.gov.hmrc.vapingstampsapi.models.errors.ApprovalStatus.Approved
 import uk.gov.hmrc.vapingstampsapi.models.{ApprovalRequest, ApprovalSummaryResponse, EnrichedApprovalSummary}
 import uk.gov.hmrc.vapingstampsapi.services.ApprovalService
 
@@ -63,7 +64,7 @@ class ApprovalControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppP
   private lazy val controller = app.injector.instanceOf[ApprovalController]
 
   val approvalSummary = ApprovalSummaryResponse(
-    approvalStatus = "APPROVED",
+    approvalStatus = Approved,
     businessName = "Acme Vaping Ltd",
     addressLine1 = "123 Main Street",
     addressLine2 = Some("Any Town"),
@@ -77,7 +78,7 @@ class ApprovalControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppP
   )
 
   val enrichedApprovalSummary = EnrichedApprovalSummary(
-    approvalStatus = "APPROVED",
+    approvalStatus = Approved,
     businessName = "Acme Vaping Ltd",
     addressLine1 = "123 Main Street",
     addressLine2 = Some("Any Town"),
@@ -92,6 +93,7 @@ class ApprovalControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppP
   )
 
   val approvalRequest: ApprovalRequest = ApprovalRequest("test@test.com", "GBVA0000001DS")
+  val notApprovedRequest = ApprovalRequest("testBad@test.com", "GBVA0000001DS")
 
   val postRequest: FakeRequest[JsValue] = FakeRequest(POST, "/status").withBody(Json.toJson(approvalRequest))
 

@@ -103,123 +103,6 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
       response.map(status) mustBe Some(OK)
     }
 
-    "return 400 error when invalid Id is passed" in {
-      val requestBody =
-        """
-          |{
-          |  "vdsEmail": "example@email.com",
-          |  "stampsReferenceNumber": "AAAA0000200"
-          |}
-          |""".stripMargin
-
-      val responseBody =
-        """
-          |{
-          |  "code": "BAD_REQUEST",
-          |  "message": "The request is invalid",
-          |  "errors": ["006"]
-          |}
-          |""".stripMargin
-
-      val request = FakeRequest(POST, "/status")
-        .withHeaders(defaultHeaders*)
-        .withBody(requestBody)
-
-      stubEndpointForPost(400, requestBody, responseBody)
-
-      val response: Option[Future[Result]] = route(app, request)
-
-      response.map(status) mustBe Some(BAD_REQUEST)
-      response.map(contentAsJson) mustBe Some(Json.parse(responseBody))
-    }
-
-    "return 500 error when downstream error is returned" in {
-      val requestBody =
-        """
-          |{
-          |  "vdsEmail": "example@email.com",
-          |  "stampsReferenceNumber": "GBVA0000200DS"
-          |}
-          |""".stripMargin
-
-      val responseBody =
-        """
-          |{
-          |  "datetime": "2021-12-17T09:30:47Z",
-          |  "message": "An unexpected error occurred while processing the request."
-          |}
-          |""".stripMargin
-
-      val request = FakeRequest(POST, "/status")
-        .withHeaders(defaultHeaders*)
-        .withBody(requestBody)
-
-      stubEndpointForPost(500, requestBody, responseBody)
-
-      val response: Option[Future[Result]] = route(app, request)
-
-      response.map(status) mustBe Some(INTERNAL_SERVER_ERROR)
-      response.map(contentAsJson) mustBe Some(Json.parse(responseBody))
-    }
-
-    "return 422 error when downstream Business error with 422 status is returned" in {
-      val requestBody =
-        """
-          |{
-          |  "vdsEmail": "example@email.com",
-          |  "stampsReferenceNumber": "GBVA0000200DS"
-          |}
-          |""".stripMargin
-
-      val responseBody =
-        """
-          |{
-          |  "datetime": "2021-12-17T09:30:47Z",
-          |  "errorCode": ["001"],
-          |  "errorMessage": "Business validation failure."
-          |}
-          |""".stripMargin
-
-      val request = FakeRequest(POST, "/status")
-        .withHeaders(defaultHeaders*)
-        .withBody(requestBody)
-
-      stubEndpointForPost(422, requestBody, responseBody)
-
-      val response: Option[Future[Result]] = route(app, request)
-
-      response.map(status) mustBe Some(UNPROCESSABLE_ENTITY)
-      response.map(contentAsJson) mustBe Some(Json.parse(responseBody))
-    }
-
-    "return 404 when request is made to url that doesn't exist" in {
-      val requestBody =
-        """
-          |{
-          |  "vdsEmail": "example@email.com",
-          |  "stampsReferenceNumber": "GBVA0000200DS"
-          |}
-          |""".stripMargin
-
-      val responseBody =
-        """
-          |{
-          |  "statusCode": 404,
-          |  "message": "URI not found",
-          |  "requested": "/url-not-in-service"
-          |}
-          |""".stripMargin
-
-      val request = FakeRequest(POST, "/url-not-in-service")
-        .withHeaders(defaultHeaders*)
-        .withBody(requestBody)
-
-      val response: Option[Future[Result]] = route(app, request)
-
-      response.map(status) mustBe Some(NOT_FOUND)
-      response.map(contentAsJson) mustBe Some(Json.parse(responseBody))
-    }
-
     "return 200 with Summary data including all optional fields" in {
       val requestBody =
         """
@@ -319,4 +202,179 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
       response.map(status) mustBe Some(OK)
       response.map(contentAsJson) mustBe Some(Json.parse(expectedResponse))
     }
+
+    "return 200 with Not Approved" in {
+      val requestBody =
+        """
+          |{
+          |  "vdsEmail": "wrongExample@email.com",
+          |  "stampsReferenceNumber": "AAAA0000200BB"
+          |}
+          |""".stripMargin
+
+      val responseBody =
+        """
+          |{
+          |  "approvalStatus": "NOT_APPROVED",
+          |  "businessName": "Acme Vaping Ltd",
+          |  "addressLine1": "1 Business Park",
+          |  "addressLine2": "London",
+          |  "addressLine3": "Greater London",
+          |  "addressLine4": "United Kingdom",
+          |  "addressLine5": "Europe",
+          |  "postCode": "SW1A 1AA",
+          |  "contactName": "John Smith",
+          |  "telephoneNumber": "02071234567",
+          |  "stampsThreshold": 10000
+          |}
+          |""".stripMargin
+
+      val expectedResponse =
+        """
+          |{
+          |  "approvalStatus": "NOT_APPROVED",
+          |  "businessName": "Acme Vaping Ltd",
+          |  "addressLine1": "1 Business Park",
+          |  "addressLine2": "London",
+          |  "addressLine3": "Greater London",
+          |  "addressLine4": "United Kingdom",
+          |  "addressLine5": "Europe",
+          |  "postCode": "SW1A 1AA",
+          |  "contactEmail": "wrongExample@email.com",
+          |  "contactName": "John Smith",
+          |  "telephoneNumber": "02071234567",
+          |  "stampsThreshold": 10000
+          |}
+          |""".stripMargin
+
+      val request = FakeRequest(POST, "/status")
+        .withHeaders(defaultHeaders*)
+        .withBody(requestBody)
+
+      stubEndpointForPost(200, requestBody, responseBody)
+
+      val response: Option[Future[Result]] = route(app, request)
+
+      response.map(status) mustBe Some(OK)
+      response.map(contentAsJson) mustBe Some(Json.parse(expectedResponse))
+
+    }
+
+    "return 400 error when invalid Id is passed" in {
+      val requestBody =
+        """
+          |{
+          |  "vdsEmail": "example@email.com",
+          |  "stampsReferenceNumber": "AAAA0000200"
+          |}
+          |""".stripMargin
+
+      val responseBody =
+        """
+          |{
+          |  "code": "BAD_REQUEST",
+          |  "message": "The request is invalid",
+          |  "errors": ["006"]
+          |}
+          |""".stripMargin
+
+      val request = FakeRequest(POST, "/status")
+        .withHeaders(defaultHeaders *)
+        .withBody(requestBody)
+
+      stubEndpointForPost(400, requestBody, responseBody)
+
+      val response: Option[Future[Result]] = route(app, request)
+
+      response.map(status) mustBe Some(BAD_REQUEST)
+      response.map(contentAsJson) mustBe Some(Json.parse(responseBody))
+    }
+
+    "return 500 error when downstream error is returned" in {
+      val requestBody =
+        """
+          |{
+          |  "vdsEmail": "example@email.com",
+          |  "stampsReferenceNumber": "GBVA0000200DS"
+          |}
+          |""".stripMargin
+
+      val responseBody =
+        """
+          |{
+          |  "datetime": "2021-12-17T09:30:47Z",
+          |  "message": "An unexpected error occurred while processing the request."
+          |}
+          |""".stripMargin
+
+      val request = FakeRequest(POST, "/status")
+        .withHeaders(defaultHeaders *)
+        .withBody(requestBody)
+
+      stubEndpointForPost(500, requestBody, responseBody)
+
+      val response: Option[Future[Result]] = route(app, request)
+
+      response.map(status) mustBe Some(INTERNAL_SERVER_ERROR)
+      response.map(contentAsJson) mustBe Some(Json.parse(responseBody))
+    }
+
+    "return 422 error when downstream Business error with 422 status is returned" in {
+      val requestBody =
+        """
+          |{
+          |  "vdsEmail": "example@email.com",
+          |  "stampsReferenceNumber": "GBVA0000200DS"
+          |}
+          |""".stripMargin
+
+      val responseBody =
+        """
+          |{
+          |  "datetime": "2021-12-17T09:30:47Z",
+          |  "errorCode": ["001"],
+          |  "errorMessage": "Business validation failure."
+          |}
+          |""".stripMargin
+
+      val request = FakeRequest(POST, "/status")
+        .withHeaders(defaultHeaders *)
+        .withBody(requestBody)
+
+      stubEndpointForPost(422, requestBody, responseBody)
+
+      val response: Option[Future[Result]] = route(app, request)
+
+      response.map(status) mustBe Some(UNPROCESSABLE_ENTITY)
+      response.map(contentAsJson) mustBe Some(Json.parse(responseBody))
+    }
+
+    "return 404 when request is made to url that doesn't exist" in {
+      val requestBody =
+        """
+          |{
+          |  "vdsEmail": "example@email.com",
+          |  "stampsReferenceNumber": "GBVA0000200DS"
+          |}
+          |""".stripMargin
+
+      val responseBody =
+        """
+          |{
+          |  "statusCode": 404,
+          |  "message": "URI not found",
+          |  "requested": "/url-not-in-service"
+          |}
+          |""".stripMargin
+
+      val request = FakeRequest(POST, "/url-not-in-service")
+        .withHeaders(defaultHeaders *)
+        .withBody(requestBody)
+
+      val response: Option[Future[Result]] = route(app, request)
+
+      response.map(status) mustBe Some(NOT_FOUND)
+      response.map(contentAsJson) mustBe Some(Json.parse(responseBody))
+    }
+
   }
