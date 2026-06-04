@@ -33,7 +33,7 @@ import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.vapingstampsapi.controllers.actions.{AuthAction, StubAuthAction, StubValidateRequestAction, ValidateRequestAction}
-import uk.gov.hmrc.vapingstampsapi.models.errors.ApprovalStatus.Approved
+import uk.gov.hmrc.vapingstampsapi.models.ApprovalStatus.Approved
 import uk.gov.hmrc.vapingstampsapi.models.{ApprovalRequest, ApprovalSummaryResponse, EnrichedApprovalSummary}
 import uk.gov.hmrc.vapingstampsapi.services.ApprovalService
 

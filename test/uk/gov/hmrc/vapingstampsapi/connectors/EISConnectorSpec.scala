@@ -23,7 +23,7 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-import uk.gov.hmrc.vapingstampsapi.models.errors.ApprovalStatus.Approved
+import uk.gov.hmrc.vapingstampsapi.models.ApprovalStatus.Approved
 import uk.gov.hmrc.vapingstampsapi.models.{ApprovalRequest, ApprovalSummaryResponse}
 import uk.gov.hmrc.vapingstampsapi.utils.WiremockHelper
 

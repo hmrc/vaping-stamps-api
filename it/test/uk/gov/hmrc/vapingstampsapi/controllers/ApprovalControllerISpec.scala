@@ -208,7 +208,7 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
         """
           |{
           |  "vdsEmail": "wrongExample@email.com",
-          |  "stampsReferenceNumber": "AAAA0000200BB"
+          |  "stampsReferenceNum       §§ber": "AAAA0000200BB"
           |}
           |""".stripMargin
 

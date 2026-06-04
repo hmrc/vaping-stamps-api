@@ -14,38 +14,9 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.vapingstampsapi.models.errors
+package uk.gov.hmrc.vapingstampsapi.models
 
 import play.api.libs.json.*
-
-//sealed trait ApprovalStatus {
-//  def message: String
-//}
-//
-//case object Approved extends ApprovalStatus {
-//  override val message: String = "APPROVED"
-//}
-//
-//case object Not_Approved extends ApprovalStatus {
-//  override val message: String = "NOT_APPROVED"
-//}
-
-//object ApprovalStatus {
-//  implicit val format: OFormat[ApprovalStatus] = {
-//    implicit def jsf = Json.format[Approved.message]
-//    implicit def ivf = Json.format[Not_Approved]
-//
-//    Json.format[ApprovalStatus]
-//  }
-//}
-
-//object ApprovalStatus {
-//  def apply(participant: String): ApprovalStatus = participant match {
-//    case Approved.message => Approved
-//    case Not_Approved.message => Not_Approved
-//    case _ => throw InternalError() //decide what error to throw
-//  }
-//}
 
 enum ApprovalStatus {
   case Approved

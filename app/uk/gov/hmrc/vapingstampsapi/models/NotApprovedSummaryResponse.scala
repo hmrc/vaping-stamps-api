@@ -17,7 +17,6 @@
 package uk.gov.hmrc.vapingstampsapi.models
 
 import play.api.libs.json.{Format, JsString, Json, OFormat, Reads, Writes}
-import uk.gov.hmrc.vapingstampsapi.models.errors.ApprovalStatus
 
 final case class NotApprovedSummaryResponse(
   approvalStatus: ApprovalStatus

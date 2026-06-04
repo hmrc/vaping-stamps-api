@@ -25,7 +25,7 @@ import org.scalatestplus.mockito.MockitoSugar
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.vapingstampsapi.connectors.EISConnector
 import uk.gov.hmrc.vapingstampsapi.models.*
-import uk.gov.hmrc.vapingstampsapi.models.errors.ApprovalStatus.{Approved, Not_Approved}
+import ApprovalStatus.{Approved, Not_Approved}
 
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{Await, ExecutionContext, Future}
@@ -40,6 +40,9 @@ class ApprovalServiceSpec extends AnyWordSpec with Matchers with MockitoSugar wi
 
   private val approvalRequest =
     ApprovalRequest("test@test.com", "GBVA0000001DS")
+
+  private val approvalBadRequest =
+    ApprovalRequest("test@badtest.com", "GBVA0000001DS")
 
   private val approvalSummary =
     ApprovalSummaryResponse(
@@ -105,13 +108,22 @@ class ApprovalServiceSpec extends AnyWordSpec with Matchers with MockitoSugar wi
 
   "ApprovalService.retrieveStatus" should {
 
-    "return Right(ApprovalSummaryResponse) when downstream returns 200" in {
+    "return Right(ApprovalSummaryResponse) when downstream returns 200 with an approved status message" in {
       when(mockConnector.retrieveStatus(approvalRequest))
         .thenReturn(EitherT(Future.successful(Right(approvalSummary))))
 
       val result = Await.result(service.retrieveStatus(approvalRequest).value, 2.seconds)
 
       result mustBe Right(enrichedApprovalSummary)
+    }
+
+    "return Right(NotApprovedSummaryResponse) when downstream returns 200 with a not approved status message" in {
+      when(mockConnector.retrieveStatus(approvalBadRequest))
+        .thenReturn(EitherT(Future.successful(Right(notApprovedSummary))))
+
+      val result = Await.result(service.retrieveStatus(approvalRequest).value, 2.seconds)
+
+      result mustBe Right(enrichedNotApprovedSummary)
     }
 
     "propagate Left(HttpResponse) when downstream returns an error" in {
