@@ -43,9 +43,11 @@ class ValidateRequestActionSpec extends AnyWordSpec with Matchers {
         "valid request is supplied" in {
           val request: FakeRequest[_] = FakeRequest()
             .withHeaders(("Accept", "application/vnd.hmrc.1.0+json"), ("Authorization", "Bearer Token"))
-            .withJsonBody(JsObject(
-              Seq("vdsEmail" -> JsString("example@email.com"), "stampsReferenceNumber" -> JsString("GBVA0000001BB"))
-            ))
+            .withJsonBody(
+              JsObject(
+                Seq("vdsEmail" -> JsString("example@email.com"), "stampsReferenceNumber" -> JsString("GBVA0000001BB"))
+              )
+            )
 
           when(mockRequestValidator.fromRequest(request))
             .thenReturn(Valid(ApprovalRequest("email@example.com", "GBVA0000001BB")))
@@ -62,14 +64,18 @@ class ValidateRequestActionSpec extends AnyWordSpec with Matchers {
             .thenReturn(
               Invalid(
                 NonEmptyChainImpl(
-                  MissingAcceptHeader, MissingAuthorizationHeader, MissingVdsEmail, MissingStampsReferenceNumber)
+                  MissingAcceptHeader,
+                  MissingAuthorizationHeader,
+                  MissingVdsEmail,
+                  MissingStampsReferenceNumber
+                )
               )
             )
 
           val json = Json.obj(
-            "code" -> "BAD_REQUEST",
+            "code"    -> "BAD_REQUEST",
             "message" -> "The request is invalid",
-            "error" -> Seq("001","003","005","007")
+            "errors"  -> Seq("001", "003", "005", "007")
           )
 
           await(validator.filter(request)).map { result =>

@@ -117,7 +117,7 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
           |{
           |  "code": "BAD_REQUEST",
           |  "message": "The request is invalid",
-          |  "error": ["008"]
+          |  "errors": ["008"]
           |}
           |""".stripMargin
 

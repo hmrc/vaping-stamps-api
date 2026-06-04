@@ -33,15 +33,17 @@ class RequestValidatorSpec extends AnyWordSpec with Matchers:
     "Return Valid ApprovalSummaryRequest" when {
       "Valid request is made" in {
 
-        val request = FakeRequest().withHeaders(
-          "Accept" -> "application/vnd.hmrc.1.0+json",
-          "Authorization" -> "Bearer Token"
-        ).withBody(
-          Json.obj(
-            "vdsEmail" -> "example@email.com",
-            "stampsReferenceNumber" -> "GBVA0000001DS"
-          )   
-        )
+        val request = FakeRequest()
+          .withHeaders(
+            "Accept"        -> "application/vnd.hmrc.1.0+json",
+            "Authorization" -> "Bearer Token"
+          )
+          .withBody(
+            Json.obj(
+              "vdsEmail"              -> "example@email.com",
+              "stampsReferenceNumber" -> "GBVA0000001DS"
+            )
+          )
 
         validator.fromRequest(request) mustBe Valid(ApprovalRequest("example@email.com", "GBVA0000001DS"))
       }
@@ -49,109 +51,125 @@ class RequestValidatorSpec extends AnyWordSpec with Matchers:
 
     "Return Invalid Non Empty Chain" when {
       "Accept header is missing" in {
-        val request = FakeRequest().withHeaders(
-          "Authorization" -> "Bearer Token"
-        ).withBody(
-          Json.obj(
-            "vdsEmail" -> "example@email.com",
-            "stampsReferenceNumber" -> "GBVA0000001DS"
+        val request = FakeRequest()
+          .withHeaders(
+            "Authorization" -> "Bearer Token"
           )
-        )
+          .withBody(
+            Json.obj(
+              "vdsEmail"              -> "example@email.com",
+              "stampsReferenceNumber" -> "GBVA0000001DS"
+            )
+          )
 
         validator.fromRequest(request) mustBe Invalid(Chain(MissingAcceptHeader))
       }
 
       "Accept header is invalid" in {
-        val request = FakeRequest().withHeaders(
-          "Accept" -> "application/json",
-          "Authorization" -> "Bearer Token"
-        ).withBody(
-          Json.obj(
-            "vdsEmail" -> "example@email.com",
-            "stampsReferenceNumber" -> "GBVA0000001DS"
+        val request = FakeRequest()
+          .withHeaders(
+            "Accept"        -> "application/json",
+            "Authorization" -> "Bearer Token"
           )
-        )
+          .withBody(
+            Json.obj(
+              "vdsEmail"              -> "example@email.com",
+              "stampsReferenceNumber" -> "GBVA0000001DS"
+            )
+          )
 
         validator.fromRequest(request) mustBe Invalid(Chain(IncorrectAcceptHeader))
       }
 
       "Authorization header is missing" in {
-        val request = FakeRequest().withHeaders(
-          "Accept" -> "application/vnd.hmrc.1.0+json"
-        ).withBody(
-          Json.obj(
-            "vdsEmail" -> "example@email.com",
-            "stampsReferenceNumber" -> "GBVA0000001DS"
+        val request = FakeRequest()
+          .withHeaders(
+            "Accept" -> "application/vnd.hmrc.1.0+json"
           )
-        )
+          .withBody(
+            Json.obj(
+              "vdsEmail"              -> "example@email.com",
+              "stampsReferenceNumber" -> "GBVA0000001DS"
+            )
+          )
 
         validator.fromRequest(request) mustBe Invalid(Chain(MissingAuthorizationHeader))
       }
 
       "Authorization header is invalid" in {
-        val request = FakeRequest().withHeaders(
-          "Accept" -> "application/vnd.hmrc.1.0+json",
-          "Authorization" -> "Token"
-        ).withBody(
-          Json.obj(
-            "vdsEmail" -> "example@email.com",
-            "stampsReferenceNumber" -> "GBVA0000001DS"
+        val request = FakeRequest()
+          .withHeaders(
+            "Accept"        -> "application/vnd.hmrc.1.0+json",
+            "Authorization" -> "Token"
           )
-        )
+          .withBody(
+            Json.obj(
+              "vdsEmail"              -> "example@email.com",
+              "stampsReferenceNumber" -> "GBVA0000001DS"
+            )
+          )
 
         validator.fromRequest(request) mustBe Invalid(Chain(IncorrectAuthorizationHeader))
       }
 
       "vdsEmail is missing from JSON payload" in {
-        val request = FakeRequest().withHeaders(
-          "Accept" -> "application/vnd.hmrc.1.0+json",
-          "Authorization" -> "Bearer Token"
-        ).withBody(
-          Json.obj(
-            "stampsReferenceNumber" -> "GBVA0000001DS"
+        val request = FakeRequest()
+          .withHeaders(
+            "Accept"        -> "application/vnd.hmrc.1.0+json",
+            "Authorization" -> "Bearer Token"
           )
-        )
+          .withBody(
+            Json.obj(
+              "stampsReferenceNumber" -> "GBVA0000001DS"
+            )
+          )
 
         validator.fromRequest(request) mustBe Invalid(Chain(MissingVdsEmail))
       }
 
       "vdsEmail is invalid email" in {
-        val request = FakeRequest().withHeaders(
-          "Accept" -> "application/vnd.hmrc.1.0+json",
-          "Authorization" -> "Bearer Token"
-        ).withBody(
-          Json.obj(
-            "vdsEmail" -> "email.com",
-            "stampsReferenceNumber" -> "GBVA0000001DS"
+        val request = FakeRequest()
+          .withHeaders(
+            "Accept"        -> "application/vnd.hmrc.1.0+json",
+            "Authorization" -> "Bearer Token"
           )
-        )
+          .withBody(
+            Json.obj(
+              "vdsEmail"              -> "email.com",
+              "stampsReferenceNumber" -> "GBVA0000001DS"
+            )
+          )
 
         validator.fromRequest(request) mustBe Invalid(Chain(InvalidVdsEmail))
       }
 
       "stampsReferenceNumber is missing from JSON payload" in {
-        val request = FakeRequest().withHeaders(
-          "Accept" -> "application/vnd.hmrc.1.0+json",
-          "Authorization" -> "Bearer Token"
-        ).withBody(
-          Json.obj(
-            "vdsEmail" -> "example@email.com"
+        val request = FakeRequest()
+          .withHeaders(
+            "Accept"        -> "application/vnd.hmrc.1.0+json",
+            "Authorization" -> "Bearer Token"
           )
-        )
+          .withBody(
+            Json.obj(
+              "vdsEmail" -> "example@email.com"
+            )
+          )
 
         validator.fromRequest(request) mustBe Invalid(Chain(MissingStampsReferenceNumber))
       }
 
       "stampsReferenceNumber is invalid format" in {
-        val request = FakeRequest().withHeaders(
-          "Accept" -> "application/vnd.hmrc.1.0+json",
-          "Authorization" -> "Bearer Token"
-        ).withBody(
-          Json.obj(
-            "vdsEmail" -> "example@email.com",
-            "stampsReferenceNumber" -> "GBVA0000001"
+        val request = FakeRequest()
+          .withHeaders(
+            "Accept"        -> "application/vnd.hmrc.1.0+json",
+            "Authorization" -> "Bearer Token"
           )
-        )
+          .withBody(
+            Json.obj(
+              "vdsEmail"              -> "example@email.com",
+              "stampsReferenceNumber" -> "GBVA0000001"
+            )
+          )
 
         validator.fromRequest(request) mustBe Invalid(Chain(InvalidStampsReferenceNumber))
       }

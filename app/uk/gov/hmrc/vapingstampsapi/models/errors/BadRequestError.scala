@@ -16,29 +16,34 @@
 
 package uk.gov.hmrc.vapingstampsapi.models.errors
 
-trait BadRequestError
+import play.api.libs.json.{JsString, Writes}
 
-case object MissingAcceptHeader extends BadRequestError {
+trait BadRequestError
+object BadRequestError:
+  given writes: Writes[BadRequestError] =
+    Writes: badRequestError =>
+      JsString(badRequestError.toString)
+
+case object MissingAcceptHeader extends BadRequestError:
   override def toString: String = "001"
-}
-case object IncorrectAcceptHeader extends BadRequestError {
+
+case object IncorrectAcceptHeader extends BadRequestError:
   override def toString: String = "002"
-}
-case object MissingAuthorizationHeader extends BadRequestError {
+
+case object MissingAuthorizationHeader extends BadRequestError:
   override def toString: String = "003"
-}
-case object IncorrectAuthorizationHeader extends BadRequestError {
+
+case object IncorrectAuthorizationHeader extends BadRequestError:
   override def toString: String = "004"
-}
-case object MissingVdsEmail extends BadRequestError {
+
+case object MissingVdsEmail extends BadRequestError:
   override def toString: String = "005"
-}
-case object InvalidVdsEmail extends BadRequestError {
+
+case object InvalidVdsEmail extends BadRequestError:
   override def toString: String = "006"
-}
-case object MissingStampsReferenceNumber extends BadRequestError {
+
+case object MissingStampsReferenceNumber extends BadRequestError:
   override def toString: String = "007"
-}
-case object InvalidStampsReferenceNumber extends BadRequestError {
+
+case object InvalidStampsReferenceNumber extends BadRequestError:
   override def toString: String = "008"
-}

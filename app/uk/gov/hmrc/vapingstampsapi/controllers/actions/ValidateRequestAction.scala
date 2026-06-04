@@ -22,30 +22,27 @@ import play.api.libs.json.Json
 import play.api.mvc.Results.BadRequest
 import play.api.mvc.{ActionFilter, Request, Result}
 import uk.gov.hmrc.vapingstampsapi.models.ApprovalRequest
-import uk.gov.hmrc.vapingstampsapi.models.errors.BadRequestError
+import uk.gov.hmrc.vapingstampsapi.models.errors.{BadRequestApiError, BadRequestError}
 import uk.gov.hmrc.vapingstampsapi.validators.RequestValidator
 
 import scala.concurrent.{ExecutionContext, Future}
 
-
-class ValidateRequestActionImpl @Inject()(val executionContext: ExecutionContext, validator: RequestValidator) extends ValidateRequestAction {
+class ValidateRequestActionImpl @Inject() (val executionContext: ExecutionContext, validator: RequestValidator)
+    extends ValidateRequestAction:
 
   override def filter[A](request: Request[A]): Future[Option[Result]] =
     validator.fromRequest(request) match {
-      case Valid(a) => Future.successful(None)
+      case Valid(a)   => Future.successful(None)
       case Invalid(e) =>
-        val convertChain = e.toNonEmptyList.toList.map(_.toString)
-        Future.successful(Some(
-          BadRequest(
-            Json.obj(
-              "code" -> "BAD_REQUEST",
-              "message" -> "The request is invalid",
-              "error" -> convertChain
+        val convertChain = e.toNonEmptyList.toList
+        Future.successful(
+          Some(
+            BadRequest(
+              Json.toJson(BadRequestApiError(errors = convertChain))
             )
           )
-        ))
+        )
     }
-}
 
 @ImplementedBy(classOf[ValidateRequestActionImpl])
 trait ValidateRequestAction extends ActionFilter[Request]

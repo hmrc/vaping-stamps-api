@@ -25,7 +25,7 @@ import uk.gov.hmrc.vapingstampsapi.models.ApprovalRequest
 import uk.gov.hmrc.vapingstampsapi.models.errors.*
 
 class RequestValidator extends Validator[ApprovalRequest]:
-  override def fromRequest(request: Request[_]): ValidatedNec[BadRequestError, ApprovalRequest] = {
+  override def fromRequest(request: Request[_]): ValidatedNec[BadRequestError, ApprovalRequest] =
     (
       validateAcceptHeader(request),
       validateAuthorizationHeader(request),
@@ -37,49 +37,55 @@ class RequestValidator extends Validator[ApprovalRequest]:
         authorization,
         email,
         srn
-      ) => ApprovalRequest(email, srn))
-  }
+      ) => ApprovalRequest(email, srn)
+    )
 
-  private def validateAcceptHeader(request: Request[_]): ValidatedNec[BadRequestError, Done] =
+  private def validateAcceptHeader(request: Request[_]): ValidatedNec[BadRequestError, Done] = {
+    val acceptHeader: String = "application/vnd.hmrc.1.0+json"
     request.headers.get("Accept") match {
-      case Some(value) => value match {
-        case "application/vnd.hmrc.1.0+json" => Done.validNec
-        case _ => IncorrectAcceptHeader.invalidNec
-      }
+      case Some(value) =>
+        value match {
+          case str if str == acceptHeader => Done.validNec
+          case _                          => IncorrectAcceptHeader.invalidNec
+        }
       case None => MissingAcceptHeader.invalidNec
     }
+  }
 
+  // Is this necessary if the AuthAction happens first
+  // Do we swap action order and check presence of Header then let Auth do it's thing
   private def validateAuthorizationHeader(request: Request[_]): ValidatedNec[BadRequestError, Done] =
     request.headers.get("Authorization") match {
-      case Some(value) => value match {
-        case str if str.startsWith("Bearer") || str.startsWith("GNAP dummy") => Done.validNec
-        case _ => IncorrectAuthorizationHeader.invalidNec
-      }
+      case Some(value) =>
+        value match {
+          case str if str.startsWith("Bearer") || str.startsWith("GNAP dummy") => Done.validNec
+          case _ => IncorrectAuthorizationHeader.invalidNec
+        }
       case None => MissingAuthorizationHeader.invalidNec
     }
 
   private def validateVdsEmail(request: Request[_]): ValidatedNec[BadRequestError, String] =
-    val vdsEmailRegex = "^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$"
+    val vdsEmailRegex: String = "^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$"
 
     request.body match {
-        case JsObject(underlying) => underlying.get("vdsEmail") match {
+      case JsObject(underlying) =>
+        underlying.get("vdsEmail") match {
           case Some(JsString(value)) if value.matches(vdsEmailRegex) => value.validNec
-          case Some(_) => InvalidVdsEmail.invalidNec
-          case None => MissingVdsEmail.invalidNec
+          case Some(_)                                               => InvalidVdsEmail.invalidNec
+          case None                                                  => MissingVdsEmail.invalidNec
         }
-        case _ => InvalidVdsEmail.invalidNec
-      }
-
+      case _ => InvalidVdsEmail.invalidNec
+    }
 
   private def validateStampsReferenceNumber(request: Request[_]): ValidatedNec[BadRequestError, String] =
-    val stampsReferenceNumberRegex = "^GBVA[0-9]{7}DS$"
+    val stampsReferenceNumberRegex: String = "^GBVA[0-9]{7}DS$"
 
     request.body match {
       case JsObject(underlying) =>
         underlying.get("stampsReferenceNumber") match {
           case Some(JsString(value)) if value.matches(stampsReferenceNumberRegex) => value.validNec
           case Some(_) => InvalidStampsReferenceNumber.invalidNec
-          case None => MissingStampsReferenceNumber.invalidNec
+          case None    => MissingStampsReferenceNumber.invalidNec
         }
       case _ => InvalidStampsReferenceNumber.invalidNec
     }

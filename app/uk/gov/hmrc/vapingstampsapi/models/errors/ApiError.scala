@@ -16,14 +16,19 @@
 
 package uk.gov.hmrc.vapingstampsapi.models.errors
 
-sealed trait ApprovalError {
+import play.api.libs.json.{Json, Writes}
+
+sealed trait ApiError:
+  def code: String
   def message: String
-}
 
-case object ApprovalNotFound extends ApprovalError {
-  val message = "Approval not found"
-}
+case class BadRequestApiError(
+  code: String = "BAD_REQUEST",
+  message: String = "The request is invalid",
+  errors: Seq[BadRequestError]
+) extends ApiError
 
-final case class EisApiError(status: Int, body: String) extends ApprovalError {
-  val message = s"Downstream error: $status"
-}
+object BadRequestApiError:
+  given writes: Writes[BadRequestApiError] = Json.writes[BadRequestApiError]
+
+case class DownstreamApiError(code: String, message: String) extends ApiError
