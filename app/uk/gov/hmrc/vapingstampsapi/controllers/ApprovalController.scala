@@ -22,7 +22,7 @@ import play.api.mvc.*
 import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisedFunctions}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
-import uk.gov.hmrc.vapingstampsapi.controllers.actions.AuthAction
+import uk.gov.hmrc.vapingstampsapi.controllers.actions.{AuthAction, ValidateRequestAction}
 import uk.gov.hmrc.vapingstampsapi.models.{ApprovalRequest, EnrichedApprovalSummary}
 import uk.gov.hmrc.vapingstampsapi.services.ApprovalService
 
@@ -34,12 +34,13 @@ class ApprovalController @Inject() (
   val authConnector: AuthConnector,
   authorise: AuthAction,
   cc: ControllerComponents,
-  service: ApprovalService
+  service: ApprovalService,
+  validateRequest: ValidateRequestAction
 )(using ec: ExecutionContext)
     extends AbstractController(cc) with AuthorisedFunctions with Logging:
 
   def retrieveStatus(): Action[JsValue] =
-    authorise.async(parse.json):
+    (authorise andThen validateRequest).async(parse.json):
       implicit request: Request[JsValue] =>
         given hc: HeaderCarrier = HeaderCarrierConverter.fromRequest(request)
 

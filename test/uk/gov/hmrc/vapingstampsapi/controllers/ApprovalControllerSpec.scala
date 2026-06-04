@@ -32,7 +32,7 @@ import play.api.test.*
 import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-import uk.gov.hmrc.vapingstampsapi.controllers.actions.{AuthAction, StubAuthAction}
+import uk.gov.hmrc.vapingstampsapi.controllers.actions.{AuthAction, StubAuthAction, StubValidateRequestAction, ValidateRequestAction}
 import uk.gov.hmrc.vapingstampsapi.models.{ApprovalRequest, ApprovalSummaryResponse, EnrichedApprovalSummary}
 import uk.gov.hmrc.vapingstampsapi.services.ApprovalService
 
@@ -48,7 +48,8 @@ class ApprovalControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppP
       .overrides(
         bind[ApprovalService].toInstance(mockService),
         bind[AuthConnector].toInstance(mockAuthConnector),
-        bind[AuthAction].to[StubAuthAction]
+        bind[AuthAction].to[StubAuthAction],
+        bind[ValidateRequestAction].to[StubValidateRequestAction]
       )
       .build()
 
@@ -90,7 +91,7 @@ class ApprovalControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppP
     stampsThreshold = 10000L
   )
 
-  val approvalRequest = ApprovalRequest("test@test.com", "GBVA0000001DS")
+  val approvalRequest: ApprovalRequest = ApprovalRequest("test@test.com", "GBVA0000001DS")
 
   val postRequest: FakeRequest[JsValue] = FakeRequest(POST, "/status").withBody(Json.toJson(approvalRequest))
 
