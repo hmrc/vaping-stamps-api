@@ -22,7 +22,7 @@ import uk.gov.hmrc.vapingstampsapi.models.errors.*
 
 class BadRequestErrorSpec extends AnyWordSpec with Matchers:
   "BadRequestErrors" should {
-    "toString" must {
+    "toString" must
       Seq(
         MissingAcceptHeader          -> "001",
         IncorrectAcceptHeader        -> "002",
@@ -32,11 +32,9 @@ class BadRequestErrorSpec extends AnyWordSpec with Matchers:
         InvalidStampsReferenceNumber -> "006",
         MissingVdsEmail              -> "007",
         InvalidVdsEmail              -> "008"
-      ).foreach{
-        case(error, str) =>
-          s"Convert $error to $str" in {
-            error.toString mustBe str
-          }
+      ).foreach { case (error, str) =>
+        s"Convert $error to $str" in {
+          error.toString mustBe str
+        }
       }
-    }
   }
