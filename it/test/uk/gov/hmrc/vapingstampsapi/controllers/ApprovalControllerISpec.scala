@@ -32,7 +32,7 @@ import uk.gov.hmrc.vapingstampsapi.utils.WiremockHelper
 
 import scala.concurrent.Future
 
-class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuite with WiremockHelper {
+class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuite with WiremockHelper:
 
   override def fakeApplication(): Application = GuiceApplicationBuilder()
     .configure(
@@ -117,7 +117,7 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
           |{
           |  "code": "BAD_REQUEST",
           |  "message": "The request is invalid",
-          |  "errors": ["008"]
+          |  "errors": ["006"]
           |}
           |""".stripMargin
 
@@ -320,4 +320,3 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
       response.map(contentAsJson) mustBe Some(Json.parse(expectedResponse))
     }
   }
-}

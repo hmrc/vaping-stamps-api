@@ -143,6 +143,22 @@ class RequestValidatorSpec extends AnyWordSpec with Matchers:
         validator.fromRequest(request) mustBe Invalid(Chain(InvalidVdsEmail))
       }
 
+      "vdsEmail is Invalid Json type" in {
+        val request = FakeRequest()
+          .withHeaders(
+            "Accept"        -> "application/vnd.hmrc.1.0+json",
+            "Authorization" -> "Bearer Token"
+          )
+          .withBody(
+            Json.obj(
+              "vdsEmail"              -> true,
+              "stampsReferenceNumber" -> "GBVA0000001DS"
+            )
+          )
+
+        validator.fromRequest(request) mustBe Invalid(Chain(InvalidVdsEmail))
+      }
+
       "stampsReferenceNumber is missing from JSON payload" in {
         val request = FakeRequest()
           .withHeaders(
@@ -168,6 +184,22 @@ class RequestValidatorSpec extends AnyWordSpec with Matchers:
             Json.obj(
               "vdsEmail"              -> "example@email.com",
               "stampsReferenceNumber" -> "GBVA0000001"
+            )
+          )
+
+        validator.fromRequest(request) mustBe Invalid(Chain(InvalidStampsReferenceNumber))
+      }
+
+      "stampsReferenceNumber is invalid json type" in {
+        val request = FakeRequest()
+          .withHeaders(
+            "Accept"        -> "application/vnd.hmrc.1.0+json",
+            "Authorization" -> "Bearer Token"
+          )
+          .withBody(
+            Json.obj(
+              "vdsEmail"              -> "example@email.com",
+              "stampsReferenceNumber" -> Seq(1, 2, 3, 4, 5, 6)
             )
           )
 

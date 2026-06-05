@@ -29,14 +29,14 @@ class RequestValidator extends Validator[ApprovalRequest]:
     (
       validateAcceptHeader(request),
       validateAuthorizationHeader(request),
-      validateVdsEmail(request),
-      validateStampsReferenceNumber(request)
+      validateStampsReferenceNumber(request),
+      validateVdsEmail(request)
     ).mapN(
       (
         accept,
         authorization,
-        email,
-        srn
+        srn,
+        email
       ) => ApprovalRequest(email, srn)
     )
 
@@ -52,8 +52,6 @@ class RequestValidator extends Validator[ApprovalRequest]:
     }
   }
 
-  // Is this necessary if the AuthAction happens first
-  // Do we swap action order and check presence of Header then let Auth do it's thing
   private def validateAuthorizationHeader(request: Request[_]): ValidatedNec[BadRequestError, Done] =
     request.headers.get("Authorization") match {
       case Some(value) =>
@@ -62,19 +60,6 @@ class RequestValidator extends Validator[ApprovalRequest]:
           case _ => IncorrectAuthorizationHeader.invalidNec
         }
       case None => MissingAuthorizationHeader.invalidNec
-    }
-
-  private def validateVdsEmail(request: Request[_]): ValidatedNec[BadRequestError, String] =
-    val vdsEmailRegex: String = "^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$"
-
-    request.body match {
-      case JsObject(underlying) =>
-        underlying.get("vdsEmail") match {
-          case Some(JsString(value)) if value.matches(vdsEmailRegex) => value.validNec
-          case Some(_)                                               => InvalidVdsEmail.invalidNec
-          case None                                                  => MissingVdsEmail.invalidNec
-        }
-      case _ => InvalidVdsEmail.invalidNec
     }
 
   private def validateStampsReferenceNumber(request: Request[_]): ValidatedNec[BadRequestError, String] =
@@ -88,4 +73,17 @@ class RequestValidator extends Validator[ApprovalRequest]:
           case None    => MissingStampsReferenceNumber.invalidNec
         }
       case _ => InvalidStampsReferenceNumber.invalidNec
+    }
+
+  private def validateVdsEmail(request: Request[_]): ValidatedNec[BadRequestError, String] =
+    val vdsEmailRegex: String = "^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$"
+
+    request.body match {
+      case JsObject(underlying) =>
+        underlying.get("vdsEmail") match {
+          case Some(JsString(value)) if value.matches(vdsEmailRegex) => value.validNec
+          case Some(_)                                               => InvalidVdsEmail.invalidNec
+          case None                                                  => MissingVdsEmail.invalidNec
+        }
+      case _ => InvalidVdsEmail.invalidNec
     }

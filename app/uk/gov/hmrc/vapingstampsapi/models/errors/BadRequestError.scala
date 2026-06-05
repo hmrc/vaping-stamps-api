@@ -36,14 +36,14 @@ case object MissingAuthorizationHeader extends BadRequestError:
 case object IncorrectAuthorizationHeader extends BadRequestError:
   override def toString: String = "004"
 
-case object MissingVdsEmail extends BadRequestError:
+case object MissingStampsReferenceNumber extends BadRequestError:
   override def toString: String = "005"
 
-case object InvalidVdsEmail extends BadRequestError:
+case object InvalidStampsReferenceNumber extends BadRequestError:
   override def toString: String = "006"
 
-case object MissingStampsReferenceNumber extends BadRequestError:
+case object MissingVdsEmail extends BadRequestError:
   override def toString: String = "007"
 
-case object InvalidStampsReferenceNumber extends BadRequestError:
+case object InvalidVdsEmail extends BadRequestError:
   override def toString: String = "008"
