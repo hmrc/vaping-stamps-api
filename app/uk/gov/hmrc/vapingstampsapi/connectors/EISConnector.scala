@@ -39,20 +39,14 @@ class EISConnector @Inject() (
 
   def retrieveStatus(
     request: ApprovalRequest
-  )(using hc: HeaderCarrier): EitherT[Future, HttpResponse, ApprovalSummaryResponse] =
+  )(using hc: HeaderCarrier): Future[EISResponse] =
 
     val url = s"${appConfig.eisBaseUrl}/etds/vaping/stamps/status"
 
     logger.info(s"[EISConnector][retrieveStatus] called: $url")
-
-    EitherT(
-      http
-        .post(url"$url")
-        .setHeader("Environment" -> appConfig.eisEnvironment)
-        .setHeader("Authorization" -> s"Bearer ${appConfig.eisAuthToken}")
-        .withBody(Json.toJson(request))
-        .execute[EISResponse]
-        .recover { case e: HttpException =>
-          Left(HttpResponse(503, e.message))
-        }
-    )
+    http
+      .post(url"$url")
+      .setHeader("Environment" -> appConfig.eisEnvironment)
+      .setHeader("Authorization" -> s"Bearer ${appConfig.eisAuthToken}")
+      .withBody(Json.toJson(request))
+      .execute[EISResponse]

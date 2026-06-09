@@ -28,7 +28,7 @@ object ApprovalStatus:
     Reads {
       case JsString("APPROVED")     => JsSuccess(ApprovalStatus.Approved)
       case JsString("NOT_APPROVED") => JsSuccess(ApprovalStatus.Not_Approved)
-      case _                        => JsError("There will be a better error here")//TODO
+      case _                        => JsError("There will be a better error here") // TODO
     },
     Writes {
       case ApprovalStatus.Approved     => JsString("APPROVED")

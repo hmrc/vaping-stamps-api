@@ -23,7 +23,7 @@ import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisedFunctions}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import uk.gov.hmrc.vapingstampsapi.controllers.actions.{AuthAction, ValidateRequestAction}
-import uk.gov.hmrc.vapingstampsapi.models.{ApprovalRequest, EnrichedApprovedSummary}
+import uk.gov.hmrc.vapingstampsapi.models.{ApprovalRequest, ApprovalSummaryResponse}
 import uk.gov.hmrc.vapingstampsapi.services.ApprovalService
 
 import javax.inject.*
@@ -63,10 +63,9 @@ class ApprovalController @Inject() (
   private def processRequest(approvalRequest: ApprovalRequest)(using HeaderCarrier): Future[Result] =
     service
       .retrieveStatus(approvalRequest)
-      .fold(
-        response =>
+      .map {
+        case Right(summary) => Ok(Json.toJson[ApprovalSummaryResponse](summary))
+        case Left(response) =>
           logger.warn(s"[retrieveStatus][EIS API Error] Service Unavailable: ${response.status} - ${response.body}")
           Status(response.status)(response.json)
-        ,
-        summary => Ok(Json.toJson(summary))
-      )
+      }

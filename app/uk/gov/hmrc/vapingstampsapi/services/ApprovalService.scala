@@ -18,9 +18,9 @@ package uk.gov.hmrc.vapingstampsapi.services
 
 import cats.data.EitherT
 import play.api.Logging
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpException, HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.vapingstampsapi.connectors.EISConnector
-import uk.gov.hmrc.vapingstampsapi.models.{ApprovalRequest, EnrichedApprovedSummary}
+import uk.gov.hmrc.vapingstampsapi.models.{ApprovalRequest, ApprovalSummaryResponse}
 
 import javax.inject.*
 import scala.concurrent.{ExecutionContext, Future}
@@ -33,7 +33,9 @@ class ApprovalService @Inject() (
 
   def retrieveStatus(
     request: ApprovalRequest
-  )(using hc: HeaderCarrier): EitherT[Future, HttpResponse, EnrichedApprovedSummary] =
+  )(using hc: HeaderCarrier): Future[Either[HttpResponse, ApprovalSummaryResponse]] =
     eisConnector
       .retrieveStatus(request)
-      .map(_.toEnrichedApprovedSummary(request.vdsEmail))
+      .recover { case e: HttpException =>
+        Left(HttpResponse(503, e.message))
+      }
