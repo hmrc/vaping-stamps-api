@@ -16,17 +16,9 @@
 
 package uk.gov.hmrc.vapingstampsapi.models
 
-import play.api.libs.json.{Format, JsString, Json, OFormat, Reads, Writes}
+import play.api.libs.json.{Json, OFormat, Reads}
 
-final case class NotApprovedSummaryResponse(
-  approvalStatus: ApprovalStatus
-) {
-  def toEnrichedNotApprovedSummary(email: String): EnrichedNotApprovedSummary =
-    EnrichedNotApprovedSummary(
-      approvalStatus,
-      email
-    )
-}
+final case class NotApprovedSummaryResponse(approvalStatus: ApprovalStatus) extends ApprovalSummaryResponse
 
 object NotApprovedSummaryResponse {
   given OFormat[NotApprovedSummaryResponse] = Json.format[NotApprovedSummaryResponse]

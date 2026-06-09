@@ -45,7 +45,7 @@ class ApprovalServiceSpec extends AnyWordSpec with Matchers with MockitoSugar wi
     ApprovalRequest("test@badtest.com", "GBVA0000001DS")
 
   private val approvalSummary =
-    ApprovalSummaryResponse(
+    ApprovedSummaryResponse(
       approvalStatus = Approved,
       businessName = "Acme Vaping Ltd",
       addressLine1 = "1 Business Park",
@@ -60,7 +60,7 @@ class ApprovalServiceSpec extends AnyWordSpec with Matchers with MockitoSugar wi
     )
 
   private val enrichedApprovalSummary =
-    EnrichedApprovalSummary(
+    EnrichedApprovedSummary(
       Approved,
       "Acme Vaping Ltd",
       "1 Business Park",
@@ -76,7 +76,7 @@ class ApprovalServiceSpec extends AnyWordSpec with Matchers with MockitoSugar wi
     )
 
   private val notApprovedSummary =
-    ApprovalSummaryResponse(
+    ApprovedSummaryResponse(
       approvalStatus = Not_Approved,
       businessName = "Acme Vaping Ltd",
       addressLine1 = "1 Business Park",
@@ -91,7 +91,7 @@ class ApprovalServiceSpec extends AnyWordSpec with Matchers with MockitoSugar wi
     )
 
   private val enrichedNotApprovedSummary =
-    EnrichedApprovalSummary(
+    EnrichedApprovedSummary(
       Not_Approved,
       "Acme Vaping Ltd",
       "1 Business Park",

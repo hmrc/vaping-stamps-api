@@ -24,7 +24,7 @@ import uk.gov.hmrc.http.*
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.vapingstampsapi.config.AppConfig
 import uk.gov.hmrc.vapingstampsapi.connectors.parsers.EISParser.{EISResponse, EISResponseReads}
-import uk.gov.hmrc.vapingstampsapi.models.{ApprovalRequest, ApprovalSummaryResponse}
+import uk.gov.hmrc.vapingstampsapi.models.{ApprovalRequest, ApprovalSummaryResponse, ApprovedSummaryResponse}
 
 import javax.inject.*
 import scala.concurrent.*

@@ -24,7 +24,7 @@ import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.vapingstampsapi.models.ApprovalStatus.Approved
-import uk.gov.hmrc.vapingstampsapi.models.{ApprovalRequest, ApprovalSummaryResponse}
+import uk.gov.hmrc.vapingstampsapi.models.{ApprovalRequest, ApprovedSummaryResponse}
 import uk.gov.hmrc.vapingstampsapi.utils.WiremockHelper
 
 import scala.concurrent.*
@@ -75,7 +75,7 @@ class EISConnectorSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuit
       val result = Await.result(connector.retrieveStatus(approvalRequest).value, 1.seconds)
 
       result mustBe Right(
-        ApprovalSummaryResponse(
+        ApprovedSummaryResponse(
           Approved,
           "Acme Vaping Ltd",
           "1 Business Park",

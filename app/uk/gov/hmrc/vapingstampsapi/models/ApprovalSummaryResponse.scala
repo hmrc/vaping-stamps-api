@@ -1,53 +1,109 @@
-/*
- * Copyright 2026 HM Revenue & Customs
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package uk.gov.hmrc.vapingstampsapi.models
 
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.json.*
+import play.api.libs.json.JsPath.json
+import play.mvc.BodyParser.Json
+import uk.gov.hmrc.vapingstampsapi.models.ApprovalStatus.{Approved, Not_Approved}
 
-final case class ApprovalSummaryResponse(
-  approvalStatus: ApprovalStatus,
-  businessName: String,
-  addressLine1: String,
-  addressLine2: Option[String] = None,
-  addressLine3: Option[String] = None,
-  addressLine4: Option[String] = None,
-  addressLine5: Option[String] = None,
-  postCode: String,
-  contactName: Option[String] = None,
-  telephoneNumber: Option[String] = None,
-  stampsThreshold: Long
-) {
-  def toEnrichedApprovalSummary(email: String): EnrichedApprovalSummary =
-    EnrichedApprovalSummary(
-      approvalStatus,
-      businessName,
-      addressLine1,
-      addressLine2,
-      addressLine3,
-      addressLine4,
-      addressLine5,
-      postCode,
-      email,
-      contactName,
-      telephoneNumber,
-      stampsThreshold
-    )
+sealed trait  ApprovalSummaryResponse {
+  def approvalStatus: ApprovalStatus
 }
 
-object ApprovalSummaryResponse {
-  given OFormat[ApprovalSummaryResponse] = Json.format[ApprovalSummaryResponse]
+//case res: JsObject if (res \ "approvalStatus").equals(ApprovalStatus.Approved)=> ApprovedSummaryResponse
+
+object ApprovalSummaryResponse{
+  given readFromJsString: Reads[ApprovalSummaryResponse] = Reads{
+    case res if res.approvalStatu => JsSuccess(ApprovalSummaryResponse)
+    case res:JsValue if (res \ "approvalStatus").equals(ApprovalStatus.Not_Approved) => JsSuccess(Not_Approved)
+    case _ => JsError("Unexpected Json format")
+  }
 }
+
+//final case class ApprovedSummaryResponse (
+//                                           approvalStatus: ApprovalStatus,
+//                                           businessName: String,
+//                                           addressLine1: String,
+//                                           addressLine2: Option[String] = None,
+//                                           addressLine3: Option[String] = None,
+//                                           addressLine4: Option[String] = None,
+//                                           addressLine5: Option[String] = None,
+//                                           postCode: String,
+//                                           contactName: Option[String] = None,
+//                                           telephoneNumber: Option[String] = None,
+//                                           stampsThreshold: Long
+//                                         ) extends ApprovalSummaryResponse {
+//  def toEnrichedApprovedSummary(email: String): EnrichedApprovedSummary =
+//    EnrichedApprovedSummary(
+//      approvalStatus,
+//      businessName,
+//      addressLine1,
+//      addressLine2,
+//      addressLine3,
+//      addressLine4,
+//      addressLine5,
+//      postCode,
+//      email,
+//      contactName,
+//      telephoneNumber,
+//      stampsThreshold
+//    )
+//}
+//
+//object ApprovedSummaryResponse {
+//  given OFormat[ApprovedSummaryResponse] = Json.format[ApprovedSummaryResponse]
+//}
+
+//case class EnrichedApprovedSummary(
+//                                    approvalStatus: ApprovalStatus,
+//                                    businessName: String,
+//                                    addressLine1: String,
+//                                    addressLine2: Option[String],
+//                                    addressLine3: Option[String],
+//                                    addressLine4: Option[String],
+//                                    addressLine5: Option[String],
+//                                    postCode: String,
+//                                    contactEmail: String,
+//                                    contactName: Option[String],
+//                                    telephoneNumber: Option[String],
+//                                    stampsThreshold: Long
+//                                  ) extends ApprovalSummaryResponse
+//
+//object EnrichedApprovedSummary {
+//  given writes: Writes[EnrichedApprovedSummary] = Json.writes[EnrichedApprovedSummary]
+//}
+//
+//final case class NotApprovedSummaryResponse(approvalStatus: ApprovalStatus) extends ApprovalSummaryResponse
+//
+//object NotApprovedSummaryResponse {
+//  given OFormat[NotApprovedSummaryResponse] = Json.format[NotApprovedSummaryResponse]
+//}
+
+//  given responseSelector: response[JsObject] with {
+//    override def compare(js: JsObject):ApprovalSummaryResponse
+//
+//    match
+//    {
+//      case js.validate[ApprovalSummaryResponse
+//      ] => ApprovalSummaryResponse
+//      case js.validate[NotApprovedSummaryResponse]
+//      => NotApprovedSummaryResponse
+//      case _ => JsError("Unrecognised Json Format")
+//    }
+//  }
+
+  //  Reads[ApprovalSummaryResponse] = new Reads[ApprovalSummaryResponse]
+  //
+  //  def reads(js: JsObject): JsResult[ApprovalSummary] = js.validate[JsObject]
+  //}
+
+  //implicit val emailAddressReads: Reads[EmailAddress] = new Reads[EmailAddress] {
+  //  def reads(js: JsValue): JsResult[EmailAddress] = js.validate[String].flatMap {
+  //    case s if EmailAddress.isValid(s) => JsSuccess(EmailAddress(s))
+  //    case _ => JsError("not a valid email address")
+  //  }
+  //}
+
+//  override def canEqual(that: Any): Boolean = super.canEqual(that)
+
+//  override def equals(obj: JsObject): Boolean = super.equals(obj)
+

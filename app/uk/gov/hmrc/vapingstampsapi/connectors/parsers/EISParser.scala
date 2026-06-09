@@ -17,6 +17,8 @@
 package uk.gov.hmrc.vapingstampsapi.connectors.parsers
 
 import play.api.http.Status.OK
+import play.api.libs.json.OFormat.oFormatFromReadsAndOWrites
+import play.api.libs.json.Format.GenericFormat
 import uk.gov.hmrc.http.{HttpReads, HttpResponse}
 import uk.gov.hmrc.vapingstampsapi.models.ApprovalSummaryResponse
 

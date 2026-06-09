@@ -16,13 +16,23 @@
 
 package uk.gov.hmrc.vapingstampsapi.models
 
-import play.api.libs.json.{Json, Writes}
+import play.api.libs.json.{Json, Reads, Writes}
 
-case class EnrichedNotApprovedSummary(
+case class EnrichedApprovedSummary(
   approvalStatus: ApprovalStatus,
-  email: String
-)
+  businessName: String,
+  addressLine1: String,
+  addressLine2: Option[String],
+  addressLine3: Option[String],
+  addressLine4: Option[String],
+  addressLine5: Option[String],
+  postCode: String,
+  contactEmail: String,
+  contactName: Option[String],
+  telephoneNumber: Option[String],
+  stampsThreshold: Long
+) extends ApprovalSummaryResponse
 
-object EnrichedNotApprovedSummary {
-  given writes: Writes[EnrichedNotApprovedSummary] = Json.writes[EnrichedNotApprovedSummary]
+object EnrichedApprovedSummary {
+  given writes: Writes[EnrichedApprovedSummary] = Json.writes[EnrichedApprovedSummary]
 }

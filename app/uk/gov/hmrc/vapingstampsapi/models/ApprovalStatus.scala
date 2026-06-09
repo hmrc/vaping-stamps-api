@@ -28,21 +28,10 @@ object ApprovalStatus:
     Reads {
       case JsString("APPROVED")     => JsSuccess(ApprovalStatus.Approved)
       case JsString("NOT_APPROVED") => JsSuccess(ApprovalStatus.Not_Approved)
-      case _                        => JsError("There will be a better error here")
+      case _                        => JsError("There will be a better error here")//TODO
     },
     Writes {
       case ApprovalStatus.Approved     => JsString("APPROVED")
       case ApprovalStatus.Not_Approved => JsString("NOT_APPROVED")
     }
   )
-
-//    Reads {
-//      case JsString(value) =>
-//        ApprovalStatus.values
-//          .find(_.toString == value)
-//          .map(JsSuccess(_))
-//          .getOrElse(JsError(""))
-//      case _ => JsError("Can put a better error here")
-//    },
-//    Writes(as => JsString(as.toString))
-//  )
