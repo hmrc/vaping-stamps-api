@@ -38,6 +38,8 @@ paths:
 
       parameters:
         - $ref: "#/components/parameters/acceptHeader"
+        - $ref: "#/components/parameters/authorizationHeader"
+        - $ref: "#/components/parameters/contentType"
 
       requestBody:
         required: true
@@ -175,6 +177,24 @@ components:
         type: string
         enum:
           - application/vnd.hmrc.1.0+json
+    authorizationHeader:
+      name: Authorization
+      in: header
+      required: true
+      description: "Authorization token to authorize application access to API"
+      schema:
+        type: string
+        example: "Bearer f44d58e9f36c1b5c9b18a0400f43efdd"
+    contentType:
+      name: Content-Type
+      in: header
+      required: true
+      description: "Specifies format for the response body"
+      schema:
+        type: string
+        enum:
+          - application/json
+
 
   schemas:
     ApprovedOperatorResponse:
@@ -304,9 +324,7 @@ components:
         - errors
       properties:
         code:
-          type: array
-          items:
-            type: string
+          type: string
         message:
           type: string
         errors:

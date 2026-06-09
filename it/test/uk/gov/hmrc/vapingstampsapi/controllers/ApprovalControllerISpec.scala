@@ -26,13 +26,13 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
 import play.api.mvc.Result
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{POST, contentAsJson, defaultAwaitTimeout, route, status}
+import play.api.test.Helpers.{POST, contentAsJson, defaultAwaitTimeout, route, status, writeableOf_AnyContentAsJson}
 import uk.gov.hmrc.vapingstampsapi.controllers.actions.{AuthAction, StubAuthAction}
 import uk.gov.hmrc.vapingstampsapi.utils.WiremockHelper
 
 import scala.concurrent.Future
 
-class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuite with WiremockHelper {
+class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuite with WiremockHelper:
 
   override def fakeApplication(): Application = GuiceApplicationBuilder()
     .configure(
@@ -47,6 +47,7 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
 
     val defaultHeaders: Seq[(String, String)] = Seq(
       "Content-Type"  -> "application/json",
+      "Accept"        -> "application/vnd.hmrc.1.0+json",
       "Authorization" -> "Bearer 123"
     )
 
@@ -55,7 +56,7 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
         """
           |{
           |  "vdsEmail": "example@email.com",
-          |  "stampsReferenceNumber": "AAAA0000200BB"
+          |  "stampsReferenceNumber": "GBVA0000001DS"
           |}
           |""".stripMargin
 
@@ -92,14 +93,14 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
 
       val request = FakeRequest(POST, "/status")
         .withHeaders(defaultHeaders*)
-        .withBody(requestBody)
+        .withJsonBody(Json.parse(requestBody))
 
       stubEndpointForPost(200, requestBody, responseBody)
 
       val response: Option[Future[Result]] = route(app, request)
 
-      response.map(status) mustBe Some(OK)
       response.map(contentAsJson) mustBe Some(Json.parse(expectedResponse))
+      response.map(status) mustBe Some(OK)
     }
 
     "return 400 error when invalid Id is passed" in {
@@ -114,8 +115,9 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
       val responseBody =
         """
           |{
-          |  "code": "Invalid approvalId",
-          |  "message": "An Invalid request has been made"
+          |  "code": "BAD_REQUEST",
+          |  "message": "The request is invalid",
+          |  "errors": ["006"]
           |}
           |""".stripMargin
 
@@ -136,7 +138,7 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
         """
           |{
           |  "vdsEmail": "example@email.com",
-          |  "stampsReferenceNumber": "AAAA0000200BB"
+          |  "stampsReferenceNumber": "GBVA0000200DS"
           |}
           |""".stripMargin
 
@@ -165,7 +167,7 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
         """
           |{
           |  "vdsEmail": "example@email.com",
-          |  "stampsReferenceNumber": "AAAA0000200BB"
+          |  "stampsReferenceNumber": "GBVA0000200DS"
           |}
           |""".stripMargin
 
@@ -195,7 +197,7 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
         """
           |{
           |  "vdsEmail": "example@email.com",
-          |  "stampsReferenceNumber": "AAAA0000200BB"
+          |  "stampsReferenceNumber": "GBVA0000200DS"
           |}
           |""".stripMargin
 
@@ -223,7 +225,7 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
         """
           |{
           |  "vdsEmail": "example@email.com",
-          |  "stampsReferenceNumber": "AAAA0000200BB"
+          |  "stampsReferenceNumber": "GBVA0000200DS"
           |}
           |""".stripMargin
 
@@ -279,7 +281,7 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
         """
           |{
           |  "vdsEmail": "example@email.com",
-          |  "stampsReferenceNumber": "AAAA0000200BB"
+          |  "stampsReferenceNumber": "GBVA0000200DS"
           |}
           |""".stripMargin
 
@@ -318,4 +320,3 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
       response.map(contentAsJson) mustBe Some(Json.parse(expectedResponse))
     }
   }
-}
