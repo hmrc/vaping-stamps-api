@@ -204,7 +204,6 @@ components:
         - businessName
         - addressLine1
         - postCode
-        - contactEmail
         - stampsThreshold
 
       example:
@@ -266,11 +265,6 @@ components:
         contactTelephone:
           type: string
           description: Contact telephone number for the purchasing operator.
-
-        contactEmail:
-          type: string
-          format: email
-          description: Contact email address for the purchasing operator.
 
         stampsThreshold:
           type: number

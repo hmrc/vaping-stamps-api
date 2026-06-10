@@ -16,9 +16,8 @@
 
 package uk.gov.hmrc.vapingstampsapi.services
 
-import cats.data.EitherT
 import play.api.Logging
-import uk.gov.hmrc.http.{HeaderCarrier, HttpException, HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.vapingstampsapi.connectors.EISConnector
 import uk.gov.hmrc.vapingstampsapi.models.{ApprovalRequest, ApprovalSummaryResponse}
 
@@ -36,6 +35,3 @@ class ApprovalService @Inject() (
   )(using hc: HeaderCarrier): Future[Either[HttpResponse, ApprovalSummaryResponse]] =
     eisConnector
       .retrieveStatus(request)
-      .recover { case e: HttpException =>
-        Left(HttpResponse(503, e.message))
-      }

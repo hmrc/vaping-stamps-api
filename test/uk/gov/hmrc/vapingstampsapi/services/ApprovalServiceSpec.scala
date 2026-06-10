@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.vapingstampsapi.services
 
-import cats.data.EitherT
 import org.mockito.Mockito.*
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.must.Matchers
@@ -25,10 +24,9 @@ import org.scalatestplus.mockito.MockitoSugar
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.vapingstampsapi.connectors.EISConnector
 import uk.gov.hmrc.vapingstampsapi.models.*
-import ApprovalStatus.{Approved, Not_Approved}
+import uk.gov.hmrc.vapingstampsapi.models.ApprovalStatus.{Approved, Not_Approved}
 
-import scala.concurrent.duration.DurationInt
-import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.concurrent.{ExecutionContext, Future}
 
 class ApprovalServiceSpec extends AnyWordSpec with Matchers with MockitoSugar with ScalaFutures {
 
@@ -44,7 +42,7 @@ class ApprovalServiceSpec extends AnyWordSpec with Matchers with MockitoSugar wi
   private val approvalBadRequest =
     ApprovalRequest("test@badtest.com", "GBVA0000001DS")
 
-  private val approvalSummary =
+  private val approvedSummary =
     ApprovedSummaryResponse(
       approvalStatus = Approved,
       businessName = "Acme Vaping Ltd",
@@ -57,22 +55,6 @@ class ApprovalServiceSpec extends AnyWordSpec with Matchers with MockitoSugar wi
       contactName = Some("John Smith"),
       telephoneNumber = Some("02071234567"),
       stampsThreshold = 10000
-    )
-
-  private val enrichedApprovalSummary =
-    EnrichedApprovedSummary(
-      Approved,
-      "Acme Vaping Ltd",
-      "1 Business Park",
-      Some("London"),
-      None,
-      None,
-      None,
-      "SW1A 1AA",
-      "test@test.com",
-      Some("John Smith"),
-      Some("02071234567"),
-      10000
     )
 
   private val notApprovedSummary =
@@ -90,40 +72,24 @@ class ApprovalServiceSpec extends AnyWordSpec with Matchers with MockitoSugar wi
       stampsThreshold = 10000
     )
 
-  private val enrichedNotApprovedSummary =
-    EnrichedApprovedSummary(
-      Not_Approved,
-      "Acme Vaping Ltd",
-      "1 Business Park",
-      Some("London"),
-      None,
-      None,
-      None,
-      "SW1A 1AA",
-      "test@test.com",
-      Some("John Smith"),
-      Some("02071234567"),
-      10000
-    )
-
   "ApprovalService.retrieveStatus" should {
 
     "return Right(ApprovalSummaryResponse) when downstream returns 200 with an approved status message" in {
       when(mockConnector.retrieveStatus(approvalRequest))
-        .thenReturn(EitherT(Future.successful(Right(approvalSummary))))
+        .thenReturn(Future.successful(Right(approvedSummary)))
 
-      val result = Await.result(service.retrieveStatus(approvalRequest).value, 2.seconds)
+      val result = service.retrieveStatus(approvalRequest).futureValue
 
-      result mustBe Right(enrichedApprovalSummary)
+      result mustBe Right(approvedSummary)
     }
 
     "return Right(NotApprovedSummaryResponse) when downstream returns 200 with a not approved status message" in {
       when(mockConnector.retrieveStatus(approvalBadRequest))
-        .thenReturn(EitherT(Future.successful(Right(notApprovedSummary))))
+        .thenReturn(Future.successful(Right(notApprovedSummary)))
 
-      val result = Await.result(service.retrieveStatus(approvalRequest).value, 2.seconds)
+      val result = service.retrieveStatus(approvalRequest).futureValue
 
-      result mustBe Right(enrichedNotApprovedSummary)
+      result mustBe Right(notApprovedSummary)
     }
 
     "propagate Left(HttpResponse) when downstream returns an error" in {
@@ -134,9 +100,9 @@ class ApprovalServiceSpec extends AnyWordSpec with Matchers with MockitoSugar wi
         )
 
       when(mockConnector.retrieveStatus(approvalRequest))
-        .thenReturn(EitherT(Future.successful(Left(errorResponse))))
+        .thenReturn(Future.successful(Left(errorResponse)))
 
-      val result = Await.result(service.retrieveStatus(approvalRequest).value, 2.seconds)
+      val result = service.retrieveStatus(approvalRequest).futureValue
 
       result.left.map(_.status) mustBe Left(400)
       result.left.map(_.body) mustBe Left(

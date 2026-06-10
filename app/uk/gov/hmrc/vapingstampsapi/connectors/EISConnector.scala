@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.vapingstampsapi.connectors
 
-import cats.data.EitherT
 import org.slf4j.LoggerFactory
 import play.api.libs.json.*
 import play.api.libs.ws.writeableOf_JsValue
@@ -24,7 +23,7 @@ import uk.gov.hmrc.http.*
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.vapingstampsapi.config.AppConfig
 import uk.gov.hmrc.vapingstampsapi.connectors.parsers.EISParser.{EISResponse, EISResponseReads}
-import uk.gov.hmrc.vapingstampsapi.models.{ApprovalRequest, ApprovalSummaryResponse, ApprovedSummaryResponse}
+import uk.gov.hmrc.vapingstampsapi.models.ApprovalRequest
 
 import javax.inject.*
 import scala.concurrent.*
@@ -50,3 +49,6 @@ class EISConnector @Inject() (
       .setHeader("Authorization" -> s"Bearer ${appConfig.eisAuthToken}")
       .withBody(Json.toJson(request))
       .execute[EISResponse]
+      .recover { case e: HttpException =>
+        Left(HttpResponse(503, e.message))
+      }
