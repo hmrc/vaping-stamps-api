@@ -23,13 +23,22 @@ sealed trait ApprovalSummaryResponse {
 }
 
 object ApprovalSummaryResponse {
-  given readFromJson: Reads[ApprovalSummaryResponse] = Reads {
-    case res if (res \ "approvalStatus").equals(ApprovalStatus.approved) => JsSuccess(res.as[ApprovedSummaryResponse])
-    case res if (res \ "approvalStatus").equals(ApprovalStatus.not_Approved) =>
-      JsSuccess(res.as[NotApprovedSummaryResponse])
-    case _ => JsError("Unexpected Json format")
-  }
-  given writeToJson: OWrites[ApprovalSummaryResponse] = Json.writes[ApprovalSummaryResponse]
+  given readFromJson: Format[ApprovalSummaryResponse] = Format(
+    Reads {
+      case json @ JsObject(underlying) =>
+        underlying.get("approvalStatus") match {
+          case Some(JsString("APPROVED"))     => JsSuccess(json.as[ApprovedSummaryResponse])
+          case Some(JsString("NOT_APPROVED")) => JsSuccess(json.as[NotApprovedSummaryResponse])
+          case Some(other)                    => JsError("Unexpected approvalStatus")
+          case None                           => JsError("Missing approvalStatus in ResponseBody")
+        }
+      case _ => JsError("Unexpected Json format")
+    },
+    Writes {
+      case approvedSummaryResponse: ApprovedSummaryResponse       => Json.toJson(approvedSummaryResponse)
+      case notApprovedSummaryResponse: NotApprovedSummaryResponse => Json.toJson(notApprovedSummaryResponse)
+    }
+  )
 }
 
 final case class ApprovedSummaryResponse(

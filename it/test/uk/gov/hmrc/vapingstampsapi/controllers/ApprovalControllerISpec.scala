@@ -60,12 +60,17 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
           |}
           |""".stripMargin
 
+        """
+          |{
+          |  "vdsEmail": "example@email.com",
+          |  "stampsReferenceNumber": "GBVA0000200DS"
+          |}
+          |""".stripMargin
+
       val responseBody =
         """
           |{
-          |  "approvalStatus": {
-          |      "approved": "APPROVED"
-          |  },
+          |  "approvalStatus": "APPROVED",
           |  "businessName": "Acme Vaping Ltd",
           |  "addressLine1": "1 Business Park",
           |  "addressLine2": "London",
@@ -80,9 +85,7 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
       val expectedResponse =
         """
           |{
-          |  "approvalStatus": {
-          |      "approved": "APPROVED"
-          |  },
+          |  "approvalStatus": "APPROVED",
           |  "businessName": "Acme Vaping Ltd",
           |  "addressLine1": "1 Business Park",
           |  "addressLine2": "London",
@@ -118,9 +121,7 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
       val responseBody =
         """
           |{
-          |  "approvalStatus": {
-          |      "approved": "APPROVED"
-          |  },
+          |  "approvalStatus": "APPROVED",
           |  "businessName": "Acme Vaping Ltd",
           |  "addressLine1": "1 Business Park",
           |  "addressLine2": "London",
@@ -137,9 +138,7 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
       val expectedResponse =
         """
           |{
-          |  "approvalStatus": {
-          |      "approved": "APPROVED"
-          |  },
+          |  "approvalStatus": "APPROVED",
           |  "businessName": "Acme Vaping Ltd",
           |  "addressLine1": "1 Business Park",
           |  "addressLine2": "London",
@@ -177,9 +176,7 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
       val responseBody =
         """
           |{
-          |  "approvalStatus": {
-          |      "approved": "APPROVED"
-          |  },
+          |  "approvalStatus": "APPROVED",
           |  "businessName": "Acme Vaping Ltd",
           |  "addressLine1": "1 Business Park",
           |  "postCode": "SW1A 1AA",        
@@ -190,9 +187,7 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
       val expectedResponse =
         """
           |{
-          |  "approvalStatus": {
-          |      "approved": "APPROVED"
-          |  },
+          |  "approvalStatus": "APPROVED",
           |  "businessName": "Acme Vaping Ltd",
           |  "addressLine1": "1 Business Park",
           |  "postCode": "SW1A 1AA",
@@ -217,25 +212,26 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
         """
           |{
           |  "vdsEmail": "wrongExample@email.com",
-          |  "stampsReferenceNumber": "AAAA0000200BB"
+          |  "stampsReferenceNumber": "GBVA0000200DS"
           |}
           |""".stripMargin
 
       val responseBody =
         """
           |{
-          |  "approvalStatus": {
-          |      "approved": "NOT_APPROVED"
-          |  }
+          |  "approvalStatus": "NOT_APPROVED",
+          |  "businessName": "Acme Vaping Ltd",
+          |  "addressLine1": "1 Business Park",
+          |  "postCode": "SW1A 1AA",
+          |  "stampsThreshold": 10000
           |}
           |""".stripMargin
 
       val expectedResponse =
         """
           |{
-          |  "approvalStatus": {
-          |      "approved": "NOT_APPROVED"
-          |}
+          |  "approvalStatus": "NOT_APPROVED"
+          |  }
           |""".stripMargin
 
       val request = FakeRequest(POST, "/status")
@@ -270,7 +266,7 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
           |""".stripMargin
 
       val request = FakeRequest(POST, "/status")
-        .withHeaders(defaultHeaders *)
+        .withHeaders(defaultHeaders*)
         .withBody(requestBody)
 
       stubEndpointForPost(400, requestBody, responseBody)
@@ -300,7 +296,7 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
           |""".stripMargin
 
       val request = FakeRequest(POST, "/url-not-in-service")
-        .withHeaders(defaultHeaders *)
+        .withHeaders(defaultHeaders*)
         .withBody(requestBody)
 
       val response: Option[Future[Result]] = route(app, request)
@@ -328,7 +324,7 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
           |""".stripMargin
 
       val request = FakeRequest(POST, "/status")
-        .withHeaders(defaultHeaders *)
+        .withHeaders(defaultHeaders*)
         .withBody(requestBody)
 
       stubEndpointForPost(422, requestBody, responseBody)
@@ -357,7 +353,7 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
           |""".stripMargin
 
       val request = FakeRequest(POST, "/status")
-        .withHeaders(defaultHeaders *)
+        .withHeaders(defaultHeaders*)
         .withBody(requestBody)
 
       stubEndpointForPost(500, requestBody, responseBody)

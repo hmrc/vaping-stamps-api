@@ -51,9 +51,7 @@ class EISConnectorSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuit
     val responseBody =
       """
         |{
-        |  "approvalStatus": {
-        |      "Approved": "APPROVED"
-        |  },
+        |  "approvalStatus": "APPROVED",
         |  "businessName": "Acme Vaping Ltd",
         |  "addressLine1": "1 Business Park",
         |  "addressLine2": "London",
