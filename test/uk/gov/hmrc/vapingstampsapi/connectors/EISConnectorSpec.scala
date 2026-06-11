@@ -17,16 +17,18 @@
 package uk.gov.hmrc.vapingstampsapi.connectors
 
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, equalToJson, post, urlEqualTo}
-import org.scalatest.concurrent.ScalaFutures.convertScalaFuture
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-import uk.gov.hmrc.vapingstampsapi.models.ApprovalStatus.Approved
+import uk.gov.hmrc.vapingstampsapi.models.ApprovalStatus.approved
 import uk.gov.hmrc.vapingstampsapi.models.{ApprovalRequest, ApprovedSummaryResponse}
 import uk.gov.hmrc.vapingstampsapi.utils.WiremockHelper
+
+import scala.concurrent.*
+import scala.concurrent.duration.DurationInt
 
 class EISConnectorSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuite with WiremockHelper {
 
@@ -49,7 +51,9 @@ class EISConnectorSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuit
     val responseBody =
       """
         |{
-        |  "approvalStatus": "APPROVED",
+        |  "approvalStatus": {
+        |      "Approved": "APPROVED"
+        |  },
         |  "businessName": "Acme Vaping Ltd",
         |  "addressLine1": "1 Business Park",
         |  "addressLine2": "London",
@@ -70,11 +74,11 @@ class EISConnectorSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuit
 
     "return HttpResponse 200 on success" in {
       stubEndpointForPost(200, requestBody, responseBody)
-      val result = connector.retrieveStatus(approvalRequest).futureValue
+      val result = Await.result(connector.retrieveStatus(approvalRequest).value, 2.seconds)
 
       result mustBe Right(
         ApprovedSummaryResponse(
-          Approved,
+          approved,
           "Acme Vaping Ltd",
           "1 Business Park",
           Some("London"),
@@ -91,7 +95,7 @@ class EISConnectorSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuit
 
     "propagate non-200 HttpResponse from downstream" in {
       stubEndpointForPost(400, requestBody, "The request payload is invalid or malformed.")
-      val result = connector.retrieveStatus(approvalRequest).futureValue
+      val result = Await.result(connector.retrieveStatus(approvalRequest).value, 1.seconds)
 
       result.left.map(_.status) mustBe Left(400)
       result.left.map(_.body) mustBe Left("The request payload is invalid or malformed.")
@@ -110,7 +114,7 @@ class EISConnectorSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuit
           )
       )
 
-      val result = connector.retrieveStatus(approvalRequest).futureValue
+      val result = Await.result(connector.retrieveStatus(approvalRequest).value, 2.seconds)
 
       result.left.map(_.status) mustBe Left(503)
     }

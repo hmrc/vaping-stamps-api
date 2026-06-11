@@ -33,7 +33,7 @@ import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.vapingstampsapi.controllers.actions.{AuthAction, StubAuthAction, StubValidateRequestAction, ValidateRequestAction}
-import uk.gov.hmrc.vapingstampsapi.models.ApprovalStatus.Approved
+import uk.gov.hmrc.vapingstampsapi.models.ApprovalStatus.approved
 import uk.gov.hmrc.vapingstampsapi.models.{ApprovalRequest, ApprovedSummaryResponse}
 import uk.gov.hmrc.vapingstampsapi.services.ApprovalService
 
@@ -64,7 +64,7 @@ class ApprovalControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppP
   private lazy val controller = app.injector.instanceOf[ApprovalController]
 
   val approvedSummary = ApprovedSummaryResponse(
-    approvalStatus = Approved,
+    approvalStatus = approved,
     businessName = "Acme Vaping Ltd",
     addressLine1 = "123 Main Street",
     addressLine2 = Some("Any Town"),

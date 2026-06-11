@@ -24,12 +24,11 @@ sealed trait ApprovalSummaryResponse {
 
 object ApprovalSummaryResponse {
   given readFromJson: Reads[ApprovalSummaryResponse] = Reads {
-    case res if (res \ "approvalStatus").equals(ApprovalStatus.Approved) => JsSuccess(res.as[ApprovedSummaryResponse])
-    case res if (res \ "approvalStatus").equals(ApprovalStatus.Not_Approved) =>
+    case res if (res \ "approvalStatus").equals(ApprovalStatus.approved) => JsSuccess(res.as[ApprovedSummaryResponse])
+    case res if (res \ "approvalStatus").equals(ApprovalStatus.not_Approved) =>
       JsSuccess(res.as[NotApprovedSummaryResponse])
     case _ => JsError("Unexpected Json format")
   }
-
   given writeToJson: OWrites[ApprovalSummaryResponse] = Json.writes[ApprovalSummaryResponse]
 }
 

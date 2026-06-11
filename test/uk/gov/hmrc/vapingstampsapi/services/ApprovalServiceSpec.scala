@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.vapingstampsapi.services
 
+import cats.data.EitherT
 import org.mockito.Mockito.*
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.must.Matchers
@@ -24,9 +25,10 @@ import org.scalatestplus.mockito.MockitoSugar
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.vapingstampsapi.connectors.EISConnector
 import uk.gov.hmrc.vapingstampsapi.models.*
-import uk.gov.hmrc.vapingstampsapi.models.ApprovalStatus.{Approved, Not_Approved}
+import uk.gov.hmrc.vapingstampsapi.models.ApprovalStatus.{approved, not_Approved}
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.duration.DurationInt
+import scala.concurrent.{Await, ExecutionContext, Future}
 
 class ApprovalServiceSpec extends AnyWordSpec with Matchers with MockitoSugar with ScalaFutures {
 
@@ -44,7 +46,7 @@ class ApprovalServiceSpec extends AnyWordSpec with Matchers with MockitoSugar wi
 
   private val approvedSummary =
     ApprovedSummaryResponse(
-      approvalStatus = Approved,
+      approvalStatus = approved,
       businessName = "Acme Vaping Ltd",
       addressLine1 = "1 Business Park",
       addressLine2 = Some("London"),
@@ -58,36 +60,26 @@ class ApprovalServiceSpec extends AnyWordSpec with Matchers with MockitoSugar wi
     )
 
   private val notApprovedSummary =
-    ApprovedSummaryResponse(
-      approvalStatus = Not_Approved,
-      businessName = "Acme Vaping Ltd",
-      addressLine1 = "1 Business Park",
-      addressLine2 = Some("London"),
-      addressLine3 = None,
-      addressLine4 = None,
-      addressLine5 = None,
-      postCode = "SW1A 1AA",
-      contactName = Some("John Smith"),
-      telephoneNumber = Some("02071234567"),
-      stampsThreshold = 10000
+    NotApprovedSummaryResponse(
+      approvalStatus = not_Approved
     )
 
   "ApprovalService.retrieveStatus" should {
 
-    "return Right(ApprovalSummaryResponse) when downstream returns 200 with an approved status message" in {
+    "return Right(ApprovedSummaryResponse) when downstream returns 200 with an approved status message" in {
       when(mockConnector.retrieveStatus(approvalRequest))
-        .thenReturn(Future.successful(Right(approvedSummary)))
+        .thenReturn(EitherT(Future.successful(Right(approvedSummary))))
 
-      val result = service.retrieveStatus(approvalRequest).futureValue
+      val result = Await.result(service.retrieveStatus(approvalRequest).value, 2.seconds)
 
       result mustBe Right(approvedSummary)
     }
 
     "return Right(NotApprovedSummaryResponse) when downstream returns 200 with a not approved status message" in {
       when(mockConnector.retrieveStatus(approvalBadRequest))
-        .thenReturn(Future.successful(Right(notApprovedSummary)))
+        .thenReturn(EitherT(Future.successful(Right(notApprovedSummary))))
 
-      val result = service.retrieveStatus(approvalRequest).futureValue
+      val result = Await.result(service.retrieveStatus(approvalBadRequest).value, 2.seconds)
 
       result mustBe Right(notApprovedSummary)
     }
@@ -100,9 +92,9 @@ class ApprovalServiceSpec extends AnyWordSpec with Matchers with MockitoSugar wi
         )
 
       when(mockConnector.retrieveStatus(approvalRequest))
-        .thenReturn(Future.successful(Left(errorResponse)))
+        .thenReturn(EitherT(Future.successful(Left(errorResponse))))
 
-      val result = service.retrieveStatus(approvalRequest).futureValue
+      val result = Await.result(service.retrieveStatus(approvalRequest).value, 2.seconds)
 
       result.left.map(_.status) mustBe Left(400)
       result.left.map(_.body) mustBe Left(

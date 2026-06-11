@@ -63,9 +63,10 @@ class ApprovalController @Inject() (
   private def processRequest(approvalRequest: ApprovalRequest)(using HeaderCarrier): Future[Result] =
     service
       .retrieveStatus(approvalRequest)
-      .map {
-        case Right(summary) => Ok(Json.toJson[ApprovalSummaryResponse](summary))
-        case Left(response) =>
+      .fold(
+        response =>
           logger.warn(s"[retrieveStatus][EIS API Error] Service Unavailable: ${response.status} - ${response.body}")
           Status(response.status)(response.json)
-      }
+        ,
+        summary => Ok(Json.toJson(summary))
+      )

@@ -19,19 +19,19 @@ package uk.gov.hmrc.vapingstampsapi.models
 import play.api.libs.json.*
 
 enum ApprovalStatus {
-  case Approved
-  case Not_Approved
+  case approved, not_Approved
 }
 
 object ApprovalStatus:
   given Format[ApprovalStatus] = Format(
     Reads {
-      case JsString("APPROVED")     => JsSuccess(ApprovalStatus.Approved)
-      case JsString("NOT_APPROVED") => JsSuccess(ApprovalStatus.Not_Approved)
-      case _                        => JsError("There will be a better error here") // TODO
+      case JsString("APPROVED")     => JsSuccess(ApprovalStatus.approved)
+      case JsString("NOT_APPROVED") => JsSuccess(ApprovalStatus.not_Approved)
+      case JsString(other)          => JsError(s"Unknown Status: $other")
+      case _                        => JsError("Unexpected Enum")
     },
     Writes {
-      case ApprovalStatus.Approved     => JsString("APPROVED")
-      case ApprovalStatus.Not_Approved => JsString("NOT_APPROVED")
+      case ApprovalStatus.`approved`     => JsString("APPROVED")
+      case ApprovalStatus.`not_Approved` => JsString("NOT_APPROVED")
     }
   )

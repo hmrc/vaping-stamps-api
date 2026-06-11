@@ -63,7 +63,9 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
       val responseBody =
         """
           |{
-          |  "approvalStatus": "APPROVED",
+          |  "approvalStatus": {
+          |      "approved": "APPROVED"
+          |  },
           |  "businessName": "Acme Vaping Ltd",
           |  "addressLine1": "1 Business Park",
           |  "addressLine2": "London",
@@ -78,7 +80,9 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
       val expectedResponse =
         """
           |{
-          |  "approvalStatus": "APPROVED",
+          |  "approvalStatus": {
+          |      "approved": "APPROVED"
+          |  },
           |  "businessName": "Acme Vaping Ltd",
           |  "addressLine1": "1 Business Park",
           |  "addressLine2": "London",
@@ -114,7 +118,9 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
       val responseBody =
         """
           |{
-          |  "approvalStatus": "APPROVED",
+          |  "approvalStatus": {
+          |      "approved": "APPROVED"
+          |  },
           |  "businessName": "Acme Vaping Ltd",
           |  "addressLine1": "1 Business Park",
           |  "addressLine2": "London",
@@ -131,7 +137,9 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
       val expectedResponse =
         """
           |{
-          |  "approvalStatus": "APPROVED",
+          |  "approvalStatus": {
+          |      "approved": "APPROVED"
+          |  },
           |  "businessName": "Acme Vaping Ltd",
           |  "addressLine1": "1 Business Park",
           |  "addressLine2": "London",
@@ -169,7 +177,9 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
       val responseBody =
         """
           |{
-          |  "approvalStatus": "APPROVED",
+          |  "approvalStatus": {
+          |      "approved": "APPROVED"
+          |  },
           |  "businessName": "Acme Vaping Ltd",
           |  "addressLine1": "1 Business Park",
           |  "postCode": "SW1A 1AA",        
@@ -180,7 +190,9 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
       val expectedResponse =
         """
           |{
-          |  "approvalStatus": "APPROVED",
+          |  "approvalStatus": {
+          |      "approved": "APPROVED"
+          |  },
           |  "businessName": "Acme Vaping Ltd",
           |  "addressLine1": "1 Business Park",
           |  "postCode": "SW1A 1AA",
@@ -205,41 +217,24 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
         """
           |{
           |  "vdsEmail": "wrongExample@email.com",
-          |  "stampsReferenceNum       §§ber": "AAAA0000200BB"
+          |  "stampsReferenceNumber": "AAAA0000200BB"
           |}
           |""".stripMargin
 
       val responseBody =
         """
           |{
-          |  "approvalStatus": "NOT_APPROVED",
-          |  "businessName": "Acme Vaping Ltd",
-          |  "addressLine1": "1 Business Park",
-          |  "addressLine2": "London",
-          |  "addressLine3": "Greater London",
-          |  "addressLine4": "United Kingdom",
-          |  "addressLine5": "Europe",
-          |  "postCode": "SW1A 1AA",
-          |  "contactName": "John Smith",
-          |  "telephoneNumber": "02071234567",
-          |  "stampsThreshold": 10000
+          |  "approvalStatus": {
+          |      "approved": "NOT_APPROVED"
+          |  }
           |}
           |""".stripMargin
 
       val expectedResponse =
         """
           |{
-          |  "approvalStatus": "NOT_APPROVED",
-          |  "businessName": "Acme Vaping Ltd",
-          |  "addressLine1": "1 Business Park",
-          |  "addressLine2": "London",
-          |  "addressLine3": "Greater London",
-          |  "addressLine4": "United Kingdom",
-          |  "addressLine5": "Europe",
-          |  "postCode": "SW1A 1AA",
-          |  "contactName": "John Smith",
-          |  "telephoneNumber": "02071234567",
-          |  "stampsThreshold": 10000
+          |  "approvalStatus": {
+          |      "approved": "NOT_APPROVED"
           |}
           |""".stripMargin
 
@@ -286,7 +281,7 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
       response.map(contentAsJson) mustBe Some(Json.parse(responseBody))
     }
 
-    "return 500 error when downstream error is returned" in {
+    "return 404 when request is made to url that doesn't exist" in {
       val requestBody =
         """
           |{
@@ -298,20 +293,19 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
       val responseBody =
         """
           |{
-          |  "datetime": "2021-12-17T09:30:47Z",
-          |  "message": "An unexpected error occurred while processing the request."
+          |  "statusCode": 404,
+          |  "message": "URI not found",
+          |  "requested": "/url-not-in-service"
           |}
           |""".stripMargin
 
-      val request = FakeRequest(POST, "/status")
+      val request = FakeRequest(POST, "/url-not-in-service")
         .withHeaders(defaultHeaders *)
         .withBody(requestBody)
 
-      stubEndpointForPost(500, requestBody, responseBody)
-
       val response: Option[Future[Result]] = route(app, request)
 
-      response.map(status) mustBe Some(INTERNAL_SERVER_ERROR)
+      response.map(status) mustBe Some(NOT_FOUND)
       response.map(contentAsJson) mustBe Some(Json.parse(responseBody))
     }
 
@@ -345,7 +339,7 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
       response.map(contentAsJson) mustBe Some(Json.parse(responseBody))
     }
 
-    "return 404 when request is made to url that doesn't exist" in {
+    "return 500 error when downstream error is returned" in {
       val requestBody =
         """
           |{
@@ -357,19 +351,20 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
       val responseBody =
         """
           |{
-          |  "statusCode": 404,
-          |  "message": "URI not found",
-          |  "requested": "/url-not-in-service"
+          |  "datetime": "2021-12-17T09:30:47Z",
+          |  "message": "An unexpected error occurred while processing the request."
           |}
           |""".stripMargin
 
-      val request = FakeRequest(POST, "/url-not-in-service")
+      val request = FakeRequest(POST, "/status")
         .withHeaders(defaultHeaders *)
         .withBody(requestBody)
 
+      stubEndpointForPost(500, requestBody, responseBody)
+
       val response: Option[Future[Result]] = route(app, request)
 
-      response.map(status) mustBe Some(NOT_FOUND)
+      response.map(status) mustBe Some(INTERNAL_SERVER_ERROR)
       response.map(contentAsJson) mustBe Some(Json.parse(responseBody))
     }
 

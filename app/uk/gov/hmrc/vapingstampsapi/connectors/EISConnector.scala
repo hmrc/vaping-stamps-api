@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.vapingstampsapi.connectors
 
+import cats.data.EitherT
 import org.slf4j.LoggerFactory
 import play.api.libs.json.*
 import play.api.libs.ws.writeableOf_JsValue
@@ -23,7 +24,7 @@ import uk.gov.hmrc.http.*
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.vapingstampsapi.config.AppConfig
 import uk.gov.hmrc.vapingstampsapi.connectors.parsers.EISParser.{EISResponse, EISResponseReads}
-import uk.gov.hmrc.vapingstampsapi.models.ApprovalRequest
+import uk.gov.hmrc.vapingstampsapi.models.{ApprovalRequest, ApprovalSummaryResponse}
 
 import javax.inject.*
 import scala.concurrent.*
@@ -38,17 +39,20 @@ class EISConnector @Inject() (
 
   def retrieveStatus(
     request: ApprovalRequest
-  )(using hc: HeaderCarrier): Future[EISResponse] =
+  )(using hc: HeaderCarrier): EitherT[Future, HttpResponse, ApprovalSummaryResponse] =
 
     val url = s"${appConfig.eisBaseUrl}/etds/vaping/stamps/status"
 
     logger.info(s"[EISConnector][retrieveStatus] called: $url")
-    http
-      .post(url"$url")
-      .setHeader("Environment" -> appConfig.eisEnvironment)
-      .setHeader("Authorization" -> s"Bearer ${appConfig.eisAuthToken}")
-      .withBody(Json.toJson(request))
-      .execute[EISResponse]
-      .recover { case e: HttpException =>
-        Left(HttpResponse(503, e.message))
-      }
+
+    EitherT(
+      http
+        .post(url"$url")
+        .setHeader("Environment" -> appConfig.eisEnvironment)
+        .setHeader("Authorization" -> s"Bearer ${appConfig.eisAuthToken}")
+        .withBody(Json.toJson(request))
+        .execute[EISResponse]
+        .recover { case e: HttpException =>
+          Left(HttpResponse(503, e.message))
+        }
+    )

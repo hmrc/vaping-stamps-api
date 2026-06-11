@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.vapingstampsapi.services
 
+import cats.data.EitherT
 import play.api.Logging
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.vapingstampsapi.connectors.EISConnector
@@ -32,6 +33,6 @@ class ApprovalService @Inject() (
 
   def retrieveStatus(
     request: ApprovalRequest
-  )(using hc: HeaderCarrier): Future[Either[HttpResponse, ApprovalSummaryResponse]] =
+  )(using hc: HeaderCarrier): EitherT[Future, HttpResponse, ApprovalSummaryResponse] =
     eisConnector
       .retrieveStatus(request)
