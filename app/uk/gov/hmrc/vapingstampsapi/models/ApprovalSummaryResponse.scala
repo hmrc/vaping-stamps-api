@@ -18,9 +18,8 @@ package uk.gov.hmrc.vapingstampsapi.models
 
 import play.api.libs.json.*
 
-sealed trait ApprovalSummaryResponse {
+sealed trait ApprovalSummaryResponse:
   def approvalStatus: ApprovalStatus
-}
 
 object ApprovalSummaryResponse {
   given readFromJson: Format[ApprovalSummaryResponse] = Format(
@@ -29,7 +28,7 @@ object ApprovalSummaryResponse {
         underlying.get("approvalStatus") match {
           case Some(JsString("APPROVED"))     => JsSuccess(json.as[ApprovedSummaryResponse])
           case Some(JsString("NOT_APPROVED")) => JsSuccess(json.as[NotApprovedSummaryResponse])
-          case Some(other)                    => JsError("Unexpected approvalStatus")
+          case Some(_)                        => JsError("Unexpected approvalStatus")
           case None                           => JsError("Missing approvalStatus in ResponseBody")
         }
       case _ => JsError("Unexpected Json format")

@@ -25,7 +25,7 @@ import org.scalatestplus.mockito.MockitoSugar
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.vapingstampsapi.connectors.EISConnector
 import uk.gov.hmrc.vapingstampsapi.models.*
-import uk.gov.hmrc.vapingstampsapi.models.ApprovalStatus.{approved, not_Approved}
+import uk.gov.hmrc.vapingstampsapi.models.ApprovalStatus.{approved, not_approved}
 
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{Await, ExecutionContext, Future}
@@ -61,7 +61,7 @@ class ApprovalServiceSpec extends AnyWordSpec with Matchers with MockitoSugar wi
 
   private val notApprovedSummary =
     NotApprovedSummaryResponse(
-      approvalStatus = not_Approved
+      approvalStatus = not_approved
     )
 
   "ApprovalService.retrieveStatus" should {

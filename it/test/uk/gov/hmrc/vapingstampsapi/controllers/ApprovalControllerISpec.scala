@@ -60,13 +60,6 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
           |}
           |""".stripMargin
 
-        """
-          |{
-          |  "vdsEmail": "example@email.com",
-          |  "stampsReferenceNumber": "GBVA0000200DS"
-          |}
-          |""".stripMargin
-
       val responseBody =
         """
           |{

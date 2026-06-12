@@ -23,7 +23,7 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-import uk.gov.hmrc.vapingstampsapi.models.ApprovalStatus.{approved, not_Approved}
+import uk.gov.hmrc.vapingstampsapi.models.ApprovalStatus.{approved, not_approved}
 import uk.gov.hmrc.vapingstampsapi.models.{ApprovalRequest, ApprovedSummaryResponse, NotApprovedSummaryResponse}
 import uk.gov.hmrc.vapingstampsapi.utils.WiremockHelper
 
@@ -112,7 +112,7 @@ class EISConnectorSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuit
 
       result mustBe Right(
         NotApprovedSummaryResponse(
-          not_Approved
+          not_approved
         )
       )
     }
