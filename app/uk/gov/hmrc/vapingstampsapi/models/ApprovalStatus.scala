@@ -18,9 +18,9 @@ package uk.gov.hmrc.vapingstampsapi.models
 
 import play.api.libs.json.*
 
-enum ApprovalStatus {
+enum ApprovalStatus:
   case approved, not_Approved
-}
+
 
 object ApprovalStatus:
   given Format[ApprovalStatus] = Format(
