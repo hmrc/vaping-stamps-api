@@ -65,24 +65,27 @@ paths:
                   - $ref: "#/components/schemas/ApprovedOperatorResponse"
                   - $ref: "#/components/schemas/NotApprovedOperatorResponse"
               examples:
-                Approved:
-                  {
-                    approvalStatus: "APPROVED",
-                    businessName: "Example Trading Ltd",
-                    addressLine1: "Address Line 1",
-                    addressLine2: "Address Line 2",
-                    addressLine3: "Address Line 3",
-                    addressLine4: "Address Line 4",
-                    addressLine5: "Address Line 5",
-                    postCode: "SW1A 1AA",
-                    contactName: "Jane Smith",
-                    telephoneNumber: "+44 20 7946 0123",
-                    stampsThreshold: 500000
-                  }
-                NotApproved:
-                  {
-                    approvalStatus: "NOT_APPROVED"
-                  }
+                  Approved:
+                    value:
+                      {
+                        approvalStatus: "APPROVED",
+                        businessName: "Example Trading Ltd",
+                        addressLine1: "Address Line 1",
+                        addressLine2: "Address Line 2",
+                        addressLine3: "Address Line 3",
+                        addressLine4: "Address Line 4",
+                        addressLine5: "Address Line 5",
+                        postCode: "SW1A 1AA",
+                        contactName: "Jane Smith",
+                        telephoneNumber: "+44 20 7946 0123",
+                        stampsThreshold: 500000
+                      }
+                  NotApproved:
+                    value:
+                      {
+                        approvalStatus: "NOT_APPROVED"
+                      }
+
 
         "400":
           description: Client error — the request is malformed or fails validation.
@@ -241,8 +244,7 @@ components:
           telephoneNumber: "+44 20 7946 0123",
           stampsThreshold: 500000
         }
-      
-      
+
       properties:
         approvalStatus:
           type: string
