@@ -62,8 +62,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ApprovedOperatorResponse"
-              example:
-                {
+                $ref: "#/components/schemas/NotApprovedOperatorResponse"
+              examples:
+                Approved:
                   approvalStatus: "APPROVED",
                   businessName: "Example Trading Ltd",
                   addressLine1: "Address Line 1",
@@ -75,7 +76,8 @@ paths:
                   contactName: "Jane Smith",
                   telephoneNumber: "+44 20 7946 0123",
                   stampsThreshold: 500000
-                }
+                NotApproved:
+                  approvalStatus: "NOT_APPROVED"
 
         "400":
           description: Client error — the request is malformed or fails validation.
@@ -195,7 +197,6 @@ components:
         enum:
           - application/json
 
-
   schemas:
     ApprovalRequest:
       type: object
@@ -243,7 +244,6 @@ components:
                 description: The current approval status of the purchasing operator.
                 enum:
                   - APPROVED
-                  - NOT APPROVED
 
               businessName:
                 type: string
@@ -285,7 +285,7 @@ components:
                 type: number
                 description: Approved stamp purchase threshold.
 
-    Not ApprovedOperatorResponse:
+    NotApprovedOperatorResponse:
       type: object
       required:
         - approvalStatus
