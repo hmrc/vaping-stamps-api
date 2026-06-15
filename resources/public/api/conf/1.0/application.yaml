@@ -197,79 +197,6 @@ components:
 
 
   schemas:
-    ApprovedOperatorResponse:
-      type: object
-      required:
-        - approvalStatus
-        - businessName
-        - addressLine1
-        - postCode
-        - stampsThreshold
-
-      example:
-        {
-          approvalStatus: "APPROVED",
-          businessName: "Example Trading Ltd",
-          addressLine1: "Address Line 1",
-          addressLine2: "Address Line 2",
-          addressLine3: "Address Line 3",
-          addressLine4: "Address Line 4",
-          addressLine5: "Address Line 5",
-          postCode: "SW1A 1AA",
-          contactName: "Jane Smith",
-          telephoneNumber: "+44 20 7946 0123",
-          stampsThreshold: 500000
-        }
-
-
-      properties:
-        approvalStatus:
-          type: string
-          description: The current approval status of the purchasing operator.
-          enum:
-            - APPROVED
-            - NOT APPROVED
-
-        businessName:
-          type: string
-          description: Registered business name of the purchasing operator.
-
-        addressLine1:
-          type: string
-          description: First line of business' address
-
-        addressLine2:
-          type: string
-          description: Second line of business' address
-
-        addressLine3:
-          type: string
-          description: Third line of business' address
-
-        addressLine4:
-          type: string
-          description: Fourth line of business' address
-
-        addressLine5:
-          type: string
-          description: Fifth line of business' address
-
-        postCode:
-          type: string
-          description: Postal Code for business' address
-
-        contactName:
-          type: string
-          description: Primary contact name for the purchasing operator.
-
-        contactTelephone:
-          type: string
-          description: Contact telephone number for the purchasing operator.
-
-        stampsThreshold:
-          type: number
-          description: Approved stamp purchase threshold.
-
     ApprovalRequest:
       type: object
       required:
@@ -284,6 +211,95 @@ components:
           type: string
           pattern: "^GBVA[0-9]{7}DS$"
           description: Vaping Duty Stamps Approval ID issued by HMRC.
+
+    ApprovedOperatorResponse:
+            type: object
+            required:
+              - approvalStatus
+              - businessName
+              - addressLine1
+              - postCode
+              - stampsThreshold
+
+            example:
+              {
+                approvalStatus: "APPROVED",
+                businessName: "Example Trading Ltd",
+                addressLine1: "Address Line 1",
+                addressLine2: "Address Line 2",
+                addressLine3: "Address Line 3",
+                addressLine4: "Address Line 4",
+                addressLine5: "Address Line 5",
+                postCode: "SW1A 1AA",
+                contactName: "Jane Smith",
+                telephoneNumber: "+44 20 7946 0123",
+                stampsThreshold: 500000
+              }
+
+
+            properties:
+              approvalStatus:
+                type: string
+                description: The current approval status of the purchasing operator.
+                enum:
+                  - APPROVED
+                  - NOT APPROVED
+
+              businessName:
+                type: string
+                description: Registered business name of the purchasing operator.
+
+              addressLine1:
+                type: string
+                description: First line of business' address
+
+              addressLine2:
+                type: string
+                description: Second line of business' address
+
+              addressLine3:
+                type: string
+                description: Third line of business' address
+
+              addressLine4:
+                type: string
+                description: Fourth line of business' address
+
+              addressLine5:
+                type: string
+                description: Fifth line of business' address
+
+              postCode:
+                type: string
+                description: Postal Code for business' address
+
+              contactName:
+                type: string
+                description: Primary contact name for the purchasing operator.
+
+              contactTelephone:
+                type: string
+                description: Contact telephone number for the purchasing operator.
+
+              stampsThreshold:
+                type: number
+                description: Approved stamp purchase threshold.
+
+    Not ApprovedOperatorResponse:
+      type: object
+      required:
+        - approvalStatus
+
+      example:
+        {
+          approvalStatus: "NOT_APPROVED"
+        }
+      properties:
+        approvalStatus:
+          type: string
+          description: The current approval status of the purchasing operator.
+          enum:
+            - NOT_APPROVED
 
     ErrorResponse:
       type: object
