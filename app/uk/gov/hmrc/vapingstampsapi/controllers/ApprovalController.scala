@@ -65,7 +65,7 @@ class ApprovalController @Inject() (
       .retrieveStatus(approvalRequest)
       .fold(
         response =>
-          logger.warn(s"[retrieveStatus][EIS API Error] Service Unavailable: ${response.status} - ${response.body}")
+          logger.warn(s"[retrieveStatus][EIS API Error] Service Unavailable. Downstream statusCode: ${response.status}")
           Status(response.status)(response.json)
         ,
         summary => Ok(Json.toJson(summary))
