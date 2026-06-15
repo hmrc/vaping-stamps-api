@@ -16,10 +16,32 @@
 
 package uk.gov.hmrc.vapingstampsapi.models
 
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.json.*
 
-final case class ApprovalSummaryResponse(
-  approvalStatus: String,
+sealed trait ApprovalSummaryResponse:
+  def approvalStatus: ApprovalStatus
+
+object ApprovalSummaryResponse {
+  given readFromJson: Format[ApprovalSummaryResponse] = Format(
+    Reads {
+      case json @ JsObject(underlying) =>
+        underlying.get("approvalStatus") match {
+          case Some(JsString("APPROVED"))     => JsSuccess(json.as[ApprovedSummaryResponse])
+          case Some(JsString("NOT_APPROVED")) => JsSuccess(json.as[NotApprovedSummaryResponse])
+          case Some(_)                        => JsError("Unexpected approvalStatus")
+          case None                           => JsError("Missing approvalStatus in ResponseBody")
+        }
+      case _ => JsError("Unexpected Json format")
+    },
+    Writes {
+      case approvedSummaryResponse: ApprovedSummaryResponse       => Json.toJson(approvedSummaryResponse)
+      case notApprovedSummaryResponse: NotApprovedSummaryResponse => Json.toJson(notApprovedSummaryResponse)
+    }
+  )
+}
+
+final case class ApprovedSummaryResponse(
+  approvalStatus: ApprovalStatus,
   businessName: String,
   addressLine1: String,
   addressLine2: Option[String] = None,
@@ -30,24 +52,14 @@ final case class ApprovalSummaryResponse(
   contactName: Option[String] = None,
   telephoneNumber: Option[String] = None,
   stampsThreshold: Long
-) {
-  def toEnrichedApprovalSummary(email: String): EnrichedApprovalSummary =
-    EnrichedApprovalSummary(
-      approvalStatus,
-      businessName,
-      addressLine1,
-      addressLine2,
-      addressLine3,
-      addressLine4,
-      addressLine5,
-      postCode,
-      email,
-      contactName,
-      telephoneNumber,
-      stampsThreshold
-    )
+) extends ApprovalSummaryResponse
+
+object ApprovedSummaryResponse {
+  given OFormat[ApprovedSummaryResponse] = Json.format[ApprovedSummaryResponse]
 }
 
-object ApprovalSummaryResponse {
-  given OFormat[ApprovalSummaryResponse] = Json.format[ApprovalSummaryResponse]
+final case class NotApprovedSummaryResponse(approvalStatus: ApprovalStatus) extends ApprovalSummaryResponse
+
+object NotApprovedSummaryResponse {
+  given OFormat[NotApprovedSummaryResponse] = Json.format[NotApprovedSummaryResponse]
 }

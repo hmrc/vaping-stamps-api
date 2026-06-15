@@ -23,7 +23,8 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-import uk.gov.hmrc.vapingstampsapi.models.{ApprovalRequest, ApprovalSummaryResponse}
+import uk.gov.hmrc.vapingstampsapi.models.ApprovalStatus.{approved, not_approved}
+import uk.gov.hmrc.vapingstampsapi.models.{ApprovalRequest, ApprovedSummaryResponse, NotApprovedSummaryResponse}
 import uk.gov.hmrc.vapingstampsapi.utils.WiremockHelper
 
 import scala.concurrent.*
@@ -61,6 +62,21 @@ class EISConnectorSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuit
         |}
         |
           """.stripMargin
+
+    val responseBodyNotApproved =
+      """
+        |{
+        |  "approvalStatus": "NOT_APPROVED",
+        |  "businessName": "Acme Vaping Ltd",
+        |  "addressLine1": "1 Business Park",
+        |  "addressLine2": "London",
+        |  "postCode": "SW1A 1AA",
+        |  "contactName": "John Smith",
+        |  "telephoneNumber": "02071234567",
+        |  "stampsThreshold": 10000
+        |}
+        |
+        """.stripMargin
     val requestBody =
       """
         |{
@@ -69,13 +85,13 @@ class EISConnectorSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuit
         |}
         |""".stripMargin
 
-    "return HttpResponse 200 on success" in {
+    "return HttpResponse 200 with a success and Full responseBody" in {
       stubEndpointForPost(200, requestBody, responseBody)
-      val result = Await.result(connector.retrieveStatus(approvalRequest).value, 1.seconds)
+      val result = Await.result(connector.retrieveStatus(approvalRequest).value, 2.seconds)
 
       result mustBe Right(
-        ApprovalSummaryResponse(
-          "APPROVED",
+        ApprovedSummaryResponse(
+          approved,
           "Acme Vaping Ltd",
           "1 Business Park",
           Some("London"),
@@ -86,6 +102,17 @@ class EISConnectorSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuit
           Some("John Smith"),
           Some("02071234567"),
           10000
+        )
+      )
+    }
+
+    "return HttpResponse 200 with a success and a Not Approved responseBody" in {
+      stubEndpointForPost(200, requestBody, responseBodyNotApproved)
+      val result = Await.result(connector.retrieveStatus(approvalRequest).value, 2.seconds)
+
+      result mustBe Right(
+        NotApprovedSummaryResponse(
+          not_approved
         )
       )
     }

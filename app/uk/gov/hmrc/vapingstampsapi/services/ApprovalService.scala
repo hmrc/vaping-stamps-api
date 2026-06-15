@@ -20,7 +20,7 @@ import cats.data.EitherT
 import play.api.Logging
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.vapingstampsapi.connectors.EISConnector
-import uk.gov.hmrc.vapingstampsapi.models.{ApprovalRequest, EnrichedApprovalSummary}
+import uk.gov.hmrc.vapingstampsapi.models.{ApprovalRequest, ApprovalSummaryResponse}
 
 import javax.inject.*
 import scala.concurrent.{ExecutionContext, Future}
@@ -33,7 +33,6 @@ class ApprovalService @Inject() (
 
   def retrieveStatus(
     request: ApprovalRequest
-  )(using hc: HeaderCarrier): EitherT[Future, HttpResponse, EnrichedApprovalSummary] =
+  )(using hc: HeaderCarrier): EitherT[Future, HttpResponse, ApprovalSummaryResponse] =
     eisConnector
       .retrieveStatus(request)
-      .map(_.toEnrichedApprovalSummary(request.vdsEmail))

@@ -23,7 +23,7 @@ import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisedFunctions}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import uk.gov.hmrc.vapingstampsapi.controllers.actions.{AuthAction, ValidateRequestAction}
-import uk.gov.hmrc.vapingstampsapi.models.{ApprovalRequest, EnrichedApprovalSummary}
+import uk.gov.hmrc.vapingstampsapi.models.ApprovalRequest
 import uk.gov.hmrc.vapingstampsapi.services.ApprovalService
 
 import javax.inject.*

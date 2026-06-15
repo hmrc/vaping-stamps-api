@@ -33,7 +33,8 @@ import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.vapingstampsapi.controllers.actions.{AuthAction, StubAuthAction, StubValidateRequestAction, ValidateRequestAction}
-import uk.gov.hmrc.vapingstampsapi.models.{ApprovalRequest, ApprovalSummaryResponse, EnrichedApprovalSummary}
+import uk.gov.hmrc.vapingstampsapi.models.ApprovalStatus.approved
+import uk.gov.hmrc.vapingstampsapi.models.{ApprovalRequest, ApprovedSummaryResponse}
 import uk.gov.hmrc.vapingstampsapi.services.ApprovalService
 
 import scala.concurrent.*
@@ -62,8 +63,8 @@ class ApprovalControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppP
 
   private lazy val controller = app.injector.instanceOf[ApprovalController]
 
-  val approvalSummary = ApprovalSummaryResponse(
-    approvalStatus = "APPROVED",
+  val approvedSummary = ApprovedSummaryResponse(
+    approvalStatus = approved,
     businessName = "Acme Vaping Ltd",
     addressLine1 = "123 Main Street",
     addressLine2 = Some("Any Town"),
@@ -71,27 +72,13 @@ class ApprovalControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppP
     addressLine4 = None,
     addressLine5 = None,
     postCode = "SW98 1XY",
-    contactName = Some("John Doe"),
-    telephoneNumber = Some("0123456789"),
-    stampsThreshold = 10000L
-  )
-
-  val enrichedApprovalSummary = EnrichedApprovalSummary(
-    approvalStatus = "APPROVED",
-    businessName = "Acme Vaping Ltd",
-    addressLine1 = "123 Main Street",
-    addressLine2 = Some("Any Town"),
-    addressLine3 = None,
-    addressLine4 = None,
-    addressLine5 = None,
-    postCode = "SW98 1XY",
-    contactEmail = "test@test.com",
     contactName = Some("John Doe"),
     telephoneNumber = Some("0123456789"),
     stampsThreshold = 10000L
   )
 
   val approvalRequest: ApprovalRequest = ApprovalRequest("test@test.com", "GBVA0000001DS")
+  val notApprovedRequest = ApprovalRequest("testBad@test.com", "GBVA0000001DS")
 
   val postRequest: FakeRequest[JsValue] = FakeRequest(POST, "/status").withBody(Json.toJson(approvalRequest))
 
@@ -102,13 +89,13 @@ class ApprovalControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppP
 
     "return OK with valid JSON body when parameters to the call are valid" in {
       when(mockService.retrieveStatus(any[ApprovalRequest])(using any[HeaderCarrier]))
-        .thenReturn(EitherT(Future.successful(Right(enrichedApprovalSummary))))
+        .thenReturn(EitherT(Future.successful(Right(approvedSummary))))
 
       val result = controller.retrieveStatus().apply(postRequest)
 
       status(result) mustBe OK
       contentType(result) mustBe Some("application/json")
-      contentAsJson(result) mustBe Json.toJson(enrichedApprovalSummary)
+      contentAsJson(result) mustBe Json.toJson(approvedSummary)
     }
 
     "return BadRequest when the request body is missing" in {
