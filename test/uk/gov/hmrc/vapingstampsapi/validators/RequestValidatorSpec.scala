@@ -47,6 +47,22 @@ class RequestValidatorSpec extends AnyWordSpec with Matchers:
 
         validator.fromRequest(request) mustBe Valid(ApprovalRequest("example@email.com", "GBVA0000001DS"))
       }
+      "Valid request is made with NI Reference" in {
+
+        val request = FakeRequest()
+          .withHeaders(
+            "Accept"        -> "application/vnd.hmrc.1.0+json",
+            "Authorization" -> "Bearer Token"
+          )
+          .withBody(
+            Json.obj(
+              "vdsEmail"              -> "example@email.com",
+              "stampsReferenceNumber" -> "XIVA0000001DS"
+            )
+          )
+
+        validator.fromRequest(request) mustBe Valid(ApprovalRequest("example@email.com", "XIVA0000001DS"))
+      }
     }
 
     "Return Invalid Non Empty Chain" when {

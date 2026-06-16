@@ -45,12 +45,12 @@ class ValidateRequestActionSpec extends AnyWordSpec with Matchers {
             .withHeaders(("Accept", "application/vnd.hmrc.1.0+json"), ("Authorization", "Bearer Token"))
             .withJsonBody(
               JsObject(
-                Seq("vdsEmail" -> JsString("example@email.com"), "stampsReferenceNumber" -> JsString("GBVA0000001BB"))
+                Seq("vdsEmail" -> JsString("example@email.com"), "stampsReferenceNumber" -> JsString("XIVA0000001BB"))
               )
             )
 
           when(mockRequestValidator.fromRequest(request))
-            .thenReturn(Valid(ApprovalRequest("email@example.com", "GBVA0000001BB")))
+            .thenReturn(Valid(ApprovalRequest("email@example.com", "XIVA0000001BB")))
 
           await(validator.filter(request)) mustBe None
         }

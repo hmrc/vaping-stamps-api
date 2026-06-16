@@ -162,7 +162,7 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
         """
           |{
           |  "vdsEmail": "example@email.com",
-          |  "stampsReferenceNumber": "GBVA0000200DS"
+          |  "stampsReferenceNumber": "XIVA0000200DS"
           |}
           |""".stripMargin
 
@@ -205,7 +205,7 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
         """
           |{
           |  "vdsEmail": "wrongExample@email.com",
-          |  "stampsReferenceNumber": "GBVA0000200DS"
+          |  "stampsReferenceNumber": "XIVA0000200DS"
           |}
           |""".stripMargin
 
@@ -240,7 +240,7 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
 
     }
 
-    "return 400 error when invalid Id is passed" in {
+    "return 400 error when invalid Reference Number is passed" in {
       val requestBody =
         """
           |{
