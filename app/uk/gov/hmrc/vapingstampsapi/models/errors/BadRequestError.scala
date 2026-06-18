@@ -30,10 +30,10 @@ case object MissingAcceptHeader extends BadRequestError:
 case object IncorrectAcceptHeader extends BadRequestError:
   override def toString: String = "002"
 
-case object MissingAuthorizationHeader extends BadRequestError:
+case object MissingContentTypeHeader extends BadRequestError:
   override def toString: String = "003"
 
-case object IncorrectAuthorizationHeader extends BadRequestError:
+case object IncorrectContentTypeHeader extends BadRequestError:
   override def toString: String = "004"
 
 case object MissingStampsReferenceNumber extends BadRequestError:

@@ -20,6 +20,7 @@ import cats.data.EitherT
 import play.api.Logging
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.vapingstampsapi.connectors.EISConnector
+import uk.gov.hmrc.vapingstampsapi.models.errors.ApiError
 import uk.gov.hmrc.vapingstampsapi.models.{ApprovalRequest, ApprovalSummaryResponse}
 
 import javax.inject.*
@@ -33,6 +34,6 @@ class ApprovalService @Inject() (
 
   def retrieveStatus(
     request: ApprovalRequest
-  )(using hc: HeaderCarrier): EitherT[Future, HttpResponse, ApprovalSummaryResponse] =
+  )(using hc: HeaderCarrier): EitherT[Future, ApiError, ApprovalSummaryResponse] =
     eisConnector
       .retrieveStatus(request)

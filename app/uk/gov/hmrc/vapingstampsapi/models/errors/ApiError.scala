@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.vapingstampsapi.models.errors
 
-import play.api.libs.json.{Json, Writes}
+import play.api.libs.json.{Format, JsArray, JsObject, JsSuccess, Json, Reads, Writes}
 
 sealed trait ApiError:
   def code: String
@@ -31,4 +31,29 @@ case class BadRequestApiError(
 object BadRequestApiError:
   given writes: Writes[BadRequestApiError] = Json.writes[BadRequestApiError]
 
-case class DownstreamApiError(code: String, message: String) extends ApiError
+case class UnprocessableEntityApiError(
+                                          code: String = "UNPROCESSABLE_ENTITY",
+                                          message: String = "The request has returned a business logic error.",
+                                          errors: Seq[BusinessError]
+                                        ) extends ApiError
+  
+object UnprocessableEntityApiError:
+  given format: Format[UnprocessableEntityApiError] = Format(
+    Reads {
+      case JsObject(responseJson) =>
+        responseJson.get("sourceDefaultDetail") match {
+          case Some(JsObject(sourceDefaultDetail)) =>
+            sourceDefaultDetail.get("detail") match {
+              case Some(JsArray(value)) =>
+                val detail = JsArray(value).as[Seq[BusinessError]]
+                JsSuccess(UnprocessableEntityApiError(errors = detail))
+            }
+        }
+    },
+    Json.writes[UnprocessableEntityApiError]
+  )
+
+case class InternalServerErrorApiError(code: String = "INTERNAL_SERVER_ERROR", message: String) extends ApiError
+
+object InternalServerErrorApiError:
+  given writes: Writes[InternalServerErrorApiError] = Json.writes[InternalServerErrorApiError]

@@ -16,12 +16,13 @@
 
 package uk.gov.hmrc.vapingstampsapi.connectors.parsers
 
-import play.api.http.Status.OK
+import play.api.http.Status.{OK, UNPROCESSABLE_ENTITY}
 import uk.gov.hmrc.http.{HttpReads, HttpResponse}
 import uk.gov.hmrc.vapingstampsapi.models.ApprovalSummaryResponse
+import uk.gov.hmrc.vapingstampsapi.models.errors.{ApiError, InternalServerErrorApiError, UnprocessableEntityApiError}
 
 object EISParser {
-  type EISResponse = Either[HttpResponse, ApprovalSummaryResponse]
+  type EISResponse = Either[ApiError, ApprovalSummaryResponse]
 
   implicit object EISResponseReads extends HttpReads[EISResponse] {
 
@@ -31,10 +32,17 @@ object EISParser {
           response.json
             .validate[ApprovalSummaryResponse]
             .fold(
-              errors => Left(HttpResponse(500, "Received invalid response")),
-              summaryResponse => Right(summaryResponse)
+              errors => Left(InternalServerErrorApiError(message = "Received invalid response")),
+              Right(_)
             )
-        case _ => Left(response)
+        case UNPROCESSABLE_ENTITY =>
+          response.json
+            .validate[UnprocessableEntityApiError]
+            .fold(
+              errors => Left(InternalServerErrorApiError(message = "Received invalid response")),
+              Left(_)
+            )
+        case _ => Left(InternalServerErrorApiError(message = "fix later"))
       }
   }
 }
