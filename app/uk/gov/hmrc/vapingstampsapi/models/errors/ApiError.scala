@@ -16,7 +16,8 @@
 
 package uk.gov.hmrc.vapingstampsapi.models.errors
 
-import play.api.libs.json.{Format, JsArray, JsObject, JsSuccess, Json, Reads, Writes}
+import play.api.Logging
+import play.api.libs.json.*
 
 sealed trait ApiError:
   def code: String
@@ -36,19 +37,34 @@ case class UnprocessableEntityApiError(
                                           message: String = "The request has returned a business logic error.",
                                           errors: Seq[BusinessError]
                                         ) extends ApiError
-  
-object UnprocessableEntityApiError:
+
+object UnprocessableEntityApiError extends Logging :
   given format: Format[UnprocessableEntityApiError] = Format(
     Reads {
       case JsObject(responseJson) =>
         responseJson.get("sourceDefaultDetail") match {
           case Some(JsObject(sourceDefaultDetail)) =>
             sourceDefaultDetail.get("detail") match {
-              case Some(JsArray(value)) =>
-                val detail = JsArray(value).as[Seq[BusinessError]]
-                JsSuccess(UnprocessableEntityApiError(errors = detail))
+              case Some(JsArray(detail)) =>
+                val error = JsArray(detail).as[Seq[BusinessError]]
+                JsSuccess(UnprocessableEntityApiError(errors = error))
+              case None =>
+                logger.error("[UnprocessableEntityApiError][format]: No '/detail' available in response")
+                JsError("No '/detail' available in response")
+              case _ =>
+                logger.error("[UnprocessableEntityApiError][format]: '/detail' not returned as expected type")
+                JsError("'/detail' not returned as expected type")
             }
+          case None =>
+            logger.error("[UnprocessableEntityApiError][format]: No '/sourceDefaultDetail' available in response")
+            JsError("No '/sourceDefaultDetail' available in response")
+          case _ =>
+            logger.error("[UnprocessableEntityApiError][format]: '/sourceDefaultDetail' not returned as expected type")
+            JsError("'/sourceDefaultDetail' not returned as expected type")
         }
+      case _ =>
+        logger.error("[UnprocessableEntityApiError][format]: response body not returned as expected JsObject")
+        JsError("response body not returned as expected JsObject")
     },
     Json.writes[UnprocessableEntityApiError]
   )
