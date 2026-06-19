@@ -72,7 +72,6 @@ class ApprovalController @Inject() (
             UnprocessableEntity(Json.toJson(businessError))
           case internalServerError: InternalServerErrorApiError =>
             InternalServerError(Json.toJson(internalServerError))
-        }
-        ,
+        },
         summary => Ok(Json.toJson(summary))
       )

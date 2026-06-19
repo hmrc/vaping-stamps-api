@@ -30,6 +30,22 @@ paths:
         **Example request**
 
         `POST https://test-api.service.hmrc.gov.uk/misc/vaping/stamps/status`
+        
+        ### Test data
+        Different scenarios within the service can be simulated by supplying the service with a **stampsReferenceNumber** in the
+        request body. The table gives values for **stampsReferenceNumber** and a description of the scenario.
+        
+        | stampsReferenceNumber value      | Scenario                                                                      |
+        |----------------------------------|-------------------------------------------------------------------------------|
+        | GBVA0000200DS                    | Simulate a successful response with an approvalStatus = APPROVED.             |
+        | GBVA0000266DS                    | Simulate a successful response with an approvalStatus = NOT_APPROVED.         |
+        | GBVA0000422DS                    | Simulate a business error response where stampsReferenceNumber is not found.  |
+        | GBVA0000422DS                    | Simulate a business error response where vdsEmail is not found.               |
+        | GBVA0000500DS                    | Simulate an Internal Server Error from the API.                               |
+        | GBVA0000502DS                    | Simulates an error from the downstream services.                              |
+        
+        **NOTE**: 400 scenarios can be triggered by providing missing/invalid headers and request values in your request.
+      
 
       operationId: retrieveApprovalStatus
 
@@ -155,10 +171,23 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/5xxErrorResponse"
+                $ref: "#/components/schemas/500ErrorResponse"
               example:
                 {
-                  "message": "Service Unavailable"
+                  "code": "INTERNAL_SERVER_ERROR",
+                  "message": "<error message based on failure>"
+                }
+
+        "502":
+          description: Downstream error — an error has occurred downstream from the API
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/502ErrorResponse"
+              example:
+                {
+                  "code": "BAD_GATEWAY",
+                  "message": "An error has occurred downstream"
                 }
 
 components:
@@ -383,10 +412,25 @@ components:
             * "001" - stampsReferenceNumber not found in ETDS
             * "002" - vdsEmail not found in ETDS
 
-    5xxErrorResponse:
+    500ErrorResponse:
       type: object
       required:
+        - code
         - message
       properties:
+        code:
+          type: string
         message:
           type: string
+
+    502ErrorResponse:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+

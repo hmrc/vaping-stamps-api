@@ -58,7 +58,7 @@ class RequestValidator extends Validator[ApprovalRequest]:
       case Some(value) =>
         value match {
           case str if str == contentTypeHeader => Done.validNec
-          case _ => IncorrectContentTypeHeader.invalidNec
+          case _                               => IncorrectContentTypeHeader.invalidNec
         }
       case None => MissingContentTypeHeader.invalidNec
     }

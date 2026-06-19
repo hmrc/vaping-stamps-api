@@ -33,12 +33,12 @@ object BadRequestApiError:
   given writes: Writes[BadRequestApiError] = Json.writes[BadRequestApiError]
 
 case class UnprocessableEntityApiError(
-                                          code: String = "UNPROCESSABLE_ENTITY",
-                                          message: String = "The request has returned a business logic error.",
-                                          errors: Seq[BusinessError]
-                                        ) extends ApiError
+  code: String = "UNPROCESSABLE_ENTITY",
+  message: String = "The request has returned a business logic error.",
+  errors: Seq[BusinessError]
+) extends ApiError
 
-object UnprocessableEntityApiError extends Logging :
+object UnprocessableEntityApiError extends Logging:
   given format: Format[UnprocessableEntityApiError] = Format(
     Reads {
       case JsObject(responseJson) =>
