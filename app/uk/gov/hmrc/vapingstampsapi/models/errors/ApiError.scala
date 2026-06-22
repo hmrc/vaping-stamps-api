@@ -73,3 +73,8 @@ case class InternalServerErrorApiError(code: String = "INTERNAL_SERVER_ERROR", m
 
 object InternalServerErrorApiError:
   given writes: Writes[InternalServerErrorApiError] = Json.writes[InternalServerErrorApiError]
+
+case class BadGatewayApiError(code: String = "BAD_GATEWAY", message: String) extends ApiError
+
+object BadGatewayApiError:
+  given writes: Writes[BadGatewayApiError] = Json.writes[BadGatewayApiError]

@@ -161,7 +161,7 @@ paths:
                 $ref: "#/components/schemas/422ErrorResponse"
               example:
                 {
-                  "code": "UNPROCCESSABLE_ENTITY",
+                  "code": "UNPROCESSABLE_ENTITY",
                   "message": "Business error has occurred",
                   "errors": [ "001", "002" ]
                 }
@@ -381,8 +381,8 @@ components:
           description: |
             * "001" - Missing Accept Header
             * "002" - Incorrect Accept Header
-            * "003" - Missing Authorization Header
-            * "004" - Incorrect Authorization Header
+            * "003" - Missing Content-Type Header
+            * "004" - Incorrect Content-Type Header
             * "005" - Missing stampsReferenceNumber Header
             * "006" - Incorrect stampsReferenceNumber Header
             * "007" - Missing vdsEmail Header
