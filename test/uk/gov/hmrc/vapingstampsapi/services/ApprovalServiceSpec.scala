@@ -22,10 +22,11 @@ import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.vapingstampsapi.connectors.EISConnector
 import uk.gov.hmrc.vapingstampsapi.models.*
 import uk.gov.hmrc.vapingstampsapi.models.ApprovalStatus.{approved, not_approved}
+import uk.gov.hmrc.vapingstampsapi.models.errors.{BadGatewayApiError, StampsReferenceNumberNotFound, UnprocessableEntityApiError}
 
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{Await, ExecutionContext, Future}
@@ -84,21 +85,31 @@ class ApprovalServiceSpec extends AnyWordSpec with Matchers with MockitoSugar wi
       result mustBe Right(notApprovedSummary)
     }
 
-    "propagate Left(HttpResponse) when downstream returns an error" in {
+    "propagate Left(UnprocessableEntityApiError) when downstream returns an Left(UnprocessableEntityApiError)" in {
       val errorResponse =
-        HttpResponse(
-          400,
-          """{"code":"INVALID_REQUEST","message":"The request payload is invalid or malformed."}"""
-        )
+        UnprocessableEntityApiError(errors = Seq(StampsReferenceNumberNotFound))
 
       when(mockConnector.retrieveStatus(approvalRequest))
         .thenReturn(EitherT(Future.successful(Left(errorResponse))))
 
       val result = Await.result(service.retrieveStatus(approvalRequest).value, 2.seconds)
 
-      result.left.map(_.status) mustBe Left(400)
-      result.left.map(_.body) mustBe Left(
-        """{"code":"INVALID_REQUEST","message":"The request payload is invalid or malformed."}"""
+      result mustBe Left(
+        UnprocessableEntityApiError(errors = Seq(StampsReferenceNumberNotFound))
+      )
+    }
+
+    "propagate Left(BadGatewayApiError) when downstream returns an Left(BadGatewayApiError)" in {
+      val errorResponse =
+        BadGatewayApiError(message = "Downstream error has occurred")
+
+      when(mockConnector.retrieveStatus(approvalRequest))
+        .thenReturn(EitherT(Future.successful(Left(errorResponse))))
+
+      val result = Await.result(service.retrieveStatus(approvalRequest).value, 2.seconds)
+
+      result mustBe Left(
+        BadGatewayApiError(message = "Downstream error has occurred")
       )
     }
   }

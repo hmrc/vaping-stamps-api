@@ -36,7 +36,8 @@ class RequestValidatorSpec extends AnyWordSpec with Matchers:
         val request = FakeRequest()
           .withHeaders(
             "Accept"        -> "application/vnd.hmrc.1.0+json",
-            "Authorization" -> "Bearer Token"
+            "Authorization" -> "Bearer Token",
+            "Content-Type"  -> "application/json"
           )
           .withBody(
             Json.obj(
@@ -47,12 +48,14 @@ class RequestValidatorSpec extends AnyWordSpec with Matchers:
 
         validator.fromRequest(request) mustBe Valid(ApprovalRequest("example@email.com", "GBVA0000001DS"))
       }
+
       "Valid request is made with NI Reference" in {
 
         val request = FakeRequest()
           .withHeaders(
             "Accept"        -> "application/vnd.hmrc.1.0+json",
-            "Authorization" -> "Bearer Token"
+            "Authorization" -> "Bearer Token",
+            "Content-Type"  -> "application/json"
           )
           .withBody(
             Json.obj(
@@ -69,7 +72,8 @@ class RequestValidatorSpec extends AnyWordSpec with Matchers:
       "Accept header is missing" in {
         val request = FakeRequest()
           .withHeaders(
-            "Authorization" -> "Bearer Token"
+            "Authorization" -> "Bearer Token",
+            "Content-Type"  -> "application/json"
           )
           .withBody(
             Json.obj(
@@ -85,7 +89,8 @@ class RequestValidatorSpec extends AnyWordSpec with Matchers:
         val request = FakeRequest()
           .withHeaders(
             "Accept"        -> "application/json",
-            "Authorization" -> "Bearer Token"
+            "Authorization" -> "Bearer Token",
+            "Content-Type"  -> "application/json"
           )
           .withBody(
             Json.obj(
@@ -97,26 +102,11 @@ class RequestValidatorSpec extends AnyWordSpec with Matchers:
         validator.fromRequest(request) mustBe Invalid(Chain(IncorrectAcceptHeader))
       }
 
-      "Authorization header is missing" in {
-        val request = FakeRequest()
-          .withHeaders(
-            "Accept" -> "application/vnd.hmrc.1.0+json"
-          )
-          .withBody(
-            Json.obj(
-              "vdsEmail"              -> "example@email.com",
-              "stampsReferenceNumber" -> "GBVA0000001DS"
-            )
-          )
-
-        validator.fromRequest(request) mustBe Invalid(Chain(MissingAuthorizationHeader))
-      }
-
-      "Authorization header is invalid" in {
+      "Content-Type header is missing" in {
         val request = FakeRequest()
           .withHeaders(
             "Accept"        -> "application/vnd.hmrc.1.0+json",
-            "Authorization" -> "Token"
+            "Authorization" -> "Bearer Token"
           )
           .withBody(
             Json.obj(
@@ -125,14 +115,32 @@ class RequestValidatorSpec extends AnyWordSpec with Matchers:
             )
           )
 
-        validator.fromRequest(request) mustBe Invalid(Chain(IncorrectAuthorizationHeader))
+        validator.fromRequest(request) mustBe Invalid(Chain(MissingContentTypeHeader))
+      }
+
+      "Content-Type header is invalid" in {
+        val request = FakeRequest()
+          .withHeaders(
+            "Accept"        -> "application/vnd.hmrc.1.0+json",
+            "Authorization" -> "Bearer Token",
+            "Content-Type"  -> "application/xml"
+          )
+          .withBody(
+            Json.obj(
+              "vdsEmail"              -> "example@email.com",
+              "stampsReferenceNumber" -> "GBVA0000001DS"
+            )
+          )
+
+        validator.fromRequest(request) mustBe Invalid(Chain(IncorrectContentTypeHeader))
       }
 
       "vdsEmail is missing from JSON payload" in {
         val request = FakeRequest()
           .withHeaders(
             "Accept"        -> "application/vnd.hmrc.1.0+json",
-            "Authorization" -> "Bearer Token"
+            "Authorization" -> "Bearer Token",
+            "Content-Type"  -> "application/json"
           )
           .withBody(
             Json.obj(
@@ -147,7 +155,8 @@ class RequestValidatorSpec extends AnyWordSpec with Matchers:
         val request = FakeRequest()
           .withHeaders(
             "Accept"        -> "application/vnd.hmrc.1.0+json",
-            "Authorization" -> "Bearer Token"
+            "Authorization" -> "Bearer Token",
+            "Content-Type"  -> "application/json"
           )
           .withBody(
             Json.obj(
@@ -163,7 +172,8 @@ class RequestValidatorSpec extends AnyWordSpec with Matchers:
         val request = FakeRequest()
           .withHeaders(
             "Accept"        -> "application/vnd.hmrc.1.0+json",
-            "Authorization" -> "Bearer Token"
+            "Authorization" -> "Bearer Token",
+            "Content-Type"  -> "application/json"
           )
           .withBody(
             Json.obj(
@@ -179,7 +189,8 @@ class RequestValidatorSpec extends AnyWordSpec with Matchers:
         val request = FakeRequest()
           .withHeaders(
             "Accept"        -> "application/vnd.hmrc.1.0+json",
-            "Authorization" -> "Bearer Token"
+            "Authorization" -> "Bearer Token",
+            "Content-Type"  -> "application/json"
           )
           .withBody(
             Json.obj(
@@ -194,7 +205,8 @@ class RequestValidatorSpec extends AnyWordSpec with Matchers:
         val request = FakeRequest()
           .withHeaders(
             "Accept"        -> "application/vnd.hmrc.1.0+json",
-            "Authorization" -> "Bearer Token"
+            "Authorization" -> "Bearer Token",
+            "Content-Type"  -> "application/json"
           )
           .withBody(
             Json.obj(
@@ -210,7 +222,8 @@ class RequestValidatorSpec extends AnyWordSpec with Matchers:
         val request = FakeRequest()
           .withHeaders(
             "Accept"        -> "application/vnd.hmrc.1.0+json",
-            "Authorization" -> "Bearer Token"
+            "Authorization" -> "Bearer Token",
+            "Content-Type"  -> "application/json"
           )
           .withBody(
             Json.obj(

@@ -35,7 +35,8 @@ object EISParser extends Logging {
             .fold(
               errors =>
                 logger.error("[EISParser][read]: Unable to parse response as ApprovalSummary")
-                Left(InternalServerErrorApiError(message = "Success response received invalid JSON response")),
+                Left(InternalServerErrorApiError(message = "Success response received invalid JSON response"))
+              ,
               Right(_)
             )
         case UNPROCESSABLE_ENTITY =>
@@ -44,7 +45,8 @@ object EISParser extends Logging {
             .fold(
               errors =>
                 logger.error("[EISParser][read]: Unable to parse response as UnprocessableEntityApiError")
-                Left(InternalServerErrorApiError(message = "Business error response received invalid JSON response")),
+                Left(InternalServerErrorApiError(message = "Business error response received invalid JSON response"))
+              ,
               businessError =>
                 logger.warn(s"[EISParser][read]: Response received business error. errors: ${businessError.errors}")
                 Left(businessError)

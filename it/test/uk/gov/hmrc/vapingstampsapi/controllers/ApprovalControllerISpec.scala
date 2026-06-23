@@ -28,6 +28,7 @@ import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{POST, contentAsJson, defaultAwaitTimeout, route, status, writeableOf_AnyContentAsJson}
 import uk.gov.hmrc.vapingstampsapi.controllers.actions.{AuthAction, StubAuthAction}
+import uk.gov.hmrc.vapingstampsapi.models.errors.{BadGatewayApiError, StampsReferenceNumberNotFound, UnprocessableEntityApiError}
 import uk.gov.hmrc.vapingstampsapi.utils.WiremockHelper
 
 import scala.concurrent.Future
@@ -310,9 +311,18 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
       val responseBody =
         """
           |{
-          |  "datetime": "2021-12-17T09:30:47Z",
-          |  "errorCode": ["001"],
-          |  "errorMessage": "Business validation failure."
+          |  "errorDetail": {
+          |    "errorCode": "422",
+          |    "errorMessage": "Unprocessable Entity",
+          |    "source": "Backend",
+          |    "sourceFaultDetail": {
+          |      "detail": [
+          |        "001"
+          |      ]
+          |    },
+          |    "timestamp": "2026-04-14T10:54:12Z",
+          |    "correlationId": "1ae81b45-41b4-4642-ae1c-db1126900001"
+          |  }
           |}
           |""".stripMargin
 
@@ -325,10 +335,12 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
       val response: Option[Future[Result]] = route(app, request)
 
       response.map(status) mustBe Some(UNPROCESSABLE_ENTITY)
-      response.map(contentAsJson) mustBe Some(Json.parse(responseBody))
+      response.map(contentAsJson) mustBe Some(
+        Json.toJson(UnprocessableEntityApiError(errors = Seq(StampsReferenceNumberNotFound)))
+      )
     }
 
-    "return 500 error when downstream error is returned" in {
+    "return 502 error when downstream error is returned" in {
       val requestBody =
         """
           |{
@@ -340,8 +352,13 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
       val responseBody =
         """
           |{
-          |  "datetime": "2021-12-17T09:30:47Z",
-          |  "message": "An unexpected error occurred while processing the request."
+          |  "errorDetail": {
+          |    "errorCode": "500",
+          |    "errorMessage": "Internal Server Error",
+          |    "source": "Backend",
+          |    "timestamp": "2026-04-14T10:54:12Z",
+          |    "correlationId": "d60de98c-f499-47f5-b2d6-e80966e8d19e"
+          |  }
           |}
           |""".stripMargin
 
@@ -353,8 +370,10 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
 
       val response: Option[Future[Result]] = route(app, request)
 
-      response.map(status) mustBe Some(INTERNAL_SERVER_ERROR)
-      response.map(contentAsJson) mustBe Some(Json.parse(responseBody))
+      response.map(status) mustBe Some(BAD_GATEWAY)
+      response.map(contentAsJson) mustBe Some(
+        Json.toJson(BadGatewayApiError(message = "Error has occurred in downstream service"))
+      )
     }
 
   }

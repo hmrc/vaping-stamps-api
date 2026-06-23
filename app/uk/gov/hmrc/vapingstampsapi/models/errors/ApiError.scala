@@ -42,25 +42,35 @@ object UnprocessableEntityApiError extends Logging:
   given format: Format[UnprocessableEntityApiError] = Format(
     Reads {
       case JsObject(responseJson) =>
-        responseJson.get("sourceDefaultDetail") match {
-          case Some(JsObject(sourceDefaultDetail)) =>
-            sourceDefaultDetail.get("detail") match {
-              case Some(JsArray(detail)) =>
-                val error = JsArray(detail).as[Seq[BusinessError]]
-                JsSuccess(UnprocessableEntityApiError(errors = error))
+        responseJson.get("errorDetail") match {
+          case Some(JsObject(errorDetails)) =>
+            errorDetails.get("sourceFaultDetail") match {
+              case Some(JsObject(sourceFaultDetail)) =>
+                sourceFaultDetail.get("detail") match {
+                  case Some(JsArray(detail)) =>
+                    val error = JsArray(detail).as[Seq[BusinessError]]
+                    JsSuccess(UnprocessableEntityApiError(errors = error))
+                  case None =>
+                    logger.error("[UnprocessableEntityApiError][format]: No '/detail' available in response")
+                    JsError("No '/detail' available in response")
+                  case _ =>
+                    logger.error("[UnprocessableEntityApiError][format]: '/detail' not returned as expected type")
+                    JsError("'/detail' not returned as expected type")
+                }
               case None =>
-                logger.error("[UnprocessableEntityApiError][format]: No '/detail' available in response")
-                JsError("No '/detail' available in response")
+                logger.error("[UnprocessableEntityApiError][format]: No '/sourceFaultDetail' available in response")
+                JsError("No '/sourceFaultDetail' available in response")
               case _ =>
-                logger.error("[UnprocessableEntityApiError][format]: '/detail' not returned as expected type")
-                JsError("'/detail' not returned as expected type")
+                logger.error(
+                  "[UnprocessableEntityApiError][format]: '/sourceFaultDetail' not returned as expected type"
+                )
+                JsError("'/sourceFaultDetail' not returned as expected type")
             }
-          case None =>
-            logger.error("[UnprocessableEntityApiError][format]: No '/sourceDefaultDetail' available in response")
-            JsError("No '/sourceDefaultDetail' available in response")
           case _ =>
-            logger.error("[UnprocessableEntityApiError][format]: '/sourceDefaultDetail' not returned as expected type")
-            JsError("'/sourceDefaultDetail' not returned as expected type")
+            logger.error(
+              "[UnprocessableEntityApiError][format]: response body - '/errorDetail' not returned as expected JsObject"
+            )
+            JsError("response body not returned as expected JsObject")
         }
       case _ =>
         logger.error("[UnprocessableEntityApiError][format]: response body not returned as expected JsObject")

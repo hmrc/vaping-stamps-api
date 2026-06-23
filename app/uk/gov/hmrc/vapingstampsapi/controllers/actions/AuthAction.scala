@@ -59,7 +59,6 @@ class AuthActionImpl @Inject() (
           logger.info(
             s"[ApplicationAuth][authorised]: application credentials valid"
           )
-          // TODO: compare authValues with app.conf encrypted values?
           block(request)
         case Left(error) =>
           logger.warn(s"[ApplicationAuth][authorised]: Application credentials invalid: $error")

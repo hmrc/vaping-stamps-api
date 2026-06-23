@@ -40,7 +40,7 @@ paths:
         | GBVA0000200DS                    | Simulate a successful response with an approvalStatus = APPROVED.             |
         | GBVA0000266DS                    | Simulate a successful response with an approvalStatus = NOT_APPROVED.         |
         | GBVA0000422DS                    | Simulate a business error response where stampsReferenceNumber is not found.  |
-        | GBVA0000422DS                    | Simulate a business error response where vdsEmail is not found.               |
+        | GBVA1000422DS                    | Simulate a business error response where vdsEmail is not found.               |
         | GBVA0000500DS                    | Simulate an Internal Server Error from the API.                               |
         | GBVA0000502DS                    | Simulates an error from the downstream services.                              |
         
@@ -148,9 +148,8 @@ paths:
                 $ref: "#/components/schemas/NotFoundErrorResponse"
               example:
                 {
-                  "statusCode": 404,
-                  "message": "URI not found",
-                  "requested": "/url-not-in-service"
+                  "code": "MATCHING_RESOURCE_NOT_FOUND",
+                  "message": "A resource with the name in the request can not be found in the API"
                 }
 
         "422":
@@ -162,7 +161,7 @@ paths:
               example:
                 {
                   "code": "UNPROCESSABLE_ENTITY",
-                  "message": "Business error has occurred",
+                  "message": "The request has returned a business logic error.",
                   "errors": [ "001", "002" ]
                 }
 
@@ -351,15 +350,12 @@ components:
     NotFoundErrorResponse:
       type: object
       required:
-        - statusCode
+        - code
         - message
-        - requested
       properties:
         statusCode:
-          type: number
-        message:
           type: string
-        requested:
+        message:
           type: string
 
     400ErrorResponse:

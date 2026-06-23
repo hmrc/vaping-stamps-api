@@ -65,7 +65,7 @@ class ValidateRequestActionSpec extends AnyWordSpec with Matchers {
               Invalid(
                 NonEmptyChainImpl(
                   MissingAcceptHeader,
-                  MissingAuthorizationHeader,
+                  MissingContentTypeHeader,
                   MissingStampsReferenceNumber,
                   MissingVdsEmail
                 )
