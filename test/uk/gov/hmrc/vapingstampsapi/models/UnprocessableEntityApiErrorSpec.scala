@@ -18,10 +18,8 @@ package uk.gov.hmrc.vapingstampsapi.models
 
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import play.api.libs.json.{JsError, JsResultException, Json, JsonValidationError}
+import play.api.libs.json.{JsResultException, Json, JsonValidationError}
 import uk.gov.hmrc.vapingstampsapi.models.errors.{UnprocessableEntityApiError, VdsEmailNotFound}
-
-import scala.collection.immutable.ArraySeq
 
 class UnprocessableEntityApiErrorSpec extends AnyWordSpec with Matchers:
 
@@ -53,7 +51,7 @@ class UnprocessableEntityApiErrorSpec extends AnyWordSpec with Matchers:
   "return JsError" when {
     "errorDetail not present" in {
       val json = Json.parse("{}")
-      intercept[JsResultException]{
+      intercept[JsResultException] {
         json.as[UnprocessableEntityApiError]
       }.errors.map(_._2 mustBe List(JsonValidationError(List("response body not returned as expected JsObject"))))
     }

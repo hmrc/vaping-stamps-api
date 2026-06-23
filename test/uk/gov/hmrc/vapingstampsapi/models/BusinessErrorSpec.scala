@@ -16,13 +16,10 @@
 
 package uk.gov.hmrc.vapingstampsapi.models
 
-import cats.data.Validated.Invalid
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import play.api.libs.json.{JsError, JsResultException, JsString, JsSuccess, Json, JsonValidationError}
+import play.api.libs.json.{JsResultException, JsString, Json, JsonValidationError}
 import uk.gov.hmrc.vapingstampsapi.models.errors.{BusinessError, StampsReferenceNumberNotFound, VdsEmailNotFound}
-
-import scala.collection.immutable.ArraySeq
 
 class BusinessErrorSpec extends AnyWordSpec with Matchers:
   "BusinessError" must {
@@ -50,9 +47,8 @@ class BusinessErrorSpec extends AnyWordSpec with Matchers:
       "unreadable JsValue is bound" in {
         intercept[JsResultException] {
           JsString("003").as[BusinessError]
-        }.errors map {
-          case (_, error) =>
-            error mustBe List(JsonValidationError(List("Invalid BusinessError value")))
+        }.errors map { case (_, error) =>
+          error mustBe List(JsonValidationError(List("Invalid BusinessError value")))
         }
       }
     }
@@ -67,4 +63,3 @@ class BusinessErrorSpec extends AnyWordSpec with Matchers:
       }
     }
   }
-
