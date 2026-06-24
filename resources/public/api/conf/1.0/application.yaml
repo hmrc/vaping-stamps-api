@@ -19,7 +19,7 @@ tags:
     description: Endpoint for checking operator approval to purchase vaping duty stamps.
 
 paths:
-  /vaping/stamps/status:
+  /misc/vaping/stamps/status:
     post:
       tags:
         - Approval status
@@ -29,7 +29,7 @@ paths:
 
         **Example request**
 
-        `POST https://test-api.service.hmrc.gov.uk/vaping/stamps/status`
+        `POST https://test-api.service.hmrc.gov.uk/misc/vaping/stamps/status`
 
       operationId: retrieveApprovalStatus
 

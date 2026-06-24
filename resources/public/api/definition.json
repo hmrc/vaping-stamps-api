@@ -2,7 +2,7 @@
   "api": {
     "name": "Vaping Stamps",
     "description": "Verify purchasing operators’ approval to buy vaping duty stamps.",
-    "context": "vaping/stamps",
+    "context": "misc/vaping/stamps",
     "categories": ["PRIVATE_GOVERNMENT"],
     "versions": [
       {
