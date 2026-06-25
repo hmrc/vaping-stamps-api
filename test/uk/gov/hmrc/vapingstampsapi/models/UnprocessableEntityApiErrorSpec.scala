@@ -53,7 +53,8 @@ class UnprocessableEntityApiErrorSpec extends AnyWordSpec with Matchers:
       val json = Json.parse("{}")
       intercept[JsResultException] {
         json.as[UnprocessableEntityApiError]
-      }.errors.map(_._2 mustBe List(JsonValidationError(List("response body not returned as expected JsObject"))))
+      }.errors
+        .map(_._2 mustBe List(JsonValidationError(List("'errorDetail' is undefined on object. Available keys are ''"))))
     }
 
     "sourceFaultDetail not present" in {
@@ -73,7 +74,15 @@ class UnprocessableEntityApiErrorSpec extends AnyWordSpec with Matchers:
 
       intercept[JsResultException] {
         json.as[UnprocessableEntityApiError]
-      }.errors.map(_._2 mustBe List(JsonValidationError(List("No '/sourceFaultDetail' available in response"))))
+      }.errors.map(
+        _._2 mustBe List(
+          JsonValidationError(
+            List(
+              "'sourceFaultDetail' is undefined on object. Available keys are 'errorCode', 'errorMessage', 'source', 'timestamp', 'correlationId'"
+            )
+          )
+        )
+      )
     }
 
     "sourceFaultDetail not correct type" in {
@@ -94,7 +103,7 @@ class UnprocessableEntityApiErrorSpec extends AnyWordSpec with Matchers:
 
       intercept[JsResultException] {
         json.as[UnprocessableEntityApiError]
-      }.errors.map(_._2 mustBe List(JsonValidationError(List("'/sourceFaultDetail' not returned as expected type"))))
+      }.errors.map(_._2 mustBe List(JsonValidationError(List(""""002" is not an object"""))))
     }
 
     "detail not present" in {
@@ -115,7 +124,8 @@ class UnprocessableEntityApiErrorSpec extends AnyWordSpec with Matchers:
 
       intercept[JsResultException] {
         json.as[UnprocessableEntityApiError]
-      }.errors.map(_._2 mustBe List(JsonValidationError(List("No '/detail' available in response"))))
+      }.errors
+        .map(_._2 mustBe List(JsonValidationError(List("'detail' is undefined on object. Available keys are ''"))))
     }
 
     "detail not expected type" in {
@@ -138,6 +148,6 @@ class UnprocessableEntityApiErrorSpec extends AnyWordSpec with Matchers:
 
       intercept[JsResultException] {
         json.as[UnprocessableEntityApiError]
-      }.errors.map(_._2 mustBe List(JsonValidationError(List("'/detail' not returned as expected type"))))
+      }.errors.map(_._2 mustBe List(JsonValidationError(List("error.expected.jsarray"))))
     }
   }

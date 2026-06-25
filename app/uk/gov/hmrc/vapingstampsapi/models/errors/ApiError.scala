@@ -40,44 +40,20 @@ case class UnprocessableEntityApiError(
 
 object UnprocessableEntityApiError extends Logging:
   given format: Format[UnprocessableEntityApiError] = Format(
-    Reads {
-      case JsObject(responseJson) =>
-        responseJson.get("errorDetail") match {
-          case Some(JsObject(errorDetails)) =>
-            errorDetails.get("sourceFaultDetail") match {
-              case Some(JsObject(sourceFaultDetail)) =>
-                sourceFaultDetail.get("detail") match {
-                  case Some(JsArray(detail)) =>
-                    val error = JsArray(detail).as[Seq[BusinessError]]
-                    JsSuccess(UnprocessableEntityApiError(errors = error))
-                  case None =>
-                    logger.error("[UnprocessableEntityApiError][format]: No '/detail' available in response")
-                    JsError("No '/detail' available in response")
-                  case _ =>
-                    logger.error("[UnprocessableEntityApiError][format]: '/detail' not returned as expected type")
-                    JsError("'/detail' not returned as expected type")
-                }
-              case None =>
-                logger.error("[UnprocessableEntityApiError][format]: No '/sourceFaultDetail' available in response")
-                JsError("No '/sourceFaultDetail' available in response")
-              case _ =>
-                logger.error(
-                  "[UnprocessableEntityApiError][format]: '/sourceFaultDetail' not returned as expected type"
-                )
-                JsError("'/sourceFaultDetail' not returned as expected type")
-            }
-          case _ =>
-            logger.error(
-              "[UnprocessableEntityApiError][format]: response body - '/errorDetail' not returned as expected JsObject"
-            )
-            JsError("response body not returned as expected JsObject")
-        }
-      case _ =>
-        logger.error("[UnprocessableEntityApiError][format]: response body not returned as expected JsObject")
-        JsError("response body not returned as expected JsObject")
-    },
+    reads,
     Json.writes[UnprocessableEntityApiError]
   )
+
+  given reads: Reads[UnprocessableEntityApiError] =
+    Reads {
+      case obj: JsObject =>
+        (obj \ "errorDetail" \ "sourceFaultDetail" \ "detail")
+          .validate[Seq[BusinessError]]
+          .map(errorList => UnprocessableEntityApiError(errors = errorList))
+      case e =>
+        logger.error(s"[UnprocessableEntityApiError][format]: Unprocessable Entity JSON body error: $e")
+        JsError("Unprocessable Entity response JSON has produced an error at parsing")
+    }
 
 case class InternalServerErrorApiError(code: String = "INTERNAL_SERVER_ERROR", message: String) extends ApiError
 
