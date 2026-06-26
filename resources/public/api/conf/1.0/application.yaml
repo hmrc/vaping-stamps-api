@@ -359,7 +359,7 @@ components:
         - code
         - message
       properties:
-        statusCode:
+        code:
           type: string
         message:
           type: string
