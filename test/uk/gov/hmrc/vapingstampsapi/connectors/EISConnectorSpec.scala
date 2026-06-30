@@ -22,13 +22,15 @@ import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.vapingstampsapi.models.ApprovalStatus.{approved, not_approved}
+import uk.gov.hmrc.vapingstampsapi.models.errors.{BadGatewayApiError, StampsReferenceNumberNotFound, UnprocessableEntityApiError}
 import uk.gov.hmrc.vapingstampsapi.models.{ApprovalRequest, ApprovedSummaryResponse, NotApprovedSummaryResponse}
 import uk.gov.hmrc.vapingstampsapi.utils.WiremockHelper
 
 import scala.concurrent.*
 import scala.concurrent.duration.DurationInt
+import scala.util.Left
 
 class EISConnectorSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuite with WiremockHelper {
 
@@ -117,12 +119,33 @@ class EISConnectorSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuit
       )
     }
 
+    "propagate 422 response as UnprocessableEntityApiError" in {
+      val responseBody = """{
+                           |  "errorDetail": {
+                           |    "errorCode": "422",
+                           |    "errorMessage": "Unprocessable Entity",
+                           |    "source": "Backend",
+                           |    "sourceFaultDetail": {
+                           |      "detail": [
+                           |        "001"
+                           |      ]
+                           |    },
+                           |    "timestamp": "2026-04-14T10:54:12Z",
+                           |    "correlationId": "1ae81b45-41b4-4642-ae1c-db1126900001"
+                           |  }
+                           |}""".stripMargin
+
+      stubEndpointForPost(422, requestBody, responseBody)
+      val result = Await.result(connector.retrieveStatus(approvalRequest).value, 1.seconds)
+
+      result mustBe Left(UnprocessableEntityApiError(errors = Seq(StampsReferenceNumberNotFound)))
+    }
+
     "propagate non-200 HttpResponse from downstream" in {
       stubEndpointForPost(400, requestBody, "The request payload is invalid or malformed.")
       val result = Await.result(connector.retrieveStatus(approvalRequest).value, 1.seconds)
 
-      result.left.map(_.status) mustBe Left(400)
-      result.left.map(_.body) mustBe Left("The request payload is invalid or malformed.")
+      result mustBe Left(BadGatewayApiError(message = "Error has occurred in downstream service"))
     }
 
     "handle downstream timeout by handling HttpException" in {
@@ -140,7 +163,11 @@ class EISConnectorSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuit
 
       val result = Await.result(connector.retrieveStatus(approvalRequest).value, 2.seconds)
 
-      result.left.map(_.status) mustBe Left(503)
+      result mustBe Left(
+        BadGatewayApiError(message =
+          s"POST of 'http://localhost:${server.port()}/etds/vaping/stamps/status' timed out with message 'Request timeout to localhost/127.0.0.1:${server.port()} after 1000 ms'"
+        )
+      )
     }
   }
 }

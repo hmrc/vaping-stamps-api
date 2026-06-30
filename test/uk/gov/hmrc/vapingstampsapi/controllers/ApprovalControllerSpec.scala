@@ -31,9 +31,10 @@ import play.api.libs.json.*
 import play.api.test.*
 import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.vapingstampsapi.controllers.actions.{AuthAction, StubAuthAction, StubValidateRequestAction, ValidateRequestAction}
 import uk.gov.hmrc.vapingstampsapi.models.ApprovalStatus.approved
+import uk.gov.hmrc.vapingstampsapi.models.errors.*
 import uk.gov.hmrc.vapingstampsapi.models.{ApprovalRequest, ApprovedSummaryResponse}
 import uk.gov.hmrc.vapingstampsapi.services.ApprovalService
 
@@ -78,12 +79,9 @@ class ApprovalControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppP
   )
 
   val approvalRequest: ApprovalRequest = ApprovalRequest("test@test.com", "GBVA0000001DS")
-  val notApprovedRequest = ApprovalRequest("testBad@test.com", "GBVA0000001DS")
+  val notApprovedRequest: ApprovalRequest = ApprovalRequest("testBad@test.com", "GBVA0000001DS")
 
   val postRequest: FakeRequest[JsValue] = FakeRequest(POST, "/status").withBody(Json.toJson(approvalRequest))
-
-  val errorJson: JsObject =
-    Json.obj("code" -> "FORBIDDEN", "message" -> "You are not authorised to access this resource")
 
   "ApprovalController.retrieveStatus" should {
 
@@ -114,21 +112,72 @@ class ApprovalControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppP
       status(result) mustBe BAD_REQUEST
     }
 
-    "return 403 with JSON body when service returns Left(HttpResponse) with status 403" in {
-      val httpResponse =
-        HttpResponse(FORBIDDEN, errorJson.toString())
+    "return 502 with JSON body when service returns Left(BadGatewayApiError)" in {
+      val errorResponse =
+        BadGatewayApiError(message = "Error has occurred downstream")
 
       when(mockService.retrieveStatus(any[ApprovalRequest])(using any[HeaderCarrier]))
-        .thenReturn(EitherT(Future.successful(Left(httpResponse))))
+        .thenReturn(EitherT(Future.successful(Left(errorResponse))))
 
       val request = FakeRequest(POST, "/status")
         .withBody(Json.toJson(approvalRequest))
 
       val result = controller.retrieveStatus().apply(request)
 
-      status(result) mustBe FORBIDDEN
+      status(result) mustBe BAD_GATEWAY
       contentType(result) mustBe Some("application/json")
-      contentAsJson(result) mustBe errorJson
+      contentAsJson(result) mustBe Json.toJson(errorResponse)
+    }
+
+    "return 500 with JSON body when service returns Left(InternalServerErrorApiError)" in {
+      val errorResponse =
+        InternalServerErrorApiError(message = "Error has occurred in the service")
+
+      when(mockService.retrieveStatus(any[ApprovalRequest])(using any[HeaderCarrier]))
+        .thenReturn(EitherT(Future.successful(Left(errorResponse))))
+
+      val request = FakeRequest(POST, "/status")
+        .withBody(Json.toJson(approvalRequest))
+
+      val result = controller.retrieveStatus().apply(request)
+
+      status(result) mustBe INTERNAL_SERVER_ERROR
+      contentType(result) mustBe Some("application/json")
+      contentAsJson(result) mustBe Json.toJson(errorResponse)
+    }
+
+    "return 422 with JSON body when service returns Left(UnprocessableEntityApiError)" in {
+      val errorResponse =
+        UnprocessableEntityApiError(errors = Seq(VdsEmailNotFound))
+
+      when(mockService.retrieveStatus(any[ApprovalRequest])(using any[HeaderCarrier]))
+        .thenReturn(EitherT(Future.successful(Left(errorResponse))))
+
+      val request = FakeRequest(POST, "/status")
+        .withBody(Json.toJson(approvalRequest))
+
+      val result = controller.retrieveStatus().apply(request)
+
+      status(result) mustBe UNPROCESSABLE_ENTITY
+      contentType(result) mustBe Some("application/json")
+      contentAsJson(result) mustBe Json.toJson(errorResponse)
+    }
+
+    "return 400 with JSON body when service returns Left(BadRequestApiError)" in {
+      val errorResponse =
+        BadRequestApiError(errors = Seq(MissingAcceptHeader, IncorrectContentTypeHeader))
+
+      when(mockService.retrieveStatus(any[ApprovalRequest])(using any[HeaderCarrier]))
+        .thenReturn(EitherT(Future.successful(Left(errorResponse))))
+
+      val request = FakeRequest(POST, "/status")
+        .withBody(Json.toJson(approvalRequest))
+
+      val result = controller.retrieveStatus().apply(request)
+
+      status(result) mustBe BAD_REQUEST
+      contentType(result) mustBe Some("application/json")
+      contentAsJson(result) mustBe Json.toJson(errorResponse)
     }
 
   }

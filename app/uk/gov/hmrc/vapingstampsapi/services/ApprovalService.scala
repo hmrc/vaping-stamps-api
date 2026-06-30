@@ -18,21 +18,21 @@ package uk.gov.hmrc.vapingstampsapi.services
 
 import cats.data.EitherT
 import play.api.Logging
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.vapingstampsapi.connectors.EISConnector
+import uk.gov.hmrc.vapingstampsapi.models.errors.ApiError
 import uk.gov.hmrc.vapingstampsapi.models.{ApprovalRequest, ApprovalSummaryResponse}
 
 import javax.inject.*
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 @Singleton
 class ApprovalService @Inject() (
   eisConnector: EISConnector
-)(using ec: ExecutionContext)
-    extends Logging:
+) extends Logging:
 
   def retrieveStatus(
     request: ApprovalRequest
-  )(using hc: HeaderCarrier): EitherT[Future, HttpResponse, ApprovalSummaryResponse] =
+  )(using hc: HeaderCarrier): EitherT[Future, ApiError, ApprovalSummaryResponse] =
     eisConnector
       .retrieveStatus(request)

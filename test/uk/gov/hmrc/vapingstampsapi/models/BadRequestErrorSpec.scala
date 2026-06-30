@@ -26,8 +26,8 @@ class BadRequestErrorSpec extends AnyWordSpec with Matchers:
       Seq(
         MissingAcceptHeader          -> "001",
         IncorrectAcceptHeader        -> "002",
-        MissingAuthorizationHeader   -> "003",
-        IncorrectAuthorizationHeader -> "004",
+        MissingContentTypeHeader     -> "003",
+        IncorrectContentTypeHeader   -> "004",
         MissingStampsReferenceNumber -> "005",
         InvalidStampsReferenceNumber -> "006",
         MissingVdsEmail              -> "007",
