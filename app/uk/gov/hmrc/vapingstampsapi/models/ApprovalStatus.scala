@@ -24,8 +24,8 @@ enum ApprovalStatus:
 object ApprovalStatus:
   given Format[ApprovalStatus] = Format(
     Reads {
-      case JsString("APPROVED")     => JsSuccess(ApprovalStatus.approved)
-      case JsString("NOT_APPROVED") => JsSuccess(ApprovalStatus.not_approved)
+      case JsString("approved")     => JsSuccess(ApprovalStatus.approved)
+      case JsString("not approved") => JsSuccess(ApprovalStatus.not_approved)
       case JsString(other)          => JsError(s"Unknown Status: $other")
       case _                        => JsError("Unexpected Enum")
     },

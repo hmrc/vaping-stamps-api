@@ -26,8 +26,8 @@ object ApprovalSummaryResponse {
     Reads {
       case json @ JsObject(underlying) =>
         underlying.get("approvalStatus") match {
-          case Some(JsString("APPROVED"))     => JsSuccess(json.as[ApprovedSummaryResponse])
-          case Some(JsString("NOT_APPROVED")) => JsSuccess(json.as[NotApprovedSummaryResponse])
+          case Some(JsString("approved"))     => JsSuccess(json.as[ApprovedSummaryResponse])
+          case Some(JsString("not approved")) => JsSuccess(json.as[NotApprovedSummaryResponse])
           case Some(_)                        => JsError("Unexpected approvalStatus")
           case None                           => JsError("Missing approvalStatus in ResponseBody")
         }
