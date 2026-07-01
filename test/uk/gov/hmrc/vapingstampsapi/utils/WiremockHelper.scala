@@ -45,7 +45,7 @@ trait WiremockHelper extends BeforeAndAfterAll with BeforeAndAfterEach {
 
   def stubEndpointForPost(status: Int, requestBody: String, responseBody: String): StubMapping =
     server.stubFor(
-      post(urlEqualTo("/etds/vaping/stamps/status"))
+      post(urlEqualTo("/excise/decision/vapingstamps/profile/v1"))
         .withRequestBody(equalToJson(requestBody))
         .willReturn(
           aResponse()

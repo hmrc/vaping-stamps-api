@@ -42,7 +42,7 @@ class EISConnector @Inject() (
     request: ApprovalRequest
   )(using hc: HeaderCarrier): EitherT[Future, ApiError, ApprovalSummaryResponse] =
 
-    val url = s"${appConfig.eisBaseUrl}/etds/vaping/stamps/status"
+    val url = s"${appConfig.eisBaseUrl}/excise/decision/vapingstamps/profile/v1"
 
     logger.info(s"[EISConnector][retrieveStatus] called: $url")
 
