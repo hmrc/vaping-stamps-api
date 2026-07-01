@@ -73,7 +73,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ApprovalRequest"
+              $ref: "#/components/schemas/VDSDetails"
             example:
               {
                 "vdsEmail": "test@test.com",

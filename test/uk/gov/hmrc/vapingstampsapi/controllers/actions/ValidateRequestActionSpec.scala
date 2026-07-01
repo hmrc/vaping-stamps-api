@@ -25,7 +25,7 @@ import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.libs.json.{JsObject, JsString, Json}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import uk.gov.hmrc.vapingstampsapi.models.ApprovalRequest
+import uk.gov.hmrc.vapingstampsapi.models.VDSDetails
 import uk.gov.hmrc.vapingstampsapi.models.errors.*
 import uk.gov.hmrc.vapingstampsapi.validators.RequestValidator
 
@@ -50,7 +50,7 @@ class ValidateRequestActionSpec extends AnyWordSpec with Matchers {
             )
 
           when(mockRequestValidator.fromRequest(request))
-            .thenReturn(Valid(ApprovalRequest("email@example.com", "XIVA0000001BB")))
+            .thenReturn(Valid(VDSDetails("email@example.com", "XIVA0000001BB")))
 
           await(validator.filter(request)) mustBe None
         }

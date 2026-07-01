@@ -25,7 +25,7 @@ import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.vapingstampsapi.config.AppConfig
 import uk.gov.hmrc.vapingstampsapi.connectors.parsers.EISParser.{EISResponse, EISResponseReads}
 import uk.gov.hmrc.vapingstampsapi.models.errors.{ApiError, BadGatewayApiError}
-import uk.gov.hmrc.vapingstampsapi.models.{ApprovalRequest, ApprovalSummaryResponse}
+import uk.gov.hmrc.vapingstampsapi.models.{ApprovalSummaryResponse, VDSDetails}
 
 import javax.inject.*
 import scala.concurrent.*
@@ -39,7 +39,7 @@ class EISConnector @Inject() (
   private val logger = LoggerFactory.getLogger(getClass)
 
   def retrieveStatus(
-    request: ApprovalRequest
+    request: VDSDetails
   )(using hc: HeaderCarrier): EitherT[Future, ApiError, ApprovalSummaryResponse] =
 
     val url = s"${appConfig.eisBaseUrl}/excise/decision/vapingstamps/profile/v1"

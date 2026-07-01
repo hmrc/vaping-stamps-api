@@ -35,7 +35,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.vapingstampsapi.controllers.actions.{AuthAction, StubAuthAction, StubValidateRequestAction, ValidateRequestAction}
 import uk.gov.hmrc.vapingstampsapi.models.ApprovalStatus.approved
 import uk.gov.hmrc.vapingstampsapi.models.errors.*
-import uk.gov.hmrc.vapingstampsapi.models.{ApprovalRequest, ApprovedSummaryResponse}
+import uk.gov.hmrc.vapingstampsapi.models.{ApprovedSummaryResponse, VDSDetails}
 import uk.gov.hmrc.vapingstampsapi.services.ApprovalService
 
 import scala.concurrent.*
@@ -78,15 +78,15 @@ class ApprovalControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppP
     stampsThreshold = 10000L
   )
 
-  val approvalRequest: ApprovalRequest = ApprovalRequest("test@test.com", "GBVA0000001DS")
-  val notApprovedRequest: ApprovalRequest = ApprovalRequest("testBad@test.com", "GBVA0000001DS")
+  val vdsDetails: VDSDetails = VDSDetails("test@test.com", "GBVA0000001DS")
+  val notApprovedRequest: ApprovalRequest = VDSDetails("testBad@test.com", "GBVA0000001DS")
 
-  val postRequest: FakeRequest[JsValue] = FakeRequest(POST, "/status").withBody(Json.toJson(approvalRequest))
+  val postRequest: FakeRequest[JsValue] = FakeRequest(POST, "/status").withBody(Json.toJson(vdsDetails))
 
   "ApprovalController.retrieveStatus" should {
 
     "return OK with valid JSON body when parameters to the call are valid" in {
-      when(mockService.retrieveStatus(any[ApprovalRequest])(using any[HeaderCarrier]))
+      when(mockService.retrieveStatus(any[VDSDetails])(using any[HeaderCarrier]))
         .thenReturn(EitherT(Future.successful(Right(approvedSummary))))
 
       val result = controller.retrieveStatus().apply(postRequest)
@@ -167,11 +167,11 @@ class ApprovalControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppP
       val errorResponse =
         BadRequestApiError(errors = Seq(MissingAcceptHeader, IncorrectContentTypeHeader))
 
-      when(mockService.retrieveStatus(any[ApprovalRequest])(using any[HeaderCarrier]))
+      when(mockService.retrieveStatus(any[VDSDetails])(using any[HeaderCarrier]))
         .thenReturn(EitherT(Future.successful(Left(errorResponse))))
 
       val request = FakeRequest(POST, "/status")
-        .withBody(Json.toJson(approvalRequest))
+        .withBody(Json.toJson(vdsDetails))
 
       val result = controller.retrieveStatus().apply(request)
 

@@ -25,7 +25,7 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.vapingstampsapi.models.ApprovalStatus.{approved, not_approved}
 import uk.gov.hmrc.vapingstampsapi.models.errors.{BadGatewayApiError, StampsReferenceNumberNotFound, UnprocessableEntityApiError}
-import uk.gov.hmrc.vapingstampsapi.models.{ApprovalRequest, ApprovedSummaryResponse, NotApprovedSummaryResponse}
+import uk.gov.hmrc.vapingstampsapi.models.{ApprovedSummaryResponse, NotApprovedSummaryResponse, VDSDetails}
 import uk.gov.hmrc.vapingstampsapi.utils.WiremockHelper
 
 import scala.concurrent.*
@@ -49,7 +49,7 @@ class EISConnectorSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuit
 
   "EISConnector.retrieveStatus" should {
 
-    val approvalRequest = ApprovalRequest("test@test.com", "GBVA0000001DS")
+    val approvalRequest = VDSDetails("test@test.com", "GBVA0000001DS")
     val responseBody =
       """
         |{
