@@ -66,6 +66,6 @@ class AuthActionImpl @Inject() (
             s"Application credentials invalid: $error"
           )
     } recover { case e: AuthorisationException =>
-      logger.debug("Application failed authorisation: ", e)
+      logger.warn("Application failed authorisation: ", e)
       Unauthorized(Json.toJson(ErrorResponse(UNAUTHORIZED, e.reason)))
     }

@@ -54,6 +54,7 @@ class EISConnector @Inject() (
         .withBody(Json.toJson(request))
         .execute[EISResponse]
         .recover { case e: HttpException =>
+          logger.error(s"[EISConnector][retrieveStatus]: Unexpected Exception returned - $e")
           Left(BadGatewayApiError(message = e.message))
         }
     )

@@ -18,6 +18,7 @@ package uk.gov.hmrc.vapingstampsapi.controllers.actions
 
 import cats.data.Validated.{Invalid, Valid}
 import com.google.inject.{ImplementedBy, Inject}
+import play.api.Logging
 import play.api.libs.json.Json
 import play.api.mvc.Results.BadRequest
 import play.api.mvc.{ActionFilter, Request, Result}
@@ -28,13 +29,16 @@ import uk.gov.hmrc.vapingstampsapi.validators.RequestValidator
 import scala.concurrent.{ExecutionContext, Future}
 
 class ValidateRequestActionImpl @Inject() (val executionContext: ExecutionContext, validator: RequestValidator)
-    extends ValidateRequestAction:
+    extends ValidateRequestAction with Logging:
 
   override def filter[A](request: Request[A]): Future[Option[Result]] =
     validator.fromRequest(request) match {
       case Valid(a)   => Future.successful(None)
       case Invalid(e) =>
         val convertChain = e.toNonEmptyList.toList
+
+        logger.warn(s"[ValidateRequestAction][filter]: Invalid request returned errors - $convertChain")
+
         Future.successful(
           Some(
             BadRequest(
