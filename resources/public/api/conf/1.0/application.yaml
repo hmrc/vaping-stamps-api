@@ -9,6 +9,8 @@ info:
     
     This API supports the verification of a purchasing operator’s approval status before an authorised stamp supplier issues the vaping duty stamps.
 
+    This API exposes a single endpoint that allows the appointed stamp supplier
+    to perform a daily approval status check against HMRC systems.
 
 servers:
   - url: https://test-api.service.hmrc.gov.uk
@@ -155,9 +157,8 @@ paths:
                 $ref: "#/components/schemas/NotFoundErrorResponse"
               example:
                 {
-                  "statusCode": 404,
-                  "message": "URI not found",
-                  "requested": "/url-not-in-service"
+                  "code": "MATCHING_RESOURCE_NOT_FOUND",
+                  "message": "A resource with the name in the request can not be found in the API"
                 }
 
         "422":
@@ -168,8 +169,8 @@ paths:
                 $ref: "#/components/schemas/422ErrorResponse"
               example:
                 {
-                  "code": "UNPROCCESSABLE_ENTITY",
-                  "message": "Business error has occurred",
+                  "code": "UNPROCESSABLE_ENTITY",
+                  "message": "The request has returned a business logic error.",
                   "errors": [ "001", "002" ]
                 }
 
@@ -178,10 +179,23 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/5xxErrorResponse"
+                $ref: "#/components/schemas/500ErrorResponse"
               example:
                 {
-                  "message": "Service Unavailable"
+                  "code": "INTERNAL_SERVER_ERROR",
+                  "message": "<error message based on failure>"
+                }
+
+        "502":
+          description: Downstream error — an error has occurred downstream from the API
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/502ErrorResponse"
+              example:
+                {
+                  "code": "BAD_GATEWAY",
+                  "message": "An error has occurred downstream"
                 }
 
 components:
@@ -344,15 +358,12 @@ components:
     NotFoundErrorResponse:
       type: object
       required:
-        - statusCode
+        - code
         - message
-        - requested
       properties:
-        statusCode:
-          type: number
-        message:
+        code:
           type: string
-        requested:
+        message:
           type: string
 
     400ErrorResponse:
@@ -374,10 +385,10 @@ components:
           description: |
             * "001" - Missing Accept Header
             * "002" - Incorrect Accept Header
-            * "003" - Missing Authorization Header
-            * "004" - Incorrect Authorization Header
-            * "005" - Missing **stampsReferenceNumber** Header
-            * "006" - Incorrect **stampsReferenceNumber** Header
+            * "003" - Missing Content-Type Header
+            * "004" - Incorrect Content-Type Header
+            * "005" - Missing stampsReferenceNumber Header
+            * "006" - Incorrect stampsReferenceNumber Header
             * "007" - Missing vdsEmail Header
             * "008" - Incorrect vdsEmail Header
 
@@ -405,10 +416,25 @@ components:
             * "001" - **stampsReferenceNumber** not found in ETDS
             * "002" - vdsEmail not found in ETDS
 
-    5xxErrorResponse:
+    500ErrorResponse:
       type: object
       required:
+        - code
         - message
       properties:
+        code:
+          type: string
         message:
           type: string
+
+    502ErrorResponse:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+

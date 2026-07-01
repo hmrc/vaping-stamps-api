@@ -59,7 +59,6 @@ class AuthActionImpl @Inject() (
           logger.info(
             s"[ApplicationAuth][authorised]: application credentials valid"
           )
-          // TODO: compare authValues with app.conf encrypted values?
           block(request)
         case Left(error) =>
           logger.warn(s"[ApplicationAuth][authorised]: Application credentials invalid: $error")
@@ -67,6 +66,6 @@ class AuthActionImpl @Inject() (
             s"Application credentials invalid: $error"
           )
     } recover { case e: AuthorisationException =>
-      logger.debug("Application failed authorisation: ", e)
+      logger.warn("Application failed authorisation: ", e)
       Unauthorized(Json.toJson(ErrorResponse(UNAUTHORIZED, e.reason)))
     }

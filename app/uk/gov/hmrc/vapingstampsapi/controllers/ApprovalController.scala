@@ -24,6 +24,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import uk.gov.hmrc.vapingstampsapi.controllers.actions.{AuthAction, ValidateRequestAction}
 import uk.gov.hmrc.vapingstampsapi.models.ApprovalRequest
+import uk.gov.hmrc.vapingstampsapi.models.errors.{BadGatewayApiError, BadRequestApiError, InternalServerErrorApiError, UnprocessableEntityApiError}
 import uk.gov.hmrc.vapingstampsapi.services.ApprovalService
 
 import javax.inject.*
@@ -64,9 +65,15 @@ class ApprovalController @Inject() (
     service
       .retrieveStatus(approvalRequest)
       .fold(
-        response =>
-          logger.warn(s"[retrieveStatus][EIS API Error] Service Unavailable. Downstream statusCode: ${response.status}")
-          Status(response.status)(response.json)
-        ,
+        {
+          case badRequest: BadRequestApiError =>
+            BadRequest(Json.toJson(badRequest))
+          case businessError: UnprocessableEntityApiError =>
+            UnprocessableEntity(Json.toJson(businessError))
+          case internalServerError: InternalServerErrorApiError =>
+            InternalServerError(Json.toJson(internalServerError))
+          case badGatewayError: BadGatewayApiError =>
+            BadGateway(Json.toJson(badGatewayError))
+        },
         summary => Ok(Json.toJson(summary))
       )

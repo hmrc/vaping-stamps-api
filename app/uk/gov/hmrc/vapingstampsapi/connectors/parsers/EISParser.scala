@@ -16,12 +16,14 @@
 
 package uk.gov.hmrc.vapingstampsapi.connectors.parsers
 
-import play.api.http.Status.OK
+import play.api.Logging
+import play.api.http.Status.{OK, UNPROCESSABLE_ENTITY}
 import uk.gov.hmrc.http.{HttpReads, HttpResponse}
 import uk.gov.hmrc.vapingstampsapi.models.ApprovalSummaryResponse
+import uk.gov.hmrc.vapingstampsapi.models.errors.{ApiError, BadGatewayApiError, InternalServerErrorApiError, UnprocessableEntityApiError}
 
-object EISParser {
-  type EISResponse = Either[HttpResponse, ApprovalSummaryResponse]
+object EISParser extends Logging {
+  type EISResponse = Either[ApiError, ApprovalSummaryResponse]
 
   implicit object EISResponseReads extends HttpReads[EISResponse] {
 
@@ -31,10 +33,27 @@ object EISParser {
           response.json
             .validate[ApprovalSummaryResponse]
             .fold(
-              errors => Left(HttpResponse(500, "Received invalid response")),
-              summaryResponse => Right(summaryResponse)
+              errors =>
+                logger.error("[EISParser][read]: Unable to parse response as ApprovalSummary")
+                Left(InternalServerErrorApiError(message = "Success response received invalid JSON response"))
+              ,
+              Right(_)
             )
-        case _ => Left(response)
+        case UNPROCESSABLE_ENTITY =>
+          response.json
+            .validate[UnprocessableEntityApiError]
+            .fold(
+              errors =>
+                logger.error("[EISParser][read]: Unable to parse response as UnprocessableEntityApiError")
+                Left(InternalServerErrorApiError(message = "Business error response received invalid JSON response"))
+              ,
+              businessError =>
+                logger.warn(s"[EISParser][read]: Response received business error. errors: ${businessError.errors}")
+                Left(businessError)
+            )
+        case downstreamStatusCode =>
+          logger.warn(s"[EISParser][read]: EIS has returned error statusCode: $downstreamStatusCode")
+          Left(BadGatewayApiError(message = "Error has occurred in downstream service"))
       }
   }
 }

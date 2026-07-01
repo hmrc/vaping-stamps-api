@@ -28,7 +28,7 @@ class RequestValidator extends Validator[ApprovalRequest]:
   override def fromRequest(request: Request[_]): ValidatedNec[BadRequestError, ApprovalRequest] =
     (
       validateAcceptHeader(request),
-      validateAuthorizationHeader(request),
+      validateContentTypeHeader(request),
       validateStampsReferenceNumber(request),
       validateVdsEmail(request)
     ).mapN(
@@ -52,15 +52,17 @@ class RequestValidator extends Validator[ApprovalRequest]:
     }
   }
 
-  private def validateAuthorizationHeader(request: Request[_]): ValidatedNec[BadRequestError, Done] =
-    request.headers.get("Authorization") match {
+  private def validateContentTypeHeader(request: Request[_]): ValidatedNec[BadRequestError, Done] = {
+    val contentTypeHeader: String = "application/json"
+    request.headers.get("Content-Type") match {
       case Some(value) =>
         value match {
-          case str if str.startsWith("Bearer") || str.startsWith("GNAP dummy") => Done.validNec
-          case _ => IncorrectAuthorizationHeader.invalidNec
+          case str if str == contentTypeHeader => Done.validNec
+          case _                               => IncorrectContentTypeHeader.invalidNec
         }
-      case None => MissingAuthorizationHeader.invalidNec
+      case None => MissingContentTypeHeader.invalidNec
     }
+  }
 
   private def validateStampsReferenceNumber(request: Request[_]): ValidatedNec[BadRequestError, String] =
     val stampsReferenceNumberGBRegex: String = "^(GB|XI)VA[0-9]{7}DS$"

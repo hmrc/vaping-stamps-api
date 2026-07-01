@@ -24,6 +24,7 @@ import uk.gov.hmrc.http.*
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.vapingstampsapi.config.AppConfig
 import uk.gov.hmrc.vapingstampsapi.connectors.parsers.EISParser.{EISResponse, EISResponseReads}
+import uk.gov.hmrc.vapingstampsapi.models.errors.{ApiError, BadGatewayApiError}
 import uk.gov.hmrc.vapingstampsapi.models.{ApprovalRequest, ApprovalSummaryResponse}
 
 import javax.inject.*
@@ -39,7 +40,7 @@ class EISConnector @Inject() (
 
   def retrieveStatus(
     request: ApprovalRequest
-  )(using hc: HeaderCarrier): EitherT[Future, HttpResponse, ApprovalSummaryResponse] =
+  )(using hc: HeaderCarrier): EitherT[Future, ApiError, ApprovalSummaryResponse] =
 
     val url = s"${appConfig.eisBaseUrl}/etds/vaping/stamps/status"
 
@@ -53,6 +54,7 @@ class EISConnector @Inject() (
         .withBody(Json.toJson(request))
         .execute[EISResponse]
         .recover { case e: HttpException =>
-          Left(HttpResponse(503, e.message))
+          logger.error(s"[EISConnector][retrieveStatus]: Unexpected Exception returned - $e")
+          Left(BadGatewayApiError(message = e.message))
         }
     )
