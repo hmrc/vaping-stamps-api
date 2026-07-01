@@ -5,18 +5,21 @@ info:
   version: "1.0"
   description: |
     # Overview
-    Use this API to verify purchasing operators’ approval to buy vaping duty stamps.
+    The Vaping Duty Stamps - Approval Status Check API enables authorised stamp suppliers to verify whether a purchasing operator is currently approved to purchase vaping duty stamps.
+    
+    This API supports the verification of a purchasing operator’s approval status before an authorised stamp supplier issues the vaping duty stamps.
 
-    This API exposes a single endpoint that allows the appointed stamp supplier
-    to perform a daily approval status check against HMRC systems.
 
 servers:
   - url: https://test-api.service.hmrc.gov.uk
     description: Sandbox
 
 tags:
-  - name: Approval status
-    description: Endpoint for checking operator approval to purchase vaping duty stamps.
+  - name: Approval status verification
+    description: |
+      The Vaping Duty Stamps - Approval Status Check API provides a single endpoint that supports a daily approval status check against the relevant HMRC approval systems, to make sure that stamps are purchased by only operators with a valid approval status.
+      
+      Until this API is available in the production environment, the endpoint will be identified with the label [Test only]. This indicates that the endpoint is available purely for Test purposes only, and can not be used for live operational purposes.
 
 paths:
   /misc/vaping/stamps/status:
@@ -25,7 +28,7 @@ paths:
         - Approval status
       summary: Check purchasing operator approval status - [Test only]
       description: |
-        Checks whether a purchasing operator is approved to buy vaping duty stamps.
+        This verifies if a purchasing operator is currently authorised to purchase vaping duty stamps.
 
         **Example request**
 
