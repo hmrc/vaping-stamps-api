@@ -53,7 +53,7 @@ class EISConnectorSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuit
     val responseBody =
       """
         |{
-        |  "approvalStatus": "APPROVED",
+        |  "approvalStatus": "approved",
         |  "businessName": "Acme Vaping Ltd",
         |  "addressLine1": "1 Business Park",
         |  "addressLine2": "London",
@@ -68,7 +68,7 @@ class EISConnectorSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuit
     val responseBodyNotApproved =
       """
         |{
-        |  "approvalStatus": "NOT_APPROVED",
+        |  "approvalStatus": "not approved",
         |  "businessName": "Acme Vaping Ltd",
         |  "addressLine1": "1 Business Park",
         |  "addressLine2": "London",
@@ -150,7 +150,7 @@ class EISConnectorSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuit
 
     "handle downstream timeout by handling HttpException" in {
       server.stubFor(
-        post(urlEqualTo("/etds/vaping/stamps/status"))
+        post(urlEqualTo("/excise/decision/vapingstamps/profile/v1"))
           .withRequestBody(equalToJson(requestBody))
           .willReturn(
             aResponse()
@@ -165,7 +165,7 @@ class EISConnectorSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuit
 
       result mustBe Left(
         BadGatewayApiError(message =
-          s"POST of 'http://localhost:${server.port()}/etds/vaping/stamps/status' timed out with message 'Request timeout to localhost/127.0.0.1:${server.port()} after 1000 ms'"
+          s"POST of 'http://localhost:${server.port()}/excise/decision/vapingstamps/profile/v1' timed out with message 'Request timeout to localhost/127.0.0.1:${server.port()} after 1000 ms'"
         )
       )
     }
