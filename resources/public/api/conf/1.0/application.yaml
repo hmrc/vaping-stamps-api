@@ -10,7 +10,7 @@ info:
     This API supports the verification of a purchasing operator’s approval status before an authorised stamp supplier issues the vaping duty stamps.
 
     This API exposes a single endpoint that allows the appointed stamp supplier
-    to perform a daily approval status check against HMRC systems.
+    to perform an approval status check against HMRC systems.
 
 servers:
   - url: https://test-api.service.hmrc.gov.uk
