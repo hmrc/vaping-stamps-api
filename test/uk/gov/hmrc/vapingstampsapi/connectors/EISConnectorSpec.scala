@@ -79,16 +79,19 @@ class EISConnectorSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuit
         |}
         |
         """.stripMargin
-    val requestBody =
+
+    val outgoingRequestBody =
       """
         |{
-        |  "vdsEmail": "test@test.com",
-        |  "stampsReferenceNumber": "GBVA0000001DS"
+        |  "vdsdetails": {
+        |     "vdsEmail": "test@test.com",
+        |     "stampsReferenceNumber": "GBVA0000001DS"
+        |  }
         |}
         |""".stripMargin
 
     "return HttpResponse 200 with a success and Full responseBody" in {
-      stubEndpointForPost(200, requestBody, responseBody)
+      stubEndpointForPost(200, outgoingRequestBody, responseBody)
       val result = Await.result(connector.retrieveStatus(approvalRequest).value, 2.seconds)
 
       result mustBe Right(
@@ -109,7 +112,7 @@ class EISConnectorSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuit
     }
 
     "return HttpResponse 200 with a success and a Not Approved responseBody" in {
-      stubEndpointForPost(200, requestBody, responseBodyNotApproved)
+      stubEndpointForPost(200, outgoingRequestBody, responseBodyNotApproved)
       val result = Await.result(connector.retrieveStatus(approvalRequest).value, 2.seconds)
 
       result mustBe Right(
@@ -135,14 +138,14 @@ class EISConnectorSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuit
                            |  }
                            |}""".stripMargin
 
-      stubEndpointForPost(422, requestBody, responseBody)
+      stubEndpointForPost(422, outgoingRequestBody, responseBody)
       val result = Await.result(connector.retrieveStatus(approvalRequest).value, 1.seconds)
 
       result mustBe Left(UnprocessableEntityApiError(errors = Seq(StampsReferenceNumberNotFound)))
     }
 
     "propagate non-200 HttpResponse from downstream" in {
-      stubEndpointForPost(400, requestBody, "The request payload is invalid or malformed.")
+      stubEndpointForPost(400, outgoingRequestBody, "The request payload is invalid or malformed.")
       val result = Await.result(connector.retrieveStatus(approvalRequest).value, 1.seconds)
 
       result mustBe Left(BadGatewayApiError(message = "Error has occurred in downstream service"))
@@ -151,7 +154,7 @@ class EISConnectorSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuit
     "handle downstream timeout by handling HttpException" in {
       server.stubFor(
         post(urlEqualTo("/excise/decision/vapingstamps/profile/v1"))
-          .withRequestBody(equalToJson(requestBody))
+          .withRequestBody(equalToJson(outgoingRequestBody))
           .willReturn(
             aResponse()
               .withStatus(499)

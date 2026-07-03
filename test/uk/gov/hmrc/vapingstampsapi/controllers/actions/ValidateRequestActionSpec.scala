@@ -44,8 +44,11 @@ class ValidateRequestActionSpec extends AnyWordSpec with Matchers {
           val request: FakeRequest[_] = FakeRequest()
             .withHeaders(("Accept", "application/vnd.hmrc.1.0+json"), ("Authorization", "Bearer Token"))
             .withJsonBody(
-              JsObject(
-                Seq("vdsEmail" -> JsString("example@email.com"), "stampsReferenceNumber" -> JsString("XIVA0000001BB"))
+              Json.obj(
+                "vdsdetails" -> Json.obj(
+                  "vdsEmail"              -> JsString("example@email.com"),
+                  "stampsReferenceNumber" -> JsString("XIVA0000001BB")
+                )
               )
             )
 
