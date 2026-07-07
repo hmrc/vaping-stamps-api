@@ -5,53 +5,56 @@ info:
   version: "1.0"
   description: |
     # Overview
-    Use this API to verify purchasing operators’ approval to buy vaping duty stamps.
+    The Vaping Duty Stamps - Approval Status Check API enables authorised stamp suppliers to verify whether a purchasing operator is currently approved to purchase vaping duty stamps.
+    
+    This API supports the verification of a purchasing operator’s approval status before an authorised stamp supplier issues the vaping duty stamps.
 
     This API exposes a single endpoint that allows the appointed stamp supplier
-    to perform a daily approval status check against HMRC systems.
+    to perform an approval status check against HMRC systems.
 
 servers:
   - url: https://test-api.service.hmrc.gov.uk
     description: Sandbox
 
 tags:
-  - name: Approval status
-    description: Endpoint for checking operator approval to purchase vaping duty stamps.
+  - name: Approval status verification
+    description: |
+      The Vaping Duty Stamps - Approval Status Check API provides a single endpoint that supports a daily approval status check against the relevant HMRC approval systems, to make sure that stamps are purchased by only operators with a valid approval status.
+      
+      Until this API is available in the production environment, the endpoint will be identified with the label **[Test only]**. This indicates that the endpoint is available purely for Test purposes only, and can not be used for live operational purposes.
 
 paths:
   /misc/vaping/stamps/status:
     post:
-      tags:
-        - Approval status
       summary: Check purchasing operator approval status - [Test only]
       description: |
-        Checks whether a purchasing operator is approved to buy vaping duty stamps.
+        This verifies if a purchasing operator is currently authorised to purchase vaping duty stamps.
 
         **Example request**
 
         `POST https://test-api.service.hmrc.gov.uk/misc/vaping/stamps/status`
         
         ### Test data
-        Different scenarios within the service can be simulated by supplying the service with a **stampsReferenceNumber** in the
-        request body. The table gives values for **stampsReferenceNumber** and a description of the scenario.
+        This service can simulate various scenarios by supplying a **stampsReferenceNumber** in the request body of the service.
         
-        | stampsReferenceNumber value      | Scenario                                                                                                                |
-        |----------------------------------|-------------------------------------------------------------------------------------------------------------------------|
-        | GBVA0000200DS                    | Simulate a successful response with an approvalStatus = APPROVED.                                                       |
-        | XIVA0000200DS                    | Simulate a successful response with an approvalStatus = APPROVED. (Northern Ireland Stamps Reference format)            |
-        | GBVA0000266DS                    | Simulate a successful response with an approvalStatus = NOT_APPROVED.                                                   |
-        | XIVA0000266DS                    | Simulate a successful response with an approvalStatus = NOT_APPROVED. (Northern Ireland Stamps Reference format)        |
-        | GBVA0000422DS                    | Simulate a business error response where stampsReferenceNumber is not found.                                            |
-        | XIVA0000422DS                    | Simulate a business error response where stampsReferenceNumber is not found. (Northern Ireland Stamps Reference format) |
-        | GBVA1000422DS                    | Simulate a business error response where vdsEmail is not found.                                                         |
-        | XIVA1000422DS                    | Simulate a business error response where vdsEmail is not found. (Northern Ireland Stamps Reference format)              |
-        | GBVA0000500DS                    | Simulate an Internal Server Error from the API.                                                                         |
-        | XIVA0000500DS                    | Simulate an Internal Server Error from the API. (Northern Ireland Stamps Reference format)                              |
-        | GBVA0000502DS                    | Simulates an error from the downstream services.                                                                        |
-        | XIVA0000502DS                    | Simulates an error from the downstream services. (Northern Ireland Stamps Reference format)                             |
+        The table below gives values for **stampsReferenceNumber** and a description of the scenario.
+  
+        | stampsReferenceNumber value      | Description of scenario                                                                                                                                                        |
+        |----------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+        | GBVA0000200DS                    | Simulate the test environment to return a successful response with the approvalStatus attribute set to APPROVED.                                                               |
+        | XIVA0000200DS                    | Simulate the test environment to return a successful response with the approvalStatus attribute set to APPROVED. (Northern Ireland stamps reference format)                    |
+        | GBVA0000266DS                    | Simulate the test environment to return a successful response with the approvalStatus attribute set to NOT_APPROVED.                                                           |
+        | XIVA0000266DS                    | Simulate the test environment to return a successful response with the approvalStatus attribute set to NOT_APPROVED. (Northern Ireland stamps reference format)                |
+        | GBVA0000422DS                    | Simulate a business error response in the test environment for scenarios where the requested **stampsReferenceNumber** cannot be found.                                            |
+        | XIVA0000422DS                    | Simulate a business error response in the test environment for scenarios where the requested **stampsReferenceNumber** cannot be found. (Northern Ireland stamps reference format) |
+        | GBVA1000422DS                    | Simulate a business error response in the test environment for scenarios where the requested vdsEmail cannot be found.                                                         |
+        | XIVA1000422DS                    | Simulate a business error response in the test environment for scenarios where the requested vdsEmail cannot be found. (Northern Ireland stamps reference format)              |
+        | GBVA0000500DS                    | Simulate a server error response in the test environment for scenarios where an Internal Server Error occurs from the API.                                                     |
+        | XIVA0000500DS                    | Simulate a server error response in the test environment for scenarios where an Internal Server Error occurs from the API. (Northern Ireland stamps reference format)          |
+        | GBVA0000502DS                    | Simulate a downstream error response in the test environment for scenarios where an error from the downstream services occurs.                                                 |
+        | XIVA0000502DS                    | Simulate a downstream error response in the test environment for scenarios where an error from the downstream services occurs. (Northern Ireland stamps reference format)      |
         
-        **NOTE**: 400 scenarios can be triggered by providing missing/invalid headers and request values in your request.
-      
+        **NOTE**: 400 error scenarios can be simulated by sending requests containing missing or invalid HTTP headers and request field values.The response schema must be submitted as JSON and contain the following details.
 
       operationId: retrieveApprovalStatus
 
@@ -215,8 +218,7 @@ components:
       name: Accept
       in: header
       required: true
-      description: "Specifies the response format and the [version](/api-documentation/docs/reference-guide#versioning)\
-        \ of the API to be used."
+      description: "Specifies the API [version](/api-documentation/docs/reference-guide#versioning) and response format."
       schema:
         type: string
         enum:
@@ -225,7 +227,7 @@ components:
       name: Authorization
       in: header
       required: true
-      description: "Authorization token to authorize application access to API"
+      description: "OAuth 2.0 Bearer token used to authorize access to the API."
       schema:
         type: string
         example: "Bearer f44d58e9f36c1b5c9b18a0400f43efdd"
@@ -233,7 +235,7 @@ components:
       name: Content-Type
       in: header
       required: true
-      description: "Specifies format for the response body"
+      description: "Specifies the response body format."
       schema:
         type: string
         enum:
@@ -249,11 +251,11 @@ components:
         vdsEmail:
           type: string
           pattern: "^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$"
-          description: Contact email address for the purchasing operator.
+          description: Contact email address of the purchasing operator.
         stampsReferenceNumber:
           type: string
           pattern: "^GBVA[0-9]{7}DS$"
-          description: Vaping Duty Stamps Approval ID issued by HMRC.
+          description: Unique vaping duty stamps approval identifier issued by HMRC.
 
     ApprovedOperatorResponse:
       type: object
@@ -288,31 +290,31 @@ components:
         
         businessName:
           type: string
-          description: Registered business name of the purchasing operator.
+          description: Registered name of the business associated with the purchasing operator.
         
         addressLine1:
           type: string
-          description: First line of business' address
+          description: First line of the business' address
         
         addressLine2:
           type: string
-          description: Second line of business' address
+          description: Second line of the business' address
         
         addressLine3:
           type: string
-          description: Third line of business' address
+          description: Third line of the business' address
         
         addressLine4:
           type: string
-          description: Fourth line of business' address
+          description: Fourth line of the business' address
         
         addressLine5:
           type: string
-          description: Fifth line of business' address
+          description: Fifth line of the business' address
         
         postCode:
           type: string
-          description: Postal Code for business' address
+          description: Postal Code for the business' address
         
         contactName:
           type: string
@@ -324,7 +326,7 @@ components:
         
         stampsThreshold:
           type: number
-          description: Approved stamp purchase threshold.
+          description: Approved purchase threshold for the maximum number of vaping duty stamps that the operator can purchase.
 
     NotApprovedOperatorResponse:
       type: object
@@ -411,7 +413,7 @@ components:
             type: string
             enum: [ "001", "002" ]
           description: |
-            * "001" - stampsReferenceNumber not found in ETDS
+            * "001" - **stampsReferenceNumber** not found in ETDS
             * "002" - vdsEmail not found in ETDS
 
     500ErrorResponse:
