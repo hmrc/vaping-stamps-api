@@ -65,8 +65,10 @@ The authorised stamp supplier uses the response to:
   - determine if any approval conditions, purchasing restrictions, or limits apply
   - prevent the issuance of the vaping duty stamp where approval requirements are not satisfied
   - support other operational compliance and eligibility verification processes
-The response returned by the Vaping Duty Stamps - Approval Status Check API represents the purchasing operator’s approval status at the time the request is processed. As approval status may change over time, the response should not be relied upon as an evidence of ongoing authorisation beyond the point of processing.
+  - 
+The response returned by the Vaping Duty Stamps - Approval Status Check API represents the purchasing operator’s approval status at the time the request is processed.
 
+As approval status may change over time, the response should not be relied upon as an evidence of ongoing authorisation beyond the point of processing.
 The approval status can be verified only once for a specific stampsReferenceNumber.
 
 *Note*
