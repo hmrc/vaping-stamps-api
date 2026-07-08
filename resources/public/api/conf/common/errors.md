@@ -11,22 +11,17 @@ The HTTP status code-specific information is detailed in the following sub-secti
 
 ### Success responses
 
-| Status code                                     | Description                                                                         |
-|-------------------------------------------------|-------------------------------------------------------------------------------------|
-| 200 to 2xx, except 202 - Success                | The request failed because of a client error by your application.                   |
-| 202 Accepted but requires additional processing | The request was accepted for processing, and additional processing may be required. |
+The status codes and corresponding replies for a Successful response are:
+  - 200 to 2xx, except 202 - The request was successfully processed and approval status was returned.
+  - 202 - The request was accepted for processing and additional processing may be required.
 
 ### Client error responses
 
-| Status code                           | Description                                                      |
-|---------------------------------------|------------------------------------------------------------------|
-| 400 to 4xx Failed due to client error | The request failed because of a client error by your application |
+Status codes in the range of 400 to 4xx the server cannot process the request due to an error on the client application.
 
 ### Server error responses
 
-| Status code                      | Description                                                |
-|----------------------------------|------------------------------------------------------------|
-| 500 to 5xx Internal server error | An unexpected error occurred while processing the request. |
+Status codes in the range of 500 to 5xx the server cannot process the requestdue to an unexpected error on the server application.
 
 
 Additional endpoint-specific errors, validation rules, and error response structures are compiled in the Vaping Duty Stamps - Approval Status Check API (1.0) OAS document.
