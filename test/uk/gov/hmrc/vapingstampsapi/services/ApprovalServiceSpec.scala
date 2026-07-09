@@ -99,7 +99,7 @@ class ApprovalServiceSpec extends AnyWordSpec with Matchers with MockitoSugar wi
       )
     }
 
-    "propagate Left(BadGatewayApiError) when downstream returns an Left(BadGatewayApiError)" in {
+    "propagate Left(ServiceUnavailableApiError) when downstream returns an Left(ServiceUnavailableApiError)" in {
       val errorResponse =
         ServiceUnavailableApiError(message = "Downstream error has occurred")
 
