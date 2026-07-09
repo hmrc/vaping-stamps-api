@@ -55,7 +55,7 @@ class EISConnector @Inject() (
           "Authorization"    -> s"Bearer ${appConfig.eisAuthToken}",
           "content-type"     -> "application/json",
           "Accept"           -> "application/json",
-          "date"             -> s"$HttpDate.now.format.HttpDateTimeFormatter.formatImfFixedDate",
+          "date"             -> s"$HttpDate.now.format(HttpDateTimeFormatter.formatImfFixedDate)",
           "x-correlation-id" -> randomUUID().toString,
           "x-forwarded-host" -> "MDTP"
         )
