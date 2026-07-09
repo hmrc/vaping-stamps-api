@@ -180,7 +180,7 @@ class ApprovalControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppP
       contentAsJson(result) mustBe Json.toJson(errorResponse)
     }
 
-    "return 502 with JSON body when service returns Left(BadGatewayApiError)" in {
+    "return 503 with JSON body when service returns Left(ServiceUnavailableApiError)" in {
       val errorResponse =
         ServiceUnavailableApiError(message = "Error has occurred downstream")
 
