@@ -17,6 +17,7 @@
 package uk.gov.hmrc.vapingstampsapi.connectors
 
 import cats.data.EitherT
+import org.playframework.cachecontrol.HttpDate
 import org.slf4j.LoggerFactory
 import play.api.libs.json.*
 import play.api.libs.ws.writeableOf_JsValue
@@ -25,8 +26,12 @@ import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.vapingstampsapi.config.AppConfig
 import uk.gov.hmrc.vapingstampsapi.connectors.parsers.EISParser.{EISResponse, EISResponseReads}
 import uk.gov.hmrc.vapingstampsapi.models.errors.{ApiError, BadGatewayApiError}
-import uk.gov.hmrc.vapingstampsapi.models.{ApprovalRequest, ApprovalSummaryResponse}
+import uk.gov.hmrc.vapingstampsapi.models.{ApprovalSummaryResponse, VDSDetails}
 
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.util.Locale
+import java.util.UUID.randomUUID
 import javax.inject.*
 import scala.concurrent.*
 
@@ -39,7 +44,7 @@ class EISConnector @Inject() (
   private val logger = LoggerFactory.getLogger(getClass)
 
   def retrieveStatus(
-    request: ApprovalRequest
+    request: VDSDetails
   )(using hc: HeaderCarrier): EitherT[Future, ApiError, ApprovalSummaryResponse] =
 
     val url = s"${appConfig.eisBaseUrl}/excise/decision/vapingstamps/profile/v1"
@@ -49,8 +54,16 @@ class EISConnector @Inject() (
     EitherT(
       http
         .post(url"$url")
-        .setHeader("Environment" -> appConfig.eisEnvironment)
-        .setHeader("Authorization" -> s"Bearer ${appConfig.eisAuthToken}")
+        .setHeader(
+          "Authorization" -> s"Bearer ${appConfig.eisAuthToken}",
+          "content-type"  -> "application/json",
+          "Accept"        -> "application/json",
+          "date"          -> HttpDate.now.format(
+            DateTimeFormatter.ofPattern("EEE, dd MMM YYYY HH:mm:ss z", Locale.UK).withZone(ZoneId.of("GMT"))
+          ),
+          "x-correlation-id" -> randomUUID().toString,
+          "x-forwarded-host" -> "MDTP"
+        )
         .withBody(Json.toJson(request))
         .execute[EISResponse]
         .recover { case e: HttpException =>

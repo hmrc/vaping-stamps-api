@@ -22,7 +22,7 @@ import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
-import uk.gov.hmrc.vapingstampsapi.models.ApprovalRequest
+import uk.gov.hmrc.vapingstampsapi.models.VDSDetails
 import uk.gov.hmrc.vapingstampsapi.models.errors.*
 
 class RequestValidatorSpec extends AnyWordSpec with Matchers:
@@ -46,7 +46,7 @@ class RequestValidatorSpec extends AnyWordSpec with Matchers:
             )
           )
 
-        validator.fromRequest(request) mustBe Valid(ApprovalRequest("example@email.com", "GBVA0000001DS"))
+        validator.fromRequest(request) mustBe Valid(VDSDetails("example@email.com", "GBVA0000001DS"))
       }
 
       "Valid request is made with NI Reference" in {
@@ -64,7 +64,7 @@ class RequestValidatorSpec extends AnyWordSpec with Matchers:
             )
           )
 
-        validator.fromRequest(request) mustBe Valid(ApprovalRequest("example@email.com", "XIVA0000001DS"))
+        validator.fromRequest(request) mustBe Valid(VDSDetails("example@email.com", "XIVA0000001DS"))
       }
     }
 

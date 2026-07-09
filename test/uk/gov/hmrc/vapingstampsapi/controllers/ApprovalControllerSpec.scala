@@ -33,9 +33,9 @@ import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.vapingstampsapi.controllers.actions.{AuthAction, StubAuthAction, StubValidateRequestAction, ValidateRequestAction}
-import uk.gov.hmrc.vapingstampsapi.models.ApprovalStatus.approved
+import uk.gov.hmrc.vapingstampsapi.models.ApprovalStatus.{approved, not_approved}
 import uk.gov.hmrc.vapingstampsapi.models.errors.*
-import uk.gov.hmrc.vapingstampsapi.models.{ApprovalRequest, ApprovedSummaryResponse}
+import uk.gov.hmrc.vapingstampsapi.models.{ApprovalStatus, ApprovedSummaryResponse, NotApprovedSummaryResponse, VDSDetails}
 import uk.gov.hmrc.vapingstampsapi.services.ApprovalService
 
 import scala.concurrent.*
@@ -78,22 +78,39 @@ class ApprovalControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppP
     stampsThreshold = 10000L
   )
 
-  val approvalRequest: ApprovalRequest = ApprovalRequest("test@test.com", "GBVA0000001DS")
-  val notApprovedRequest: ApprovalRequest = ApprovalRequest("testBad@test.com", "GBVA0000001DS")
+  val notApprovedSummary = NotApprovedSummaryResponse(
+    approvalStatus = not_approved
+  )
 
-  val postRequest: FakeRequest[JsValue] = FakeRequest(POST, "/status").withBody(Json.toJson(approvalRequest))
+  val incomingVDSDetails: JsObject =
+    Json.obj("vdsEmail" -> JsString("example@email.com"), "stampsReferenceNumber" -> JsString("XIVA0000001BB"))
+  val incomingNotApprovedVDSDetails: JsObject =
+    Json.obj("vdsEmail" -> JsString("testBad@test.com"), "stampsReferenceNumber" -> JsString("XIVA0000001BB"))
+
+  def postRequest(postRequest: JsObject): FakeRequest[JsValue] = FakeRequest(POST, "/status").withBody(postRequest)
 
   "ApprovalController.retrieveStatus" should {
 
     "return OK with valid JSON body when parameters to the call are valid" in {
-      when(mockService.retrieveStatus(any[ApprovalRequest])(using any[HeaderCarrier]))
+      when(mockService.retrieveStatus(any[VDSDetails])(using any[HeaderCarrier]))
         .thenReturn(EitherT(Future.successful(Right(approvedSummary))))
 
-      val result = controller.retrieveStatus().apply(postRequest)
+      val result = controller.retrieveStatus().apply(postRequest(incomingVDSDetails))
 
-      status(result) mustBe OK
       contentType(result) mustBe Some("application/json")
       contentAsJson(result) mustBe Json.toJson(approvedSummary)
+      status(result) mustBe OK
+    }
+
+    "return OK with valid JSON body for not_approved Status when parameters to the call are valid" in {
+      when(mockService.retrieveStatus(any[VDSDetails])(using any[HeaderCarrier]))
+        .thenReturn(EitherT(Future.successful(Right(notApprovedSummary))))
+
+      val result = controller.retrieveStatus().apply(postRequest(incomingNotApprovedVDSDetails))
+
+      contentType(result) mustBe Some("application/json")
+      contentAsJson(result) mustBe Json.toJson(notApprovedSummary)
+      status(result) mustBe OK
     }
 
     "return BadRequest when the request body is missing" in {
@@ -112,66 +129,15 @@ class ApprovalControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppP
       status(result) mustBe BAD_REQUEST
     }
 
-    "return 502 with JSON body when service returns Left(BadGatewayApiError)" in {
-      val errorResponse =
-        BadGatewayApiError(message = "Error has occurred downstream")
-
-      when(mockService.retrieveStatus(any[ApprovalRequest])(using any[HeaderCarrier]))
-        .thenReturn(EitherT(Future.successful(Left(errorResponse))))
-
-      val request = FakeRequest(POST, "/status")
-        .withBody(Json.toJson(approvalRequest))
-
-      val result = controller.retrieveStatus().apply(request)
-
-      status(result) mustBe BAD_GATEWAY
-      contentType(result) mustBe Some("application/json")
-      contentAsJson(result) mustBe Json.toJson(errorResponse)
-    }
-
-    "return 500 with JSON body when service returns Left(InternalServerErrorApiError)" in {
-      val errorResponse =
-        InternalServerErrorApiError(message = "Error has occurred in the service")
-
-      when(mockService.retrieveStatus(any[ApprovalRequest])(using any[HeaderCarrier]))
-        .thenReturn(EitherT(Future.successful(Left(errorResponse))))
-
-      val request = FakeRequest(POST, "/status")
-        .withBody(Json.toJson(approvalRequest))
-
-      val result = controller.retrieveStatus().apply(request)
-
-      status(result) mustBe INTERNAL_SERVER_ERROR
-      contentType(result) mustBe Some("application/json")
-      contentAsJson(result) mustBe Json.toJson(errorResponse)
-    }
-
-    "return 422 with JSON body when service returns Left(UnprocessableEntityApiError)" in {
-      val errorResponse =
-        UnprocessableEntityApiError(errors = Seq(VdsEmailNotFound))
-
-      when(mockService.retrieveStatus(any[ApprovalRequest])(using any[HeaderCarrier]))
-        .thenReturn(EitherT(Future.successful(Left(errorResponse))))
-
-      val request = FakeRequest(POST, "/status")
-        .withBody(Json.toJson(approvalRequest))
-
-      val result = controller.retrieveStatus().apply(request)
-
-      status(result) mustBe UNPROCESSABLE_ENTITY
-      contentType(result) mustBe Some("application/json")
-      contentAsJson(result) mustBe Json.toJson(errorResponse)
-    }
-
     "return 400 with JSON body when service returns Left(BadRequestApiError)" in {
       val errorResponse =
         BadRequestApiError(errors = Seq(MissingAcceptHeader, IncorrectContentTypeHeader))
 
-      when(mockService.retrieveStatus(any[ApprovalRequest])(using any[HeaderCarrier]))
+      when(mockService.retrieveStatus(any[VDSDetails])(using any[HeaderCarrier]))
         .thenReturn(EitherT(Future.successful(Left(errorResponse))))
 
       val request = FakeRequest(POST, "/status")
-        .withBody(Json.toJson(approvalRequest))
+        .withBody(incomingVDSDetails)
 
       val result = controller.retrieveStatus().apply(request)
 
@@ -180,5 +146,55 @@ class ApprovalControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppP
       contentAsJson(result) mustBe Json.toJson(errorResponse)
     }
 
+    "return 422 with JSON body when service returns Left(UnprocessableEntityApiError)" in {
+      val errorResponse =
+        UnprocessableEntityApiError(errors = Seq(VdsEmailNotFound))
+
+      when(mockService.retrieveStatus(any[VDSDetails])(using any[HeaderCarrier]))
+        .thenReturn(EitherT(Future.successful(Left(errorResponse))))
+
+      val request = FakeRequest(POST, "/status")
+        .withBody(incomingVDSDetails)
+
+      val result = controller.retrieveStatus().apply(request)
+
+      status(result) mustBe UNPROCESSABLE_ENTITY
+      contentType(result) mustBe Some("application/json")
+      contentAsJson(result) mustBe Json.toJson(errorResponse)
+    }
+
+    "return 500 with JSON body when service returns Left(InternalServerErrorApiError)" in {
+      val errorResponse =
+        InternalServerErrorApiError(message = "Error has occurred in the service")
+
+      when(mockService.retrieveStatus(any[VDSDetails])(using any[HeaderCarrier]))
+        .thenReturn(EitherT(Future.successful(Left(errorResponse))))
+
+      val request = FakeRequest(POST, "/status")
+        .withBody(incomingVDSDetails)
+
+      val result = controller.retrieveStatus().apply(request)
+
+      status(result) mustBe INTERNAL_SERVER_ERROR
+      contentType(result) mustBe Some("application/json")
+      contentAsJson(result) mustBe Json.toJson(errorResponse)
+    }
+
+    "return 502 with JSON body when service returns Left(BadGatewayApiError)" in {
+      val errorResponse =
+        BadGatewayApiError(message = "Error has occurred downstream")
+
+      when(mockService.retrieveStatus(any[VDSDetails])(using any[HeaderCarrier]))
+        .thenReturn(EitherT(Future.successful(Left(errorResponse))))
+
+      val request = FakeRequest(POST, "/status")
+        .withBody(incomingVDSDetails)
+
+      val result = controller.retrieveStatus().apply(request)
+
+      status(result) mustBe BAD_GATEWAY
+      contentType(result) mustBe Some("application/json")
+      contentAsJson(result) mustBe Json.toJson(errorResponse)
+    }
   }
 }

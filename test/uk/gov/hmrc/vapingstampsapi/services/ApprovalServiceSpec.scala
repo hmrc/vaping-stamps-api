@@ -40,10 +40,10 @@ class ApprovalServiceSpec extends AnyWordSpec with Matchers with MockitoSugar wi
   private val service = new ApprovalService(mockConnector)
 
   private val approvalRequest =
-    ApprovalRequest("test@test.com", "GBVA0000001DS")
+    VDSDetails("test@test.com", "GBVA0000001DS")
 
   private val approvalBadRequest =
-    ApprovalRequest("test@badtest.com", "GBVA0000001DS")
+    VDSDetails("test@badtest.com", "GBVA0000001DS")
 
   private val approvedSummary =
     ApprovedSummaryResponse(

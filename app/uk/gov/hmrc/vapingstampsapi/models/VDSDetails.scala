@@ -18,7 +18,19 @@ package uk.gov.hmrc.vapingstampsapi.models
 
 import play.api.libs.json._
 
-final case class ApprovalRequest(vdsEmail: String, stampsReferenceNumber: String)
+final case class VDSDetails(vdsEmail: String, stampsReferenceNumber: String)
 
-object ApprovalRequest:
-  given approvalFormat: Format[ApprovalRequest] = Json.format[ApprovalRequest]
+object VDSDetails:
+  given approvalFormat: Format[VDSDetails] =
+    Format(
+      Json.reads[VDSDetails],
+      writes
+    )
+
+  given writes: Writes[VDSDetails] =
+    Writes[VDSDetails] { vdsDetail =>
+      Json.obj(
+        "vdsdetails" -> Json
+          .obj("vdsEmail" -> vdsDetail.vdsEmail, "stampsReferenceNumber" -> vdsDetail.stampsReferenceNumber)
+      )
+    }

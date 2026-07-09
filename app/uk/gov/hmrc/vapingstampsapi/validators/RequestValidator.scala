@@ -21,11 +21,11 @@ import cats.implicits.*
 import org.apache.pekko.Done
 import play.api.libs.json.{JsObject, JsString}
 import play.api.mvc.Request
-import uk.gov.hmrc.vapingstampsapi.models.ApprovalRequest
+import uk.gov.hmrc.vapingstampsapi.models.VDSDetails
 import uk.gov.hmrc.vapingstampsapi.models.errors.*
 
-class RequestValidator extends Validator[ApprovalRequest]:
-  override def fromRequest(request: Request[_]): ValidatedNec[BadRequestError, ApprovalRequest] =
+class RequestValidator extends Validator[VDSDetails]:
+  override def fromRequest(request: Request[_]): ValidatedNec[BadRequestError, VDSDetails] =
     (
       validateAcceptHeader(request),
       validateContentTypeHeader(request),
@@ -37,7 +37,7 @@ class RequestValidator extends Validator[ApprovalRequest]:
         authorization,
         srn,
         email
-      ) => ApprovalRequest(email, srn)
+      ) => VDSDetails(email, srn)
     )
 
   private def validateAcceptHeader(request: Request[_]): ValidatedNec[BadRequestError, Done] = {

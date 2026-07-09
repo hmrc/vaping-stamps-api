@@ -22,7 +22,7 @@ import play.api.Logging
 import play.api.libs.json.Json
 import play.api.mvc.Results.BadRequest
 import play.api.mvc.{ActionFilter, Request, Result}
-import uk.gov.hmrc.vapingstampsapi.models.ApprovalRequest
+import uk.gov.hmrc.vapingstampsapi.models.VDSDetails
 import uk.gov.hmrc.vapingstampsapi.models.errors.{BadRequestApiError, BadRequestError}
 import uk.gov.hmrc.vapingstampsapi.validators.RequestValidator
 
