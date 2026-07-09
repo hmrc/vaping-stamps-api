@@ -19,7 +19,7 @@ package uk.gov.hmrc.vapingstampsapi.models
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.libs.json.{JsResultException, JsString, Json, JsonValidationError}
-import uk.gov.hmrc.vapingstampsapi.models.errors.{BusinessError, StampsReferenceNumberNotFound, VdsEmailNotFound}
+import uk.gov.hmrc.vapingstampsapi.models.errors.{BusinessError, StampRequestedBefore, StampsReferenceNumberNotFound, VdsEmailNotFound}
 
 class BusinessErrorSpec extends AnyWordSpec with Matchers:
   "BusinessError" must {
@@ -31,6 +31,10 @@ class BusinessErrorSpec extends AnyWordSpec with Matchers:
       "MissingVdsEmail must be 002" in {
         VdsEmailNotFound.toString mustBe "002"
       }
+
+      "StampRequestedBefore must be 003" in {
+        StampRequestedBefore.toString mustBe "003"
+      }
     }
 
     "read from JsValue" when {
@@ -41,12 +45,16 @@ class BusinessErrorSpec extends AnyWordSpec with Matchers:
       "reads of JsString(002) must be JsSuccess(VdsEmailNotFound)" in {
         JsString("002").as[BusinessError] mustBe VdsEmailNotFound
       }
+
+      "reads of JsString(003) must be JsSuccess(StampRequestedBefore)" in {
+        JsString("003").as[BusinessError] mustBe StampRequestedBefore
+      }
     }
 
     "return JsError" when {
       "unreadable JsValue is bound" in {
         intercept[JsResultException] {
-          JsString("003").as[BusinessError]
+          JsString("004").as[BusinessError]
         }.errors map { case (_, error) =>
           error mustBe List(JsonValidationError(List("Invalid BusinessError value")))
         }
@@ -61,5 +69,10 @@ class BusinessErrorSpec extends AnyWordSpec with Matchers:
       "write VdsEmailNotFound to JsString(002)" in {
         Json.toJson(VdsEmailNotFound)(using BusinessError.format) mustBe JsString("002")
       }
+
+      "write StampRequestedBefore to JsString(003)" in {
+        Json.toJson(StampRequestedBefore)(using BusinessError.format) mustBe JsString("003")
+      }
+
     }
   }
