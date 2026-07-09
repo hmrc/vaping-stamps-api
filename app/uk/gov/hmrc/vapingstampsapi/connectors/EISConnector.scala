@@ -59,7 +59,7 @@ class EISConnector @Inject() (
           "content-type"  -> "application/json",
           "Accept"        -> "application/json",
           "date"          -> HttpDate.now.format(
-            DateTimeFormatter.ofPattern("EEE, dd MM YYYY HH:mm:ss z", Locale.UK).withZone(ZoneId.of("GMT"))
+            DateTimeFormatter.ofPattern("EEE, dd MMM YYYY HH:mm:ss z", Locale.UK).withZone(ZoneId.of("GMT"))
           ),
           "x-correlation-id" -> randomUUID().toString,
           "x-forwarded-host" -> "MDTP"
