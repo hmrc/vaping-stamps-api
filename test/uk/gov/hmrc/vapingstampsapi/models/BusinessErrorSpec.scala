@@ -19,7 +19,7 @@ package uk.gov.hmrc.vapingstampsapi.models
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.libs.json.{JsResultException, JsString, Json, JsonValidationError}
-import uk.gov.hmrc.vapingstampsapi.models.errors.{BusinessError, StampRequestedBefore, StampsReferenceNumberNotFound, VdsEmailNotFound}
+import uk.gov.hmrc.vapingstampsapi.models.errors.{BusinessError, StampsRequestThresholdReached, StampsReferenceNumberNotFound, VdsEmailNotFound}
 
 class BusinessErrorSpec extends AnyWordSpec with Matchers:
   "BusinessError" must {
@@ -33,7 +33,7 @@ class BusinessErrorSpec extends AnyWordSpec with Matchers:
       }
 
       "StampRequestedBefore must be 003" in {
-        StampRequestedBefore.toString mustBe "003"
+        StampsRequestThresholdReached.toString mustBe "003"
       }
     }
 
@@ -47,7 +47,7 @@ class BusinessErrorSpec extends AnyWordSpec with Matchers:
       }
 
       "reads of JsString(003) must be JsSuccess(StampRequestedBefore)" in {
-        JsString("003").as[BusinessError] mustBe StampRequestedBefore
+        JsString("003").as[BusinessError] mustBe StampsRequestThresholdReached
       }
     }
 
@@ -71,7 +71,7 @@ class BusinessErrorSpec extends AnyWordSpec with Matchers:
       }
 
       "write StampRequestedBefore to JsString(003)" in {
-        Json.toJson(StampRequestedBefore)(using BusinessError.format) mustBe JsString("003")
+        Json.toJson(StampsRequestThresholdReached)(using BusinessError.format) mustBe JsString("003")
       }
 
     }

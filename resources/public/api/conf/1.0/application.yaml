@@ -417,7 +417,7 @@ components:
           description: |
             * "001" - **stampsReferenceNumber** not found in ETDS
             * "002" - vdsEmail not found in ETDS
-            * "003" - stampsReferenceNumber has already been requested from ETDS
+            * "003" - Details for this stampsReferenceNumber have already been requested by the authorised stamp supplier
 
     500ErrorResponse:
       type: object
