@@ -28,6 +28,9 @@ import uk.gov.hmrc.vapingstampsapi.connectors.parsers.EISParser.{EISResponse, EI
 import uk.gov.hmrc.vapingstampsapi.models.errors.{ApiError, BadGatewayApiError}
 import uk.gov.hmrc.vapingstampsapi.models.{ApprovalSummaryResponse, VDSDetails}
 
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 import java.util.UUID.randomUUID
 import javax.inject.*
 import scala.concurrent.*
@@ -52,10 +55,12 @@ class EISConnector @Inject() (
       http
         .post(url"$url")
         .setHeader(
-          "Authorization"    -> s"Bearer ${appConfig.eisAuthToken}",
-          "content-type"     -> "application/json",
-          "Accept"           -> "application/json",
-          "date"             -> s"$HttpDate.now.format(HttpDateTimeFormatter.formatImfFixedDate)",
+          "Authorization" -> s"Bearer ${appConfig.eisAuthToken}",
+          "content-type"  -> "application/json",
+          "Accept"        -> "application/json",
+          "date"          -> HttpDate.now.format(
+            DateTimeFormatter.ofPattern("EEE, dd MM YYYY HH:mm:ss z", Locale.UK).withZone(ZoneId.of("GMT"))
+          ),
           "x-correlation-id" -> randomUUID().toString,
           "x-forwarded-host" -> "MDTP"
         )
