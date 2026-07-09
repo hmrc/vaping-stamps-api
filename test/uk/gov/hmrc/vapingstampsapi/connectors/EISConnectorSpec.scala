@@ -158,7 +158,7 @@ class EISConnectorSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuit
           .willReturn(
             aResponse()
               .withStatus(499)
-              .withHeader("Content-Type", "application/json")
+              .withHeader("Content-Type", "application/json", "Accept", "date", "x-correlation-id", "x-forwarded-host")
               .withBody("The request payload has timed out")
               .withFixedDelay(2000)
           )

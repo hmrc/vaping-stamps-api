@@ -242,7 +242,7 @@ components:
           - application/json
 
   schemas:
-    ApprovalRequest:
+    VDSDetails:
       type: object
       required:
         - vdsEmail

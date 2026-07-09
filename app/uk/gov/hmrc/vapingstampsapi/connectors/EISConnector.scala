@@ -17,6 +17,7 @@
 package uk.gov.hmrc.vapingstampsapi.connectors
 
 import cats.data.EitherT
+import org.playframework.cachecontrol.HttpDate
 import org.slf4j.LoggerFactory
 import play.api.libs.json.*
 import play.api.libs.ws.writeableOf_JsValue
@@ -27,6 +28,7 @@ import uk.gov.hmrc.vapingstampsapi.connectors.parsers.EISParser.{EISResponse, EI
 import uk.gov.hmrc.vapingstampsapi.models.errors.{ApiError, BadGatewayApiError}
 import uk.gov.hmrc.vapingstampsapi.models.{ApprovalSummaryResponse, VDSDetails}
 
+import java.util.UUID.randomUUID
 import javax.inject.*
 import scala.concurrent.*
 
@@ -49,8 +51,14 @@ class EISConnector @Inject() (
     EitherT(
       http
         .post(url"$url")
-        .setHeader("Environment" -> appConfig.eisEnvironment)
-        .setHeader("Authorization" -> s"Bearer ${appConfig.eisAuthToken}")
+        .setHeader(
+          "Authorization"    -> s"Bearer ${appConfig.eisAuthToken}",
+          "content-type"     -> "application/json",
+          "Accept"           -> "application/json",
+          "date"             -> s"$HttpDate",
+          "x-correlation-id" -> randomUUID().toString,
+          "x-forwarded-host" -> "MDTP"
+        )
         .withBody(Json.toJson(request))
         .execute[EISResponse]
         .recover { case e: HttpException =>
