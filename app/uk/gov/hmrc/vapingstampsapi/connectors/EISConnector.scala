@@ -25,7 +25,7 @@ import uk.gov.hmrc.http.*
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.vapingstampsapi.config.AppConfig
 import uk.gov.hmrc.vapingstampsapi.connectors.parsers.EISParser.{EISResponse, EISResponseReads}
-import uk.gov.hmrc.vapingstampsapi.models.errors.{ApiError, BadGatewayApiError}
+import uk.gov.hmrc.vapingstampsapi.models.errors.{ApiError, ServiceUnavailableApiError}
 import uk.gov.hmrc.vapingstampsapi.models.{ApprovalSummaryResponse, VDSDetails}
 
 import java.time.ZoneId
@@ -68,6 +68,6 @@ class EISConnector @Inject() (
         .execute[EISResponse]
         .recover { case e: HttpException =>
           logger.error(s"[EISConnector][retrieveStatus]: Unexpected Exception returned - $e")
-          Left(BadGatewayApiError(message = e.message))
+          Left(ServiceUnavailableApiError(message = e.message))
         }
     )

@@ -182,7 +182,7 @@ class ApprovalControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppP
 
     "return 502 with JSON body when service returns Left(BadGatewayApiError)" in {
       val errorResponse =
-        BadGatewayApiError(message = "Error has occurred downstream")
+        ServiceUnavailableApiError(message = "Error has occurred downstream")
 
       when(mockService.retrieveStatus(any[VDSDetails])(using any[HeaderCarrier]))
         .thenReturn(EitherT(Future.successful(Left(errorResponse))))
@@ -192,7 +192,7 @@ class ApprovalControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppP
 
       val result = controller.retrieveStatus().apply(request)
 
-      status(result) mustBe BAD_GATEWAY
+      status(result) mustBe SERVICE_UNAVAILABLE
       contentType(result) mustBe Some("application/json")
       contentAsJson(result) mustBe Json.toJson(errorResponse)
     }

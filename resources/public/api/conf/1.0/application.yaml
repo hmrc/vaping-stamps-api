@@ -51,8 +51,8 @@ paths:
         | XIVA1000422DS                    | Simulate a business error response in the test environment for scenarios where the requested vdsEmail cannot be found. (Northern Ireland stamps reference format)              |
         | GBVA0000500DS                    | Simulate a server error response in the test environment for scenarios where an Internal Server Error occurs from the API.                                                     |
         | XIVA0000500DS                    | Simulate a server error response in the test environment for scenarios where an Internal Server Error occurs from the API. (Northern Ireland stamps reference format)          |
-        | GBVA0000502DS                    | Simulate a downstream error response in the test environment for scenarios where an error from the downstream services occurs.                                                 |
-        | XIVA0000502DS                    | Simulate a downstream error response in the test environment for scenarios where an error from the downstream services occurs. (Northern Ireland stamps reference format)      |
+        | GBVA0000503DS                    | Simulate a downstream error response in the test environment for scenarios where an error from the downstream services occurs.                                                 |
+        | XIVA0000503DS                    | Simulate a downstream error response in the test environment for scenarios where an error from the downstream services occurs. (Northern Ireland stamps reference format)      |
         
         **NOTE**: 400 error scenarios can be simulated by sending requests containing missing or invalid HTTP headers and request field values.The response schema must be submitted as JSON and contain the following details.
 
@@ -186,15 +186,15 @@ paths:
                   "message": "<error message based on failure>"
                 }
 
-        "502":
+        "503":
           description: Downstream error — an error has occurred downstream from the API
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/502ErrorResponse"
+                $ref: "#/components/schemas/503ErrorResponse"
               example:
                 {
-                  "code": "BAD_GATEWAY",
+                  "code": "SERVICE_UNAVAILABLE",
                   "message": "An error has occurred downstream"
                 }
 
@@ -427,7 +427,7 @@ components:
         message:
           type: string
 
-    502ErrorResponse:
+    503ErrorResponse:
       type: object
       required:
         - code
