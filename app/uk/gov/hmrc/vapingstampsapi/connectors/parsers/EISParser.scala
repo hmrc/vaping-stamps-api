@@ -20,7 +20,7 @@ import play.api.Logging
 import play.api.http.Status.{OK, UNPROCESSABLE_ENTITY}
 import uk.gov.hmrc.http.{HttpReads, HttpResponse}
 import uk.gov.hmrc.vapingstampsapi.models.ApprovalSummaryResponse
-import uk.gov.hmrc.vapingstampsapi.models.errors.{ApiError, BadGatewayApiError, InternalServerErrorApiError, UnprocessableEntityApiError}
+import uk.gov.hmrc.vapingstampsapi.models.errors.{ApiError, InternalServerErrorApiError, ServiceUnavailableApiError, UnprocessableEntityApiError}
 
 object EISParser extends Logging {
   type EISResponse = Either[ApiError, ApprovalSummaryResponse]
@@ -53,7 +53,7 @@ object EISParser extends Logging {
             )
         case downstreamStatusCode =>
           logger.warn(s"[EISParser][read]: EIS has returned error statusCode: $downstreamStatusCode")
-          Left(BadGatewayApiError(message = "Error has occurred in downstream service"))
+          Left(ServiceUnavailableApiError(message = "Error has occurred in downstream service"))
       }
   }
 }

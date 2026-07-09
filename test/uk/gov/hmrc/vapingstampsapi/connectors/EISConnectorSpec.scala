@@ -24,7 +24,7 @@ import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.vapingstampsapi.models.ApprovalStatus.{approved, not_approved}
-import uk.gov.hmrc.vapingstampsapi.models.errors.{BadGatewayApiError, StampsReferenceNumberNotFound, UnprocessableEntityApiError}
+import uk.gov.hmrc.vapingstampsapi.models.errors.{ServiceUnavailableApiError, StampsReferenceNumberNotFound, UnprocessableEntityApiError}
 import uk.gov.hmrc.vapingstampsapi.models.{ApprovedSummaryResponse, NotApprovedSummaryResponse, VDSDetails}
 import uk.gov.hmrc.vapingstampsapi.utils.WiremockHelper
 
@@ -148,7 +148,7 @@ class EISConnectorSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuit
       stubEndpointForPost(400, outgoingRequestBody, "The request payload is invalid or malformed.")
       val result = Await.result(connector.retrieveStatus(approvalRequest).value, 1.seconds)
 
-      result mustBe Left(BadGatewayApiError(message = "Error has occurred in downstream service"))
+      result mustBe Left(ServiceUnavailableApiError(message = "Error has occurred in downstream service"))
     }
 
     "handle downstream timeout by handling HttpException" in {
@@ -167,7 +167,7 @@ class EISConnectorSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuit
       val result = Await.result(connector.retrieveStatus(approvalRequest).value, 2.seconds)
 
       result mustBe Left(
-        BadGatewayApiError(message =
+        ServiceUnavailableApiError(message =
           s"POST of 'http://localhost:${server.port()}/excise/decision/vapingstamps/profile/v1' timed out with message 'Request timeout to localhost/127.0.0.1:${server.port()} after 1000 ms'"
         )
       )

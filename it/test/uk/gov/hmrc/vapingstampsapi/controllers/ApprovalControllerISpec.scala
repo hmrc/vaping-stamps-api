@@ -28,7 +28,7 @@ import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{POST, contentAsJson, defaultAwaitTimeout, route, status, writeableOf_AnyContentAsJson}
 import uk.gov.hmrc.vapingstampsapi.controllers.actions.{AuthAction, StubAuthAction}
-import uk.gov.hmrc.vapingstampsapi.models.errors.{BadGatewayApiError, StampsReferenceNumberNotFound, UnprocessableEntityApiError}
+import uk.gov.hmrc.vapingstampsapi.models.errors.{ServiceUnavailableApiError, StampsReferenceNumberNotFound, UnprocessableEntityApiError}
 import uk.gov.hmrc.vapingstampsapi.utils.WiremockHelper
 
 import scala.concurrent.Future
@@ -302,7 +302,7 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
       )
     }
 
-    "return 502 error when downstream error is returned" in {
+    "return 503 error when downstream error is returned" in {
       val responseBody =
         """
           |{
@@ -324,9 +324,9 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
 
       val response: Option[Future[Result]] = route(app, request)
 
-      response.map(status) mustBe Some(BAD_GATEWAY)
+      response.map(status) mustBe Some(SERVICE_UNAVAILABLE)
       response.map(contentAsJson) mustBe Some(
-        Json.toJson(BadGatewayApiError(message = "Error has occurred in downstream service"))
+        Json.toJson(ServiceUnavailableApiError(message = "Error has occurred in downstream service"))
       )
     }
   }

@@ -26,7 +26,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.vapingstampsapi.connectors.EISConnector
 import uk.gov.hmrc.vapingstampsapi.models.*
 import uk.gov.hmrc.vapingstampsapi.models.ApprovalStatus.{approved, not_approved}
-import uk.gov.hmrc.vapingstampsapi.models.errors.{BadGatewayApiError, StampsReferenceNumberNotFound, UnprocessableEntityApiError}
+import uk.gov.hmrc.vapingstampsapi.models.errors.{ServiceUnavailableApiError, StampsReferenceNumberNotFound, UnprocessableEntityApiError}
 
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{Await, ExecutionContext, Future}
@@ -99,9 +99,9 @@ class ApprovalServiceSpec extends AnyWordSpec with Matchers with MockitoSugar wi
       )
     }
 
-    "propagate Left(BadGatewayApiError) when downstream returns an Left(BadGatewayApiError)" in {
+    "propagate Left(ServiceUnavailableApiError) when downstream returns an Left(ServiceUnavailableApiError)" in {
       val errorResponse =
-        BadGatewayApiError(message = "Downstream error has occurred")
+        ServiceUnavailableApiError(message = "Downstream error has occurred")
 
       when(mockConnector.retrieveStatus(approvalRequest))
         .thenReturn(EitherT(Future.successful(Left(errorResponse))))
@@ -109,7 +109,7 @@ class ApprovalServiceSpec extends AnyWordSpec with Matchers with MockitoSugar wi
       val result = Await.result(service.retrieveStatus(approvalRequest).value, 2.seconds)
 
       result mustBe Left(
-        BadGatewayApiError(message = "Downstream error has occurred")
+        ServiceUnavailableApiError(message = "Downstream error has occurred")
       )
     }
   }
