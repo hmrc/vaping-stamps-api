@@ -33,7 +33,7 @@ object BusinessError extends Logging:
     Writes {
       case StampsReferenceNumberNotFound => JsString(StampsReferenceNumberNotFound.toString)
       case VdsEmailNotFound              => JsString(VdsEmailNotFound.toString)
-      case StampsRequestThresholdReached          => JsString(StampsRequestThresholdReached.toString)
+      case StampsRequestThresholdReached => JsString(StampsRequestThresholdReached.toString)
     }
   )
 
