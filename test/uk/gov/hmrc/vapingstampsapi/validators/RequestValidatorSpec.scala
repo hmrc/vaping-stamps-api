@@ -18,9 +18,10 @@ package uk.gov.hmrc.vapingstampsapi.validators
 
 import cats.data.Chain
 import cats.data.Validated.{Invalid, Valid}
+import org.scalactic.Prettifier.default
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import play.api.libs.json.Json
+import play.api.libs.json.{JsObject, Json}
 import play.api.test.FakeRequest
 import uk.gov.hmrc.vapingstampsapi.models.VDSDetails
 import uk.gov.hmrc.vapingstampsapi.models.errors.*
@@ -50,7 +51,6 @@ class RequestValidatorSpec extends AnyWordSpec with Matchers:
       }
 
       "Valid request is made with NI Reference" in {
-
         val request = FakeRequest()
           .withHeaders(
             "Accept"        -> "application/vnd.hmrc.1.0+json",
@@ -65,6 +65,32 @@ class RequestValidatorSpec extends AnyWordSpec with Matchers:
           )
 
         validator.fromRequest(request) mustBe Valid(VDSDetails("example@email.com", "XIVA0000001DS"))
+      }
+
+      "Valid request is made with multiple possible characters" in {
+
+        val validChar = Seq("A", "C", "E", "F", "M", "R")
+
+        def detailsObject(letter: String) =
+          Json.obj(
+            "vdsEmail"              -> "example@email.com",
+            "stampsReferenceNumber" -> s"XIV${letter}0000001DS"
+          )
+
+        def request(body: JsObject) = FakeRequest()
+          .withHeaders(
+            "Accept"        -> "application/vnd.hmrc.1.0+json",
+            "Authorization" -> "Bearer Token",
+            "Content-Type"  -> "application/json"
+          )
+          .withBody(
+            body
+          )
+        validChar.foreach { letter =>
+          validator.fromRequest(request(detailsObject(letter))) mustBe Valid(
+            VDSDetails("example@email.com", s"XIV${letter}0000001DS")
+          )
+        }
       }
     }
 
