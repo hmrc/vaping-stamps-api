@@ -19,7 +19,7 @@ package uk.gov.hmrc.vapingstampsapi.models
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.libs.json.{JsResultException, JsString, Json, JsonValidationError}
-import uk.gov.hmrc.vapingstampsapi.models.errors.{BusinessError, StampsReferenceNumberNotFound, MultipleStampsRequestReceived, VdsEmailNotFound}
+import uk.gov.hmrc.vapingstampsapi.models.errors.{BusinessError, MultipleStampsRequestReceived, StampsReferenceNumberNotFound, VdsEmailNotFound}
 
 class BusinessErrorSpec extends AnyWordSpec with Matchers:
   "BusinessError" must {
