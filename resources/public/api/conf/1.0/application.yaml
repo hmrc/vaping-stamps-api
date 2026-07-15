@@ -194,8 +194,8 @@ paths:
                 $ref: "#/components/schemas/503ErrorResponse"
               example:
                 {
-                  "code": "SERVICE_UNAVAILABLE",
-                  "message": "An error has occurred downstream"
+                  "code": "SERVER_ERROR",
+                  "message": "Service unavailable"
                 }
 
 components:
