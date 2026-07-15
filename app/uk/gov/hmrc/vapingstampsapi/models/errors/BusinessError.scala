@@ -25,7 +25,7 @@ object BusinessError extends Logging:
     Reads {
       case JsString("001") => JsSuccess(StampsReferenceNumberNotFound)
       case JsString("002") => JsSuccess(VdsEmailNotFound)
-      case JsString("003") => JsSuccess(StampsRequestThresholdReached)
+      case JsString("003") => JsSuccess(MultipleStampsRequestReceived)
       case _               =>
         logger.error("[BusinessError][format]: Invalid BusinessError value")
         JsError("Invalid BusinessError value")
@@ -33,7 +33,7 @@ object BusinessError extends Logging:
     Writes {
       case StampsReferenceNumberNotFound => JsString(StampsReferenceNumberNotFound.toString)
       case VdsEmailNotFound              => JsString(VdsEmailNotFound.toString)
-      case StampsRequestThresholdReached => JsString(StampsRequestThresholdReached.toString)
+      case MultipleStampsRequestReceived => JsString(MultipleStampsRequestReceived.toString)
     }
   )
 
@@ -43,5 +43,5 @@ case object StampsReferenceNumberNotFound extends BusinessError:
 case object VdsEmailNotFound extends BusinessError:
   override def toString: String = "002"
 
-case object StampsRequestThresholdReached extends BusinessError:
+case object MultipleStampsRequestReceived extends BusinessError:
   override def toString: String = "003"
