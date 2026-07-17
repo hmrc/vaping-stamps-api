@@ -65,12 +65,12 @@ class RequestValidator extends Validator[VDSDetails]:
   }
 
   private def validateStampsReferenceNumber(request: Request[_]): ValidatedNec[BadRequestError, String] =
-    val stampsReferenceNumberGBRegex: String = "^(GB|XI)VA[0-9]{7}DS$"
+    val stampsReferenceNumberRegex: String = "^(GB|XI)V[ACEFMR][0-9]{7}DS$"
 
     request.body match {
       case JsObject(underlying) =>
         underlying.get("stampsReferenceNumber") match {
-          case Some(JsString(value)) if value.matches(stampsReferenceNumberGBRegex) =>
+          case Some(JsString(value)) if value.matches(stampsReferenceNumberRegex) =>
             value.validNec
           case Some(_) => InvalidStampsReferenceNumber.invalidNec
           case None    => MissingStampsReferenceNumber.invalidNec
