@@ -256,7 +256,7 @@ components:
           description: Contact email address of the purchasing operator.
         stampsReferenceNumber:
           type: string
-          pattern: "^GBVA[0-9]{7}DS$"
+          pattern: "^(GB|XI)V[ACEFMR][0-9]{7}DS$"
           description: Unique vaping duty stamps approval identifier issued by HMRC.
 
     ApprovedOperatorResponse:
