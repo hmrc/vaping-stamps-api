@@ -54,13 +54,13 @@ The Vaping Duty Stamps - Approval Status Check API enables suppliers to verify a
   1. The vaping duty stamps supplier submits an approval request for a specific purchasing operator, who has already been assigned a unique stampsReferenceNumber by HMRC.
   2. Upon receipt, the Vaping Duty Stamps - Approval Status Check API authenticates the request and validates it.
   3. The API verifies the authenticity of the request and performs the following:
-     - validates the request
-     - attempts to identify the corresponding operator data from HMRC
+     1. validates the request
+     2. attempts to identify the corresponding operator data from HMRC
   4. When a matching operator is identified, the Vaping Duty Stamps - Approval Status Check API retrieves the current approval status from HMRC.
   5. The Vaping Duty Stamps - Approval Status Check API returns a response with the following information:
-     - an appropriate response code indicating the outcome of the request
-     - the purchasing operator’s current approval status
-     - any relevant business information associated with that approval
+     1. an appropriate response code indicating the outcome of the request
+     2. the purchasing operator’s current approval status
+     3. any relevant business information associated with that approval
 
 The authorised stamp supplier uses the response to:
   - verify if the purchasing operator is authorised to purchase the vaping duty stamps
