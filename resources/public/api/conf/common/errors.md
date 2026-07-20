@@ -11,17 +11,17 @@ The HTTP status code-specific information is detailed in the following sub-secti
 
 ### Success responses
 
-The status codes and corresponding replies for a Successful response are:
-  - 200 to 2xx, except 202 - The request was successfully processed and approval status was returned.
-  - 202 - The request was accepted for processing and additional processing may be required.
+The status codes and corresponding replies for a successful response are:
+  - 200 to 2xx, except 202 - The request was successfully processed and approval status was returned
+  - 202 - The request was accepted for processing and additional processing may be required
 
 ### Client error responses
 
-Status codes in the range of 400 to 4xx the server cannot process the request due to an error on the client application.
+Status codes in the 400 to 4xx range indicate that the server cannot process the request due to an error on the client application.
 
 ### Server error responses
 
-Status codes in the range of 500 to 5xx the server cannot process the requestdue to an unexpected error on the server application.
+Status codes in the 500 to 5xx range indicate that the server cannot process the request due to an unexpected error on the server application.
 
 
 Additional endpoint-specific errors, validation rules, and error response structures are compiled in the Vaping Duty Stamps - Approval Status Check API (1.0) OAS document.
