@@ -197,13 +197,13 @@ class RequestValidatorSpec extends AnyWordSpec with Matchers:
       "vdsEmail has too many chars in the email so returns invalid" in {
         val request = FakeRequest()
           .withHeaders(
-            "Accept" -> "application/vnd.hmrc.1.0+json",
+            "Accept"        -> "application/vnd.hmrc.1.0+json",
             "Authorization" -> "Bearer Token",
-            "Content-Type" -> "application/json"
+            "Content-Type"  -> "application/json"
           )
           .withBody(
             Json.obj(
-              "vdsEmail" -> "12345678912345678912345678912345678912345678912345678912345678965@email.com",
+              "vdsEmail"              -> "12345678912345678912345678912345678912345678912345678912345678965@email.com",
               "stampsReferenceNumber" -> "GBVA0000001DS"
             )
           )
@@ -214,9 +214,9 @@ class RequestValidatorSpec extends AnyWordSpec with Matchers:
       "vdsEmail has too many Chars overall in the email so returns invalid" in {
         val request = FakeRequest()
           .withHeaders(
-            "Accept" -> "application/vnd.hmrc.1.0+json",
+            "Accept"        -> "application/vnd.hmrc.1.0+json",
             "Authorization" -> "Bearer Token",
-            "Content-Type" -> "application/json"
+            "Content-Type"  -> "application/json"
           )
           .withBody(
             Json.obj(
