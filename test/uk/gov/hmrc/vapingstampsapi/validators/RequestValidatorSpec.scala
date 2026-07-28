@@ -208,7 +208,7 @@ class RequestValidatorSpec extends AnyWordSpec with Matchers:
             )
           )
 
-        validator.fromRequest(request) mustBe Invalid(Chain(InvalidVdsEmail))
+        validator.fromRequest(request) mustBe Invalid(Chain(TooManyCharsInVdsEmail))
       }
 
       "vdsEmail has too many Chars overall in the email so returns invalid" in {
@@ -225,7 +225,7 @@ class RequestValidatorSpec extends AnyWordSpec with Matchers:
             )
           )
 
-        validator.fromRequest(request) mustBe Invalid(Chain(InvalidVdsEmail))
+        validator.fromRequest(request) mustBe Invalid(Chain(TooManyCharsInVdsEmail))
       }
 
       "vdsEmail is Invalid Json type" in {
