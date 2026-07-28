@@ -84,11 +84,10 @@ class RequestValidator extends Validator[VDSDetails]:
     request.body match {
       case JsObject(underlying) =>
         underlying.get("vdsEmail") match {
-          case Some(JsString(value)) if value.matches(vdsEmailRegex) && value.length < 132  => value.validNec
-          case Some(JsString(value)) if value.length > 132 || !value.matches(vdsEmailRegex) =>
-            TooManyCharsInVdsEmail.invalidNec
-          case Some(_) => InvalidVdsEmail.invalidNec
-          case None    => MissingVdsEmail.invalidNec
+          case Some(JsString(value)) if value.matches(vdsEmailRegex) && value.length < 132 => value.validNec
+          case Some(JsString(value)) if value.length > 132                                 => TooLongVdsEmail.invalidNec
+          case Some(_)                                                                     => InvalidVdsEmail.invalidNec
+          case None                                                                        => MissingVdsEmail.invalidNec
         }
       case _ => InvalidVdsEmail.invalidNec
     }

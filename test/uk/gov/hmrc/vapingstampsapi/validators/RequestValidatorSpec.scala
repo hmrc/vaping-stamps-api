@@ -208,10 +208,10 @@ class RequestValidatorSpec extends AnyWordSpec with Matchers:
             )
           )
 
-        validator.fromRequest(request) mustBe Invalid(Chain(TooManyCharsInVdsEmail))
+        validator.fromRequest(request) mustBe Invalid(Chain(InvalidVdsEmail))
       }
 
-      "vdsEmail has too many Chars overall in the email so returns invalid" in {
+      "vdsEmail has too many Chars overall in the email so returns too long invalid" in {
         val request = FakeRequest()
           .withHeaders(
             "Accept"        -> "application/vnd.hmrc.1.0+json",
@@ -225,7 +225,7 @@ class RequestValidatorSpec extends AnyWordSpec with Matchers:
             )
           )
 
-        validator.fromRequest(request) mustBe Invalid(Chain(TooManyCharsInVdsEmail))
+        validator.fromRequest(request) mustBe Invalid(Chain(TooLongVdsEmail))
       }
 
       "vdsEmail is Invalid Json type" in {

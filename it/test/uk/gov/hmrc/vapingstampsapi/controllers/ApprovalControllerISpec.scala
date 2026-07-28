@@ -260,8 +260,15 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
           |""".stripMargin
 
       val request = FakeRequest(POST, "/status")
-        .withHeaders(defaultHeaders *)
-        .withJsonBody(Json.parse(incomingRequestBody("example123456789123456789123456789123456789123456789123456789123456789@email123456789123456789123456789123456789123456789123456789123456789.com", "XIVA0000200DS")))
+        .withHeaders(defaultHeaders*)
+        .withJsonBody(
+          Json.parse(
+            incomingRequestBody(
+              "example123456789123456789123456789123456789123456789123456789123456789@email123456789123456789123456789123456789123456789123456789123456789.com",
+              "XIVA0000200DS"
+            )
+          )
+        )
 
       stubEndpointForPost(400, outGoingRequestBody("XIVA0000200DS"), responseBody)
 

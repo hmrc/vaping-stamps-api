@@ -48,5 +48,5 @@ case object MissingVdsEmail extends BadRequestError:
 case object InvalidVdsEmail extends BadRequestError:
   override def toString: String = "008"
 
-case object TooManyCharsInVdsEmail extends BadRequestError:
+case object TooLongVdsEmail extends BadRequestError:
   override def toString: String = "009"
