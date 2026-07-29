@@ -227,7 +227,7 @@ class RequestValidatorSpec extends AnyWordSpec with Matchers:
           )
           .withBody(
             Json.obj(
-              "vdsEmail"              -> "12345678912345678912345678912345678912345678912345678912345678965@email.com",
+              "vdsEmail"              -> "02345678901234567890223456789032345678904234567890523456789062345@email.com",
               "stampsReferenceNumber" -> "GBVA0000001DS"
             )
           )
