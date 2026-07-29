@@ -389,11 +389,11 @@ components:
             * "002" - Incorrect Accept Header
             * "003" - Missing Content-Type Header
             * "004" - Incorrect Content-Type Header
-            * "005" - Missing stampsReferenceNumber Header
-            * "006" - Incorrect stampsReferenceNumber Header
-            * "007" - Missing vdsEmail Header
-            * "008" - Incorrect vdsEmail Header
-            * "009" - The vdsEmail is too long Header
+            * "005" - Missing stampsReferenceNumber
+            * "006" - Incorrect stampsReferenceNumber
+            * "007" - Missing vdsEmail
+            * "008" - Incorrect vdsEmail
+            * "009" - The vdsEmail is too long
 
 
     422ErrorResponse:

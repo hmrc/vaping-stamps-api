@@ -86,11 +86,35 @@ class RequestValidatorSpec extends AnyWordSpec with Matchers:
           .withBody(
             body
           )
+
         validChar.foreach { letter =>
           validator.fromRequest(request(detailsObject(letter))) mustBe Valid(
             VDSDetails("example@email.com", s"XIV${letter}0000001DS")
           )
         }
+      }
+
+      "vdsEmail has 132 chars in the email so returns valid" in {
+        val request = FakeRequest()
+          .withHeaders(
+            "Accept"        -> "application/vnd.hmrc.1.0+json",
+            "Authorization" -> "Bearer Token",
+            "Content-Type"  -> "application/json"
+          )
+          .withBody(
+            Json.obj(
+              "vdsEmail" -> "0234567890123456789022345678903234567890423456789052345678906234@email.0234567890123456789022345678903234567890423456789052345678901",
+              "stampsReferenceNumber" -> "GBVA0000001DS"
+            )
+          )
+
+        validator.fromRequest(request) mustBe Valid(
+          VDSDetails(
+            "0234567890123456789022345678903234567890423456789052345678906234@email.0234567890123456789022345678903234567890423456789052345678901",
+            "GBVA0000001DS"
+          )
+        )
+        request.body.value("vdsEmail").as[String].length mustBe 132
       }
     }
 
@@ -211,7 +235,7 @@ class RequestValidatorSpec extends AnyWordSpec with Matchers:
         validator.fromRequest(request) mustBe Invalid(Chain(InvalidVdsEmail))
       }
 
-      "vdsEmail has 132 chars in the email so returns valid" in {
+      "vdsEmail has too many Chars (133) overall in the email so returns too long invalid" in {
         val request = FakeRequest()
           .withHeaders(
             "Accept"        -> "application/vnd.hmrc.1.0+json",
@@ -220,20 +244,15 @@ class RequestValidatorSpec extends AnyWordSpec with Matchers:
           )
           .withBody(
             Json.obj(
-              "vdsEmail" -> "123456789123456789123456789123456789123456789123456789123456789@email.1234567890123456789012345678901234567890123456789012",
+              "vdsEmail" -> "0234567890123456789022345678903234567890423456789052345678906234@email.02345678901234567890223456789032345678904234567890523456789012",
               "stampsReferenceNumber" -> "GBVA0000001DS"
             )
           )
-
-        validator.fromRequest(request) mustBe Valid(
-          VDSDetails(
-            "123456789123456789123456789123456789123456789123456789123456789@email.1234567890123456789012345678901234567890123456789012",
-            "GBVA0000001DS"
-          )
-        )
+        validator.fromRequest(request) mustBe Invalid(Chain(TooLongVdsEmail))
+        request.body.value("vdsEmail").as[String].length mustBe 133
       }
 
-      "vdsEmail has too many Chars overall in the email so returns too long invalid" in {
+      "vdsEmail has too many Chars  overall in the email so returns too long invalid" in {
         val request = FakeRequest()
           .withHeaders(
             "Accept"        -> "application/vnd.hmrc.1.0+json",

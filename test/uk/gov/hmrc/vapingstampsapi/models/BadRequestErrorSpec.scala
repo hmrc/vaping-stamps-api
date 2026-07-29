@@ -31,7 +31,8 @@ class BadRequestErrorSpec extends AnyWordSpec with Matchers:
         MissingStampsReferenceNumber -> "005",
         InvalidStampsReferenceNumber -> "006",
         MissingVdsEmail              -> "007",
-        InvalidVdsEmail              -> "008"
+        InvalidVdsEmail              -> "008",
+        TooLongVdsEmail              -> "009"
       ).foreach { case (error, str) =>
         s"Convert $error to $str" in {
           error.toString mustBe str
