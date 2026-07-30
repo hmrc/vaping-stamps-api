@@ -252,7 +252,7 @@ components:
       properties:
         vdsEmail:
           type: string
-          pattern: "^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$"
+          pattern: "^[a-zA-Z0-9_.+-]{1,64}+@[a-zA-Z0-9-]{1,64}+\\.[a-zA-Z0-9-.]{1,64}+$"
           description: Contact email address of the purchasing operator.
         stampsReferenceNumber:
           type: string
@@ -383,17 +383,17 @@ components:
           type: array
           items:
             type: string
-            enum: [ "001", "002", "003", "004", "005", "006", "007", "008" ]
+            enum: [ "001", "002", "003", "004", "005", "006", "007", "008", "009"]
           description: |
             * "001" - Missing Accept Header
             * "002" - Incorrect Accept Header
             * "003" - Missing Content-Type Header
             * "004" - Incorrect Content-Type Header
-            * "005" - Missing stampsReferenceNumber Header
-            * "006" - Incorrect stampsReferenceNumber Header
-            * "007" - Missing vdsEmail Header
-            * "008" - Incorrect vdsEmail Header
-
+            * "005" - Missing stampsReferenceNumber
+            * "006" - Incorrect stampsReferenceNumber
+            * "007" - Missing vdsEmail
+            * "008" - Incorrect vdsEmail
+            * "009" - The vdsEmail is too long
 
 
     422ErrorResponse:
