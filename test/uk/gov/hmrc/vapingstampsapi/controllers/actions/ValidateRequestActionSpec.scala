@@ -47,13 +47,13 @@ class ValidateRequestActionSpec extends AnyWordSpec with Matchers {
               Json.obj(
                 "vdsdetails" -> Json.obj(
                   "vdsEmail"              -> JsString("example@email.com"),
-                  "stampsReferenceNumber" -> JsString("XIVA0000001BB")
+                  "stampsReferenceNumber" -> JsString("XIVC0000001BB")
                 )
               )
             )
 
           when(mockRequestValidator.fromRequest(request))
-            .thenReturn(Valid(VDSDetails("email@example.com", "XIVA0000001BB")))
+            .thenReturn(Valid(VDSDetails("email@example.com", "XIVC0000001BB")))
 
           await(validator.filter(request)) mustBe None
         }

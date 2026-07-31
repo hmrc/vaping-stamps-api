@@ -49,7 +49,7 @@ class EISConnectorSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuit
 
   "EISConnector.retrieveStatus" should {
 
-    val approvalRequest = VDSDetails("test@test.com", "GBVA0000001DS")
+    val approvalRequest = VDSDetails("test@test.com", "GBVC0000001DS")
     val responseBody =
       """
         |{
@@ -85,7 +85,7 @@ class EISConnectorSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuit
         |{
         |  "vdsdetails": {
         |     "vdsEmail": "test@test.com",
-        |     "stampsReferenceNumber": "GBVA0000001DS"
+        |     "stampsReferenceNumber": "GBVC0000001DS"
         |  }
         |}
         |""".stripMargin
