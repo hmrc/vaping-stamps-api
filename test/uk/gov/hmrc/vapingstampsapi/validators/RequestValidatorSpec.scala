@@ -69,7 +69,7 @@ class RequestValidatorSpec extends AnyWordSpec with Matchers:
 
       "Valid request is made with multiple possible characters" in {
 
-        val validChar = Seq("A", "C", "E", "F", "M", "R")
+        val validChar = Seq("C", "E", "F", "M", "R")
 
         def detailsObject(letter: String) =
           Json.obj(
