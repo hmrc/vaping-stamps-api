@@ -13,5 +13,7 @@ The sandbox environment is capable of:
 Until this API is available in the production environment, the endpoint will be identified with the label **[Test only]**. This indicates that the endpoint is available purely for Test purposes only and cannot be used for live operational purposes.
 
 *Note*
-  - The sandbox data and responses are intended exclusively for testing purposes.
-  - Information returned by the sandbox environment must not be used for any operational decision-making.
+
+The sandbox data and responses are intended exclusively for testing purposes.
+
+Information returned by the sandbox environment must not be used for any operational decision-making.

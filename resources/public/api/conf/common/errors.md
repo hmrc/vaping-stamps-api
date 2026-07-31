@@ -24,4 +24,4 @@ Status codes in the 400 to 4xx range indicate that the server cannot process the
 Status codes in the 500 to 5xx range indicate that the server cannot process the request due to an unexpected error on the server application.
 
 
-Additional endpoint-specific errors, validation rules, and error response structures are compiled in the Vaping Duty Stamps - Approval Status Check API (1.0) OAS document.
+Additional endpoint-specific errors, validation rules, and error response structures are compiled in the [Vaping Duty Stamps - Approval Status Check API (1.0) OAS](https://developer.service.hmrc.gov.uk/api-documentation/docs/api/service/vaping-stamps-api/1.0/oas/page) document.
