@@ -44,13 +44,13 @@ paths:
   
         | stampsReferenceNumber value      | Description of scenario                                                                                                                 |
         |----------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------|
-        | GBVA0000200DS                    | Simulate the test environment to return a successful response with the approvalStatus attribute set to APPROVED.                        |
-        | GBVA0000266DS                    | Simulate the test environment to return a successful response with the approvalStatus attribute set to NOT_APPROVED.                    |
-        | GBVA0000422DS                    | Simulate a business error response in the test environment for scenarios where the requested **stampsReferenceNumber** cannot be found. |
-        | GBVA1000422DS                    | Simulate a business error response in the test environment for scenarios where the requested vdsEmail cannot be found.                  |
-        | GBVA2000422DS                    | Simulate a business error response in the test environment for scenarios where the same stampsReferenceNumber is called multiple times. |
-        | GBVA0000500DS                    | Simulate a server error response in the test environment for scenarios where an Internal Server Error occurs from the API.              |
-        | GBVA0000503DS                    | Simulate a downstream error response in the test environment for scenarios where an error from the downstream services occurs.          |
+        | GBVC0000200DS                    | Simulate the test environment to return a successful response with the approvalStatus attribute set to APPROVED.                        |
+        | GBVC0000266DS                    | Simulate the test environment to return a successful response with the approvalStatus attribute set to NOT_APPROVED.                    |
+        | GBVC0000422DS                    | Simulate a business error response in the test environment for scenarios where the requested **stampsReferenceNumber** cannot be found. |
+        | GBVC1000422DS                    | Simulate a business error response in the test environment for scenarios where the requested vdsEmail cannot be found.                  |
+        | GBVC2000422DS                    | Simulate a business error response in the test environment for scenarios where the same stampsReferenceNumber is called multiple times. |
+        | GBVC0000500DS                    | Simulate a server error response in the test environment for scenarios where an Internal Server Error occurs from the API.              |
+        | GBVC0000503DS                    | Simulate a downstream error response in the test environment for scenarios where an error from the downstream services occurs.          |
         
         **NOTE**: 400 error scenarios can be simulated by sending requests containing missing or invalid HTTP headers and request field values.The response schema must be submitted as JSON and contain the following details.
 
