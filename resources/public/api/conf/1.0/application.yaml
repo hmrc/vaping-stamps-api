@@ -37,24 +37,20 @@ paths:
         ### Test data
         This service can simulate various scenarios by supplying a **stampsReferenceNumber** in the request body of the service.
         
-        The table below gives values for **stampsReferenceNumber** and a description of the scenario.
+        *XI* can replace *GB*
+        *A* can be replaced by other individual letters detailed in the schemas
+        
+        The table below gives example values for **stampsReferenceNumber** and a description of the scenario.
   
-        | stampsReferenceNumber value      | Description of scenario                                                                                                                                                        |
-        |----------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-        | GBVA0000200DS                    | Simulate the test environment to return a successful response with the approvalStatus attribute set to APPROVED.                                                               |
-        | XIVA0000200DS                    | Simulate the test environment to return a successful response with the approvalStatus attribute set to APPROVED. (Northern Ireland stamps reference format)                    |
-        | GBVA0000266DS                    | Simulate the test environment to return a successful response with the approvalStatus attribute set to NOT_APPROVED.                                                           |
-        | XIVA0000266DS                    | Simulate the test environment to return a successful response with the approvalStatus attribute set to NOT_APPROVED. (Northern Ireland stamps reference format)                |
-        | GBVA0000422DS                    | Simulate a business error response in the test environment for scenarios where the requested **stampsReferenceNumber** cannot be found.                                            |
-        | XIVA0000422DS                    | Simulate a business error response in the test environment for scenarios where the requested **stampsReferenceNumber** cannot be found. (Northern Ireland stamps reference format) |
-        | GBVA1000422DS                    | Simulate a business error response in the test environment for scenarios where the requested vdsEmail cannot be found.                                                             |
-        | XIVA1000422DS                    | Simulate a business error response in the test environment for scenarios where the requested vdsEmail cannot be found. (Northern Ireland stamps reference format)                  |
-        | GBVA2000422DS                    | Simulate a business error response in the test environment for scenarios where the same stampsReferenceNumber is called multiple times.                                            |
-        | XIVA2000422DS                    | Simulate a business error response in the test environment for scenarios where the same stampsReferenceNumber is called multiple times. (Northern Ireland stamps reference format) |
-        | GBVA0000500DS                    | Simulate a server error response in the test environment for scenarios where an Internal Server Error occurs from the API.                                                         |
-        | XIVA0000500DS                    | Simulate a server error response in the test environment for scenarios where an Internal Server Error occurs from the API. (Northern Ireland stamps reference format)              |
-        | GBVA0000503DS                    | Simulate a downstream error response in the test environment for scenarios where an error from the downstream services occurs.                                                     |
-        | XIVA0000503DS                    | Simulate a downstream error response in the test environment for scenarios where an error from the downstream services occurs. (Northern Ireland stamps reference format)          |
+        | stampsReferenceNumber value      | Description of scenario                                                                                                                 |
+        |----------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------|
+        | GBVA0000200DS                    | Simulate the test environment to return a successful response with the approvalStatus attribute set to APPROVED.                        |
+        | GBVA0000266DS                    | Simulate the test environment to return a successful response with the approvalStatus attribute set to NOT_APPROVED.                    |
+        | GBVA0000422DS                    | Simulate a business error response in the test environment for scenarios where the requested **stampsReferenceNumber** cannot be found. |
+        | GBVA1000422DS                    | Simulate a business error response in the test environment for scenarios where the requested vdsEmail cannot be found.                  |
+        | GBVA2000422DS                    | Simulate a business error response in the test environment for scenarios where the same stampsReferenceNumber is called multiple times. |
+        | GBVA0000500DS                    | Simulate a server error response in the test environment for scenarios where an Internal Server Error occurs from the API.              |
+        | GBVA0000503DS                    | Simulate a downstream error response in the test environment for scenarios where an error from the downstream services occurs.          |
         
         **NOTE**: 400 error scenarios can be simulated by sending requests containing missing or invalid HTTP headers and request field values.The response schema must be submitted as JSON and contain the following details.
 
