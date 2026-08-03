@@ -17,13 +17,6 @@ The APIs will provide a facility for authorised stamp suppliers to only sell vap
 
 The above information helps authorised stamp suppliers to make an informed decision prior to the issuance of the vaping duty stamps to the operator. HMRC can also access the above information to track compliance.
 
-
-The UK Government announced the introduction of a new excise duty on vaping products to be introduced from 1st October 2026. 
-
-Vaping Stamps APIs will complement HMRC's traditional tax compliance efforts to ensure that only approved businesses sell vaping products and that the necessary duty is paid. It will also help tackle the illicit trade that occurs in this business sector and so damages legitimate businesses. 
-
-The APIs will provide a facility for the third party client stamp producer to only sell stamps to traders that are approved by HMRC. It will also enable the third party client to forward the necessary information to HMRC which is required to track compliance.  
-
 ## Requirements
 ```
 Developed using Scala 3 with the Play Framework and suitable to run on JRE 21 or later.
