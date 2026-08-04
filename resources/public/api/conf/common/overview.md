@@ -20,6 +20,12 @@ The Vaping Duty Stamps - Approval Status Check API does not provide:
   - audit trails or approval history
   - approval management or status update capabilities
 
+**Selected Launch Partner**
+
+The Vaping Duty Stamps - Approval Status Check API is currently accessible only to a specific vaping duty stamps’ supplier who has been appointed by HMRC as the selected launch partner for this API service.
+
+A formal change request and approval through [SDST](sdsteam@hmrc.gov.uk) and the Service Delivery Manager is required, if the Vaping Duty Stamps - Approval Status Check API is to be extended beyond the current supplier or become a publicly available API in the future.
+
 **Features**
 
 Primary features of this API include the:

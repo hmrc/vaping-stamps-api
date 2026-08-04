@@ -83,9 +83,9 @@ class ApprovalControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppP
   )
 
   val incomingVDSDetails: JsObject =
-    Json.obj("vdsEmail" -> JsString("example@email.com"), "stampsReferenceNumber" -> JsString("XIVA0000001BB"))
+    Json.obj("vdsEmail" -> JsString("example@email.com"), "stampsReferenceNumber" -> JsString("XIVC0000001BB"))
   val incomingNotApprovedVDSDetails: JsObject =
-    Json.obj("vdsEmail" -> JsString("testBad@test.com"), "stampsReferenceNumber" -> JsString("XIVA0000001BB"))
+    Json.obj("vdsEmail" -> JsString("testBad@test.com"), "stampsReferenceNumber" -> JsString("XIVC0000001BB"))
 
   def postRequest(postRequest: JsObject): FakeRequest[JsValue] = FakeRequest(POST, "/status").withBody(postRequest)
 

@@ -43,11 +43,11 @@ class RequestValidatorSpec extends AnyWordSpec with Matchers:
           .withBody(
             Json.obj(
               "vdsEmail"              -> "example@email.com",
-              "stampsReferenceNumber" -> "GBVA0000001DS"
+              "stampsReferenceNumber" -> "GBVC0000001DS"
             )
           )
 
-        validator.fromRequest(request) mustBe Valid(VDSDetails("example@email.com", "GBVA0000001DS"))
+        validator.fromRequest(request) mustBe Valid(VDSDetails("example@email.com", "GBVC0000001DS"))
       }
 
       "Valid request is made with NI Reference" in {
@@ -60,16 +60,16 @@ class RequestValidatorSpec extends AnyWordSpec with Matchers:
           .withBody(
             Json.obj(
               "vdsEmail"              -> "example@email.com",
-              "stampsReferenceNumber" -> "XIVA0000001DS"
+              "stampsReferenceNumber" -> "XIVC0000001DS"
             )
           )
 
-        validator.fromRequest(request) mustBe Valid(VDSDetails("example@email.com", "XIVA0000001DS"))
+        validator.fromRequest(request) mustBe Valid(VDSDetails("example@email.com", "XIVC0000001DS"))
       }
 
       "Valid request is made with multiple possible characters" in {
 
-        val validChar = Seq("A", "C", "E", "F", "M", "R")
+        val validChar = Seq("C", "E", "F", "M", "R")
 
         def detailsObject(letter: String) =
           Json.obj(
@@ -104,14 +104,14 @@ class RequestValidatorSpec extends AnyWordSpec with Matchers:
           .withBody(
             Json.obj(
               "vdsEmail" -> "0234567890123456789022345678903234567890423456789052345678906234@email.0234567890123456789022345678903234567890423456789052345678901",
-              "stampsReferenceNumber" -> "GBVA0000001DS"
+              "stampsReferenceNumber" -> "GBVC0000001DS"
             )
           )
 
         validator.fromRequest(request) mustBe Valid(
           VDSDetails(
             "0234567890123456789022345678903234567890423456789052345678906234@email.0234567890123456789022345678903234567890423456789052345678901",
-            "GBVA0000001DS"
+            "GBVC0000001DS"
           )
         )
         request.body.value("vdsEmail").as[String].length mustBe 132
@@ -128,7 +128,7 @@ class RequestValidatorSpec extends AnyWordSpec with Matchers:
           .withBody(
             Json.obj(
               "vdsEmail"              -> "example@email.com",
-              "stampsReferenceNumber" -> "GBVA0000001DS"
+              "stampsReferenceNumber" -> "GBVC0000001DS"
             )
           )
 
@@ -145,7 +145,7 @@ class RequestValidatorSpec extends AnyWordSpec with Matchers:
           .withBody(
             Json.obj(
               "vdsEmail"              -> "example@email.com",
-              "stampsReferenceNumber" -> "GBVA0000001DS"
+              "stampsReferenceNumber" -> "GBVC0000001DS"
             )
           )
 
@@ -161,7 +161,7 @@ class RequestValidatorSpec extends AnyWordSpec with Matchers:
           .withBody(
             Json.obj(
               "vdsEmail"              -> "example@email.com",
-              "stampsReferenceNumber" -> "GBVA0000001DS"
+              "stampsReferenceNumber" -> "GBVC0000001DS"
             )
           )
 
@@ -178,7 +178,7 @@ class RequestValidatorSpec extends AnyWordSpec with Matchers:
           .withBody(
             Json.obj(
               "vdsEmail"              -> "example@email.com",
-              "stampsReferenceNumber" -> "GBVA0000001DS"
+              "stampsReferenceNumber" -> "GBVC0000001DS"
             )
           )
 
@@ -194,7 +194,7 @@ class RequestValidatorSpec extends AnyWordSpec with Matchers:
           )
           .withBody(
             Json.obj(
-              "stampsReferenceNumber" -> "GBVA0000001DS"
+              "stampsReferenceNumber" -> "GBVC0000001DS"
             )
           )
 
@@ -211,7 +211,7 @@ class RequestValidatorSpec extends AnyWordSpec with Matchers:
           .withBody(
             Json.obj(
               "vdsEmail"              -> "email.com",
-              "stampsReferenceNumber" -> "GBVA0000001DS"
+              "stampsReferenceNumber" -> "GBVC0000001DS"
             )
           )
 
@@ -228,7 +228,7 @@ class RequestValidatorSpec extends AnyWordSpec with Matchers:
           .withBody(
             Json.obj(
               "vdsEmail"              -> "02345678901234567890223456789032345678904234567890523456789062345@email.com",
-              "stampsReferenceNumber" -> "GBVA0000001DS"
+              "stampsReferenceNumber" -> "GBVC0000001DS"
             )
           )
 
@@ -245,7 +245,7 @@ class RequestValidatorSpec extends AnyWordSpec with Matchers:
           .withBody(
             Json.obj(
               "vdsEmail" -> "0234567890123456789022345678903234567890423456789052345678906234@email.02345678901234567890223456789032345678904234567890523456789012",
-              "stampsReferenceNumber" -> "GBVA0000001DS"
+              "stampsReferenceNumber" -> "GBVC0000001DS"
             )
           )
         validator.fromRequest(request) mustBe Invalid(Chain(TooLongVdsEmail))
@@ -262,7 +262,7 @@ class RequestValidatorSpec extends AnyWordSpec with Matchers:
           .withBody(
             Json.obj(
               "vdsEmail" -> "1234567891234567891234567891234567891234567891234567891234567890@1234567891234567891234567891234567891234567891234567891234567890@e.1234567891234567891234567891234567891234567891234567891234567890",
-              "stampsReferenceNumber" -> "GBVA0000001DS"
+              "stampsReferenceNumber" -> "GBVC0000001DS"
             )
           )
 
@@ -279,7 +279,7 @@ class RequestValidatorSpec extends AnyWordSpec with Matchers:
           .withBody(
             Json.obj(
               "vdsEmail"              -> true,
-              "stampsReferenceNumber" -> "GBVA0000001DS"
+              "stampsReferenceNumber" -> "GBVC0000001DS"
             )
           )
 
@@ -312,7 +312,7 @@ class RequestValidatorSpec extends AnyWordSpec with Matchers:
           .withBody(
             Json.obj(
               "vdsEmail"              -> "example@email.com",
-              "stampsReferenceNumber" -> "GBVA0000001"
+              "stampsReferenceNumber" -> "GBVC0000001"
             )
           )
 
