@@ -2,3 +2,6 @@
 
 # Approval status summary
 POST        /status                               uk.gov.hmrc.vapingstampsapi.controllers.ApprovalController.retrieveStatus()
+
+# Delete record
+DELETE      /delete-record/:stampsReferenceNumber uk.gov.hmrc.vapingstampsapi.controllers.DeleteRecordController.deleteRecord(stampsReferenceNumber: String)

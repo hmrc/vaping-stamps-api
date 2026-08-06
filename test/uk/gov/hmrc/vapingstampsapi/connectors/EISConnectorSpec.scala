@@ -173,4 +173,71 @@ class EISConnectorSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuit
       )
     }
   }
+
+  "EISConnector.deleteRecord" should {
+
+    val stampsReferenceNumber = "GBVC0000001DS"
+    val deleteUrl = "/delete-record"
+
+    "return Right(Done) when EIS returns 204 No Content" in {
+      stubDelete(deleteUrl, 204)
+
+      val result = Await.result(connector.deleteRecord(stampsReferenceNumber).value, 2.seconds)
+
+      result mustBe Right(org.apache.pekko.Done)
+      verifyDelete(deleteUrl)
+    }
+
+    "return Left(InternalServerErrorApiError) when EIS returns 400" in {
+      stubDelete(deleteUrl, 400, "Bad request")
+
+      val result = Await.result(connector.deleteRecord(stampsReferenceNumber).value, 2.seconds)
+
+      result mustBe Left(
+        uk.gov.hmrc.vapingstampsapi.models.errors.InternalServerErrorApiError(
+          message = "Error occurred deleting record"
+        )
+      )
+      verifyDelete(deleteUrl)
+    }
+
+    "return Left(InternalServerErrorApiError) when EIS returns 404" in {
+      stubDelete(deleteUrl, 404, "Not found")
+
+      val result = Await.result(connector.deleteRecord(stampsReferenceNumber).value, 2.seconds)
+
+      result mustBe Left(
+        uk.gov.hmrc.vapingstampsapi.models.errors.InternalServerErrorApiError(
+          message = "Error occurred deleting record"
+        )
+      )
+      verifyDelete(deleteUrl)
+    }
+
+    "return Left(InternalServerErrorApiError) when EIS returns 500" in {
+      stubDelete(deleteUrl, 500, "Server error")
+
+      val result = Await.result(connector.deleteRecord(stampsReferenceNumber).value, 2.seconds)
+
+      result mustBe Left(
+        uk.gov.hmrc.vapingstampsapi.models.errors.InternalServerErrorApiError(
+          message = "Error occurred deleting record"
+        )
+      )
+      verifyDelete(deleteUrl)
+    }
+
+    "return Left(ServiceUnavailableApiError) on network fault" in {
+      stubDeleteFault(deleteUrl)
+
+      val result = Await.result(connector.deleteRecord(stampsReferenceNumber).value, 2.seconds)
+
+      result mustBe Left(
+        ServiceUnavailableApiError(message =
+          s"DELETE of 'http://localhost:${server.port()}/delete-record' timed out with message 'Request timeout to localhost/127.0.0.1:${server.port()} after 1000 ms'"
+        )
+      )
+      verifyDelete(deleteUrl)
+    }
+  }
 }

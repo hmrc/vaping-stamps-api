@@ -182,6 +182,108 @@ paths:
                 {
                   "code": "INTERNAL_SERVER_ERROR",
                   "message": "<error message based on failure>"
+                 }
+
+         "503":
+           description: Downstream error — an error has occurred downstream from the API
+           content:
+             application/json:
+               schema:
+                 $ref: "#/components/schemas/503ErrorResponse"
+               example:
+                 {
+                   "code": "SERVER_ERROR",
+                   "message": "Service unavailable"
+                 }
+
+  /misc/vaping/stamps/delete-record/{stampsReferenceNumber}:
+    delete:
+      summary: Delete a vaping stamps record - [Test only]
+      description: |
+        Deletes a record identified by the stamps reference number.
+
+        **Example request**
+
+        `DELETE https://test-api.service.hmrc.gov.uk/misc/vaping/stamps/delete-record/GBVC0000001DS`
+
+      operationId: deleteRecord
+
+      security:
+        - applicationRestricted: [ ]
+
+      parameters:
+        - name: stampsReferenceNumber
+          in: path
+          required: true
+          description: Unique vaping duty stamps approval identifier issued by HMRC.
+          schema:
+            type: string
+            pattern: "^(GB|XI)V[CEFMR][0-9]{7}DS$"
+          example: GBVC0000001DS
+        - $ref: "#/components/parameters/acceptHeader"
+        - $ref: "#/components/parameters/authorizationHeader"
+        - $ref: "#/components/parameters/contentType"
+
+      responses:
+        "204":
+          description: Record successfully deleted.
+
+        "400":
+          description: Client error — the request is malformed or fails validation.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/400ErrorResponse"
+              examples:
+                invalidReference:
+                  value:
+                    {
+                      "code": "BAD_REQUEST",
+                      "message": "Invalid stampsReferenceNumber format",
+                      "errors": [ "006" ]
+                    }
+                missingAcceptHeader:
+                  value:
+                    {
+                      "code": "BAD_REQUEST",
+                      "message": "The request is invalid",
+                      "errors": [ "001" ]
+                    }
+
+        "401":
+          description: Client error — authentication credentials are missing or invalid.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                {
+                  "code": "UNAUTHORISED",
+                  "message": "Authentication credentials are missing or invalid."
+                }
+
+        "403":
+          description: Client error — the client is authenticated but not authorised to perform this action.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                {
+                  "code": "FORBIDDEN",
+                  "message": "You are not authorised to access this resource."
+                }
+
+        "500":
+          description: Server error — an unexpected internal error occurred while processing the request.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/500ErrorResponse"
+              example:
+                {
+                  "code": "INTERNAL_SERVER_ERROR",
+                  "message": "Error occurred deleting record"
                 }
 
         "503":

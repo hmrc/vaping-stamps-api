@@ -1,6 +1,5 @@
 .*
 
-!.gitignore
 !.scalafmt.conf
 bin
 .bloop/
@@ -38,3 +37,5 @@ test-result
 tmp
 .vscode/
 /API Testing/.env
+/.clinerules
+/memorybank

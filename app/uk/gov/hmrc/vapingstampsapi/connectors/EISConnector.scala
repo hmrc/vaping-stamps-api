@@ -17,6 +17,7 @@
 package uk.gov.hmrc.vapingstampsapi.connectors
 
 import cats.data.EitherT
+import org.apache.pekko.Done
 import org.playframework.cachecontrol.HttpDate
 import org.slf4j.LoggerFactory
 import play.api.libs.json.*
@@ -24,7 +25,7 @@ import play.api.libs.ws.writeableOf_JsValue
 import uk.gov.hmrc.http.*
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.vapingstampsapi.config.AppConfig
-import uk.gov.hmrc.vapingstampsapi.connectors.parsers.EISParser.{EISResponse, EISResponseReads}
+import uk.gov.hmrc.vapingstampsapi.connectors.parsers.EISParser.{EISDeleteResponse, EISDeleteResponseReads, EISResponse, EISResponseReads}
 import uk.gov.hmrc.vapingstampsapi.models.errors.{ApiError, ServiceUnavailableApiError}
 import uk.gov.hmrc.vapingstampsapi.models.{ApprovalSummaryResponse, VDSDetails}
 
@@ -68,6 +69,34 @@ class EISConnector @Inject() (
         .execute[EISResponse]
         .recover { case e: HttpException =>
           logger.error(s"[EISConnector][retrieveStatus]: Unexpected Exception returned - $e")
+          Left(ServiceUnavailableApiError(message = e.message))
+        }
+    )
+
+  def deleteRecord(
+    stampsReferenceNumber: String
+  )(using hc: HeaderCarrier): EitherT[Future, ApiError, Done] =
+
+    val url = s"${appConfig.eisBaseUrl}/delete-record"
+
+    logger.info(s"[EISConnector][deleteRecord] called: $url")
+
+    EitherT(
+      http
+        .delete(url"$url")
+        .setHeader(
+          "Authorization" -> s"Bearer ${appConfig.eisDeleteAuthToken}",
+          "content-type"  -> "application/json",
+          "Accept"        -> "application/json",
+          "date"          -> HttpDate.now.format(
+            DateTimeFormatter.ofPattern("EEE, dd MMM YYYY HH:mm:ss z", Locale.UK).withZone(ZoneId.of("GMT"))
+          ),
+          "x-correlation-id" -> randomUUID().toString,
+          "x-forwarded-host" -> "MDTP"
+        )
+        .execute[EISDeleteResponse]
+        .recover { case e: HttpException =>
+          logger.error(s"[EISConnector][deleteRecord]: Unexpected Exception returned - $e")
           Left(ServiceUnavailableApiError(message = e.message))
         }
     )

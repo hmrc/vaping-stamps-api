@@ -54,4 +54,41 @@ trait WiremockHelper extends BeforeAndAfterAll with BeforeAndAfterEach {
             .withBody(responseBody)
         )
     )
+
+  def stubDelete(url: String, status: Int, body: String = ""): StubMapping =
+    server.stubFor(
+      delete(urlEqualTo(url))
+        .willReturn(
+          aResponse()
+            .withStatus(status)
+            .withBody(body)
+        )
+    )
+
+  def stubDeleteFault(url: String): StubMapping =
+    server.stubFor(
+      delete(urlEqualTo(url))
+        .willReturn(
+          aResponse()
+            .withStatus(499)
+            .withHeader("Content-Type", "application/json", "Accept", "date", "x-correlation-id", "x-forwarded-host")
+            .withBody("The request payload has timed out")
+            .withFixedDelay(2000)
+        )
+    )
+
+  def verifyDelete(url: String): Unit =
+    server.verify(deleteRequestedFor(urlEqualTo(url)))
+
+  def verifyDeleteWithoutRetry(url: String): Unit =
+    server.verify(1, deleteRequestedFor(urlEqualTo(url)))
+
+  def verifyDeleteWithRetry(url: String): Unit =
+    server.verify(2, deleteRequestedFor(urlEqualTo(url)))
+
+  def verifyDeleteWithAuthToken(url: String, token: String): Unit =
+    server.verify(
+      deleteRequestedFor(urlEqualTo(url))
+        .withHeader("Authorization", equalTo(s"Bearer $token"))
+    )
 }

@@ -16,14 +16,16 @@
 
 package uk.gov.hmrc.vapingstampsapi.connectors.parsers
 
+import org.apache.pekko.Done
 import play.api.Logging
-import play.api.http.Status.{OK, UNPROCESSABLE_ENTITY}
+import play.api.http.Status.{NO_CONTENT, OK, UNPROCESSABLE_ENTITY}
 import uk.gov.hmrc.http.{HttpReads, HttpResponse}
 import uk.gov.hmrc.vapingstampsapi.models.ApprovalSummaryResponse
 import uk.gov.hmrc.vapingstampsapi.models.errors.{ApiError, InternalServerErrorApiError, ServiceUnavailableApiError, UnprocessableEntityApiError}
 
 object EISParser extends Logging {
   type EISResponse = Either[ApiError, ApprovalSummaryResponse]
+  type EISDeleteResponse = Either[ApiError, Done]
 
   implicit object EISResponseReads extends HttpReads[EISResponse] {
 
@@ -54,6 +56,17 @@ object EISParser extends Logging {
         case downstreamStatusCode =>
           logger.warn(s"[EISParser][read]: EIS has returned error statusCode: $downstreamStatusCode")
           Left(ServiceUnavailableApiError(message = "Error has occurred in downstream service"))
+      }
+  }
+
+  implicit object EISDeleteResponseReads extends HttpReads[EISDeleteResponse] {
+
+    override def read(method: String, url: String, response: HttpResponse): EISDeleteResponse =
+      response.status match {
+        case NO_CONTENT => Right(Done)
+        case statusCode =>
+          logger.error(s"[EISParser][deleteRecord]: EIS returned error statusCode: $statusCode, body: ${response.body}")
+          Left(InternalServerErrorApiError(message = "Error occurred deleting record"))
       }
   }
 }

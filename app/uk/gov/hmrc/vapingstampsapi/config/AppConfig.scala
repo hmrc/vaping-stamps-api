@@ -39,3 +39,6 @@ class AppConfig @Inject() (
 
   val eisAuthToken: String =
     config.get[String](s"microservice.services.$eisServiceName.token")
+
+  val eisDeleteAuthToken: String =
+    config.get[String](s"microservice.services.$eisServiceName.deleteToken")
