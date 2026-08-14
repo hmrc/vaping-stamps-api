@@ -23,7 +23,7 @@ import play.api.Application
 import play.api.http.Status.*
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json.Json
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{POST, contentAsJson, defaultAwaitTimeout, route, status, writeableOf_AnyContentAsJson}
@@ -421,7 +421,7 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
         .withHeaders(defaultHeaders*)
         .withJsonBody(Json.parse(incomingRequestBody("example@email.com", "GBVC0000200DS")))
 
-      stubEndpointForPost(500, outGoingRequestBody("example@email.com", "GBVC0000001DS"), responseBody)
+      stubEndpointForPost(500, outGoingRequestBody("example@email.com", "GBVC0000200DS"), responseBody)
 
       val response: Option[Future[Result]] = route(app, request)
 
