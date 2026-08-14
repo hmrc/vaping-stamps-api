@@ -364,7 +364,7 @@ components:
         message:
           type: string
 
-    400ErrorResponse:
+    400 ErrorResponse:
       type: object
       required:
         - code
@@ -391,8 +391,19 @@ components:
             * "008" - Incorrect vdsEmail
             * "009" - The vdsEmail is too long
 
+    415 ErrorResponse:
+      type: object
+      required:
+        - statusCode
+        - message
+      properties:
+        statusCode:
+          type: string
+        message:
+          type: string
 
-    422ErrorResponse:
+
+    422 ErrorResponse:
       type: object
       required:
         - code
@@ -415,7 +426,7 @@ components:
             * "002" - vdsEmail not found in ETDS
             * "003" - Details for this stampsReferenceNumber have already been requested by the authorised stamp supplier
 
-    500ErrorResponse:
+    500 ErrorResponse:
       type: object
       required:
         - code
@@ -426,7 +437,7 @@ components:
         message:
           type: string
 
-    503ErrorResponse:
+    503 ErrorResponse:
       type: object
       required:
         - code
