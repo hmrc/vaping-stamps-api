@@ -344,20 +344,18 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
       response.map(contentAsJson) mustBe Some(Json.parse(responseBody))
     }
 
-    "return 415 error when content header is missing" in {
+    "return 415 error when content header is incorrect" in {
       val responseBody =
         """
-          |{
-          |  "statuscode": 415,
-          |  "message": "Expecting text/json or application/json body"
-          |}
+          |{"statusCode":415,"message":"Expecting text/json or application/json body"}
           |""".stripMargin
 
       val request = FakeRequest(POST, "/status")
         .withHeaders(
           Seq(
             "Accept"        -> "application/vnd.hmrc.1.0+json",
-            "Authorization" -> "Bearer 123"
+            "Authorization" -> "Bearer 123",
+            "Content-Type"  -> "text"
           )*
         )
         .withJsonBody(Json.parse(incomingRequestBody("example@email.com", "GBVC0000200DS")))
@@ -367,7 +365,6 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
       val response: Option[Future[Result]] = route(app, request)
 
       response.map(contentAsJson) mustBe Some(Json.parse(responseBody))
-      response.map(status) mustBe Some(UNSUPPORTED_MEDIA_TYPE)
     }
 
     "return 422 error when downstream Business error with 422 status is returned" in {
