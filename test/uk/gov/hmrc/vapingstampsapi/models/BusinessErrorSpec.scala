@@ -38,15 +38,15 @@ class BusinessErrorSpec extends AnyWordSpec with Matchers:
     }
 
     "read from JsValue" when {
-      "reads of JsString(001) must be JsSuccess(StampsReferenceNumberNotFound)" in {
+      "reads of JsString('001') must be JsSuccess(StampsReferenceNumberNotFound)" in {
         JsString("001").as[BusinessError] mustBe StampsReferenceNumberNotFound
       }
 
-      "reads of JsString(002) must be JsSuccess(VdsEmailNotFound)" in {
+      "reads of JsString('002') must be JsSuccess(VdsEmailNotFound)" in {
         JsString("002").as[BusinessError] mustBe VdsEmailNotFound
       }
 
-      "reads of JsString(003) must be JsSuccess(StampRequestedBefore)" in {
+      "reads of JsString('003') must be JsSuccess(StampRequestedBefore)" in {
         JsString("003").as[BusinessError] mustBe MultipleStampsRequestReceived
       }
     }
