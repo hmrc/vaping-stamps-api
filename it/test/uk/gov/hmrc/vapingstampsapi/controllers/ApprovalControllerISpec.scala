@@ -60,11 +60,11 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
          |}
          |""".stripMargin
 
-    def outGoingRequestBody(stampsReferenceNumber: String): String =
+    def outGoingRequestBody(email: String, stampsReferenceNumber: String): String =
       s"""
          |{
          |  "vdsdetails": {
-         |     "vdsEmail": "example@email.com",
+         |     "vdsEmail": "$email",
          |     "stampsReferenceNumber": "$stampsReferenceNumber"
          |  }
          |}
@@ -105,7 +105,7 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
         .withHeaders(defaultHeaders*)
         .withJsonBody(Json.parse(incomingRequestBody("example@email.com", "GBVC0000001DS")))
 
-      stubEndpointForPost(200, outGoingRequestBody("GBVC0000001DS"), responseBody)
+      stubEndpointForPost(200, outGoingRequestBody("example@email.com", "GBVC0000001DS"), responseBody)
 
       val response: Option[Future[Result]] = route(app, request)
 
@@ -152,7 +152,7 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
         .withHeaders(defaultHeaders*)
         .withJsonBody(Json.parse(incomingRequestBody("example@email.com", "GBVC0000200DS")))
 
-      stubEndpointForPost(200, outGoingRequestBody("GBVC0000200DS"), responseBody)
+      stubEndpointForPost(200, outGoingRequestBody("example@email.com", "GBVC0000200DS"), responseBody)
 
       val response: Option[Future[Result]] = route(app, request)
 
@@ -187,7 +187,7 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
         .withHeaders(defaultHeaders*)
         .withJsonBody(Json.parse(incomingRequestBody("example@email.com", "XIVC0000200DS")))
 
-      stubEndpointForPost(200, outGoingRequestBody("XIVC0000200DS"), responseBody)
+      stubEndpointForPost(200, outGoingRequestBody("example@email.com", "XIVC0000200DS"), responseBody)
 
       val response: Option[Future[Result]] = route(app, request)
 
@@ -218,7 +218,7 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
         .withHeaders(defaultHeaders*)
         .withJsonBody(Json.parse(incomingRequestBody("example@email.com", "XIVC0000200DS")))
 
-      stubEndpointForPost(200, outGoingRequestBody("XIVC0000200DS"), responseBody)
+      stubEndpointForPost(200, outGoingRequestBody("example@email.com", "XIVC0000200DS"), responseBody)
 
       val response: Option[Future[Result]] = route(app, request)
 
@@ -227,21 +227,67 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
 
     }
 
-    "return 400 error when invalid Reference Number is passed" in {
+    "return 400 error when invalid Reference Number, email, accept header and content type header is passed" in {
       val responseBody =
         """
           |{
           |  "code": "BAD_REQUEST",
           |  "message": "The request is invalid",
-          |  "errors": ["006"]
+          |  "errors": ["002", "004", "006", "008"]
           |}
           |""".stripMargin
 
       val request = FakeRequest(POST, "/status")
-        .withHeaders(defaultHeaders*)
-        .withJsonBody(Json.parse(incomingRequestBody("example@email.com", "AAAA0000200")))
+        .withHeaders(
+          Seq(
+            "Content-Type"  -> "text/json",
+            "Accept"        -> "application/vnd",
+            "Authorization" -> "Bearer 123"
+          )*
+        )
+        .withJsonBody(Json.parse(incomingRequestBody("", "")))
 
-      stubEndpointForPost(400, outGoingRequestBody("AAAA0000200"), responseBody)
+      stubEndpointForPost(400, outGoingRequestBody("", ""), responseBody)
+
+      val response: Option[Future[Result]] = route(app, request)
+
+      response.map(status) mustBe Some(BAD_REQUEST)
+      response.map(contentAsJson) mustBe Some(Json.parse(responseBody))
+    }
+
+    "return 400 error when Missing a Reference Number and an email" in {
+      val responseBody =
+        """
+          |{
+          |  "code": "BAD_REQUEST",
+          |  "message": "The request is invalid",
+          |  "errors": ["005", "007"]
+          |}
+          |""".stripMargin
+
+      val request = FakeRequest(POST, "/status")
+        .withHeaders(
+          Seq(
+            "Content-Type"  -> "application/json",
+            "Accept"        -> "application/vnd.hmrc.1.0+json",
+            "Authorization" -> "Bearer 123"
+          )*
+        )
+        .withJsonBody(Json.parse("""
+                                   |{
+                                   |}
+                                   |""".stripMargin))
+
+      stubEndpointForPost(
+        400,
+        """
+          |{
+          |  "vdsdetails": {
+          |  }
+          |}
+          |""".stripMargin,
+        responseBody
+      )
 
       val response: Option[Future[Result]] = route(app, request)
 
@@ -270,7 +316,7 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
           )
         )
 
-      stubEndpointForPost(400, outGoingRequestBody("XIVC0000200DS"), responseBody)
+      stubEndpointForPost(400, outGoingRequestBody("example@email.com", "XIVC0000200DS"), responseBody)
 
       val response: Option[Future[Result]] = route(app, request)
 
@@ -298,6 +344,29 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
       response.map(contentAsJson) mustBe Some(Json.parse(responseBody))
     }
 
+    "return 415 error when content header is incorrect" in {
+      val responseBody =
+        """
+          |{"statusCode":415,"message":"Expecting text/json or application/json body"}
+          |""".stripMargin
+
+      val request = FakeRequest(POST, "/status")
+        .withHeaders(
+          Seq(
+            "Accept"        -> "application/vnd.hmrc.1.0+json",
+            "Authorization" -> "Bearer 123",
+            "Content-Type"  -> "text"
+          )*
+        )
+        .withJsonBody(Json.parse(incomingRequestBody("example@email.com", "GBVC0000200DS")))
+
+      stubEndpointForPost(415, outGoingRequestBody("example@email.com", "GBVC0000200DS"), responseBody)
+
+      val response: Option[Future[Result]] = route(app, request)
+
+      response.map(contentAsJson) mustBe Some(Json.parse(responseBody))
+    }
+
     "return 422 error when downstream Business error with 422 status is returned" in {
       val responseBody =
         """
@@ -321,7 +390,7 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
         .withHeaders(defaultHeaders*)
         .withJsonBody(Json.parse(incomingRequestBody("example@email.com", "GBVC0000200DS")))
 
-      stubEndpointForPost(422, outGoingRequestBody("GBVC0000200DS"), responseBody)
+      stubEndpointForPost(422, outGoingRequestBody("example@email.com", "GBVC0000200DS"), responseBody)
 
       val response: Option[Future[Result]] = route(app, request)
 
@@ -349,7 +418,7 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
         .withHeaders(defaultHeaders*)
         .withJsonBody(Json.parse(incomingRequestBody("example@email.com", "GBVC0000200DS")))
 
-      stubEndpointForPost(500, outGoingRequestBody("GBVC0000200DS"), responseBody)
+      stubEndpointForPost(500, outGoingRequestBody("example@email.com", "GBVC0000200DS"), responseBody)
 
       val response: Option[Future[Result]] = route(app, request)
 

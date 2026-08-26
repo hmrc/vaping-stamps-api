@@ -30,7 +30,8 @@ lazy val microservice = Project("vaping-stamps-api", file("."))
     libraryDependencies ++=
       AppDependencies.compile ++
         AppDependencies.test,
-    Compile / unmanagedResourceDirectories += baseDirectory.value / "resources"
+    Compile / unmanagedResourceDirectories += baseDirectory.value / "resources",
+    PlayKeys.playDefaultPort := 7011
   )
   .settings(CodeCoverageSettings.settings *)
 

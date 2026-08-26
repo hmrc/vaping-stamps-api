@@ -159,6 +159,18 @@ paths:
                   "message": "A resource with the name in the request can not be found in the API"
                 }
 
+        "415":
+          description: Request error — Invalid Content-Type provided.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/415ErrorResponse"
+              example:
+                {
+                  "statusCode": 415,
+                  "message": "Expecting text/json or application/json body"
+                }
+
         "422":
           description: Business error — no approval record exists with the combination of values provided.
           content:
@@ -390,6 +402,17 @@ components:
             * "007" - Missing vdsEmail
             * "008" - Incorrect vdsEmail
             * "009" - The vdsEmail is too long
+
+    415ErrorResponse:
+      type: object
+      required:
+        - statusCode
+        - message
+      properties:
+        statusCode:
+          type: number
+        message:
+          type: string
 
 
     422ErrorResponse:
