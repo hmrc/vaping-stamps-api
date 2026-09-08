@@ -54,14 +54,14 @@ paths:
         
         The 'GBVC' prefix can end with different letters that refer to Entities that have requested the service. The below table display the mapping between these letters and entities.
         
-        | Prefix      | Entity                                                                                                                 |
-        |-------------|-------------------------|
-        | GBVC        | Customs Warehouse       |
-        | GBVE        | Excise Warehouse        |
-        | GBVF        | Freeport                |
-        | GBVM        | Manufacturer            |
-        | GBVR        | UK rep                  |
-        | XIVC        | Northern Ireland entity |
+        | Prefix         | Entity                  |
+        |----------------|-------------------------|
+        | GBVC           | Customs Warehouse       |
+        | GBVE           | Excise Warehouse        |
+        | GBVF           | Freeport                |
+        | GBVM           | Manufacturer            |
+        | GBVR           | UK rep                  |
+        | XIV[C,E,F,M,R] | Northern Ireland entity |
         
         **NOTE**: 400 error scenarios can be simulated by sending requests containing missing or invalid HTTP headers and request field values.The response schema must be submitted as JSON and contain the following details.
 
