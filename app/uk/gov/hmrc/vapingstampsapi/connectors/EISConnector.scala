@@ -17,7 +17,6 @@
 package uk.gov.hmrc.vapingstampsapi.connectors
 
 import cats.data.EitherT
-import org.playframework.cachecontrol.HttpDate
 import org.slf4j.LoggerFactory
 import play.api.libs.json.*
 import play.api.libs.ws.writeableOf_JsValue
@@ -30,6 +29,7 @@ import uk.gov.hmrc.vapingstampsapi.models.{ApprovalSummaryResponse, VDSDetails}
 
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.time.LocalDateTime
 import java.util.Locale
 import java.util.UUID.randomUUID
 import javax.inject.*
@@ -58,9 +58,11 @@ class EISConnector @Inject() (
           "Authorization" -> s"Bearer ${appConfig.eisAuthToken}",
           "content-type"  -> "application/json",
           "Accept"        -> "application/json",
-          "date"          -> HttpDate.now.format(
-            DateTimeFormatter.ofPattern("EEE, dd MMM YYYY HH:mm:ss z", Locale.UK).withZone(ZoneId.of("GMT"))
-          ),
+          "date"          -> LocalDateTime
+            .now()
+            .format(
+              DateTimeFormatter.ofPattern("EEE, dd MMM YYYY HH:mm:ss z", Locale.ENGLISH).withZone(ZoneId.of("GMT"))
+            ),
           "x-correlation-id" -> randomUUID().toString,
           "x-forwarded-host" -> "MDTP"
         )
