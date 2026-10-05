@@ -45,7 +45,7 @@ class ValidateRequestActionSpec extends AnyWordSpec with Matchers {
             .withHeaders(("Accept", "application/vnd.hmrc.1.0+json"), ("Authorization", "Bearer Token"))
             .withJsonBody(
               Json.obj(
-                "vdsdetails" -> Json.obj(
+                "vdsDetails" -> Json.obj(
                   "vdsEmail"              -> JsString("example@email.com"),
                   "stampsReferenceNumber" -> JsString("XIVC0000001BB")
                 )
