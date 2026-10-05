@@ -30,7 +30,7 @@ object VDSDetails:
   given writes: Writes[VDSDetails] =
     Writes[VDSDetails] { vdsDetail =>
       Json.obj(
-        "vdsdetails" -> Json
+        "vdsDetails" -> Json
           .obj("vdsEmail" -> vdsDetail.vdsEmail, "stampsReferenceNumber" -> vdsDetail.stampsReferenceNumber)
       )
     }

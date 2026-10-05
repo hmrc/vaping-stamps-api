@@ -63,7 +63,7 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
     def outGoingRequestBody(email: String, stampsReferenceNumber: String): String =
       s"""
          |{
-         |  "vdsdetails": {
+         |  "vdsDetails": {
          |     "vdsEmail": "$email",
          |     "stampsReferenceNumber": "$stampsReferenceNumber"
          |  }
@@ -282,7 +282,7 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
         400,
         """
           |{
-          |  "vdsdetails": {
+          |  "vdsDetails": {
           |  }
           |}
           |""".stripMargin,
