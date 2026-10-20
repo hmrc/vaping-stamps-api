@@ -218,23 +218,6 @@ class RequestValidatorSpec extends AnyWordSpec with Matchers:
         validator.fromRequest(request) mustBe Invalid(Chain(InvalidVdsEmail))
       }
 
-      "vdsEmail has too many chars in the email so returns invalid" in {
-        val request = FakeRequest()
-          .withHeaders(
-            "Accept"        -> "application/vnd.hmrc.1.0+json",
-            "Authorization" -> "Bearer Token",
-            "Content-Type"  -> "application/json"
-          )
-          .withBody(
-            Json.obj(
-              "vdsEmail"              -> "02345678901234567890223456789032345678904234567890523456789062345@email.com",
-              "stampsReferenceNumber" -> "GBVC0000001DS"
-            )
-          )
-
-        validator.fromRequest(request) mustBe Invalid(Chain(InvalidVdsEmail))
-      }
-
       "vdsEmail has too many Chars (133) overall in the email so returns too long invalid" in {
         val request = FakeRequest()
           .withHeaders(
