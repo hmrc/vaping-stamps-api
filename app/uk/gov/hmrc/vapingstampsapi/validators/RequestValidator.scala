@@ -79,7 +79,7 @@ class RequestValidator extends Validator[VDSDetails]:
     }
 
   private def validateVdsEmail(request: Request[_]): ValidatedNec[BadRequestError, String] =
-    val vdsEmailRegex: String = "^\\S+@\\S+\\.\\S+$"
+    val vdsEmailRegex: String = "^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$"
 
     request.body match {
       case JsObject(underlying) =>
