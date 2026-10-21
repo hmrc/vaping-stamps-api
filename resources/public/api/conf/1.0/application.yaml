@@ -271,8 +271,8 @@ components:
       properties:
         vdsEmail:
           type: string
-          pattern: "^[a-zA-Z0-9_.+-]{1,64}+@[a-zA-Z0-9-]{1,64}+\\.[a-zA-Z0-9-.]{1,64}+$"
-          description: Contact email address of the purchasing operator.
+          pattern: "^[a-zA-Z0-9_.+-]{1,64}+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$"
+          description: Contact email address of the purchasing operator. Email character limit = 132
         stampsReferenceNumber:
           type: string
           pattern: "^(GB|XI)V[CEFMR][0-9]{7}DS$"
