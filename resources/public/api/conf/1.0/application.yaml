@@ -15,7 +15,8 @@ info:
 servers:
   - url: https://test-api.service.hmrc.gov.uk
     description: Sandbox
-
+  - url: https://api.service.hmrc.gov.uk/
+    description: Production
 tags:
   - name: Approval status verification
     description: |
@@ -224,6 +225,8 @@ components:
     applicationRestricted:
       type: oauth2
       description: |
+        No scope is applicable for this endpoint
+        
         HMRC supports OAuth 2.0 for authenticating application restricted API requests
         using an OAuth 2.0 Bearer Token in the AUTHORIZATION header.
 
