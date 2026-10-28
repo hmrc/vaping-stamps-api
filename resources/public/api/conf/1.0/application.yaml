@@ -36,6 +36,8 @@ paths:
 
         `POST https://api.service.hmrc.gov.uk/misc/vaping/stamps/status`
         
+        The table below show what different Prefix values indicate about the **stampsReferenceNumber** 
+        
         | Prefix         | Entity                  |
         |----------------|-------------------------|
         | GBVC           | Customs Warehouse       |
