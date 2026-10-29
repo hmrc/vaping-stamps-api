@@ -1,7 +1,7 @@
 openapi: 3.0.3
 
 info:
-  title: Vaping Stamps API [Test only]
+  title: Vaping Stamps API
   version: "1.0"
   description: |
     # Overview
@@ -27,12 +27,16 @@ tags:
 paths:
   /misc/vaping/stamps/status:
     post:
-      summary: Check purchasing operator approval status - [Test only]
+      summary: Check purchasing operator approval status
       description: |
         This verifies if a purchasing operator is currently authorised to purchase vaping duty stamps.
 
-        **Example request**
+        **Example requests**
 
+        Prod
+        `POST https://api.service.hmrc.gov.uk/misc/vaping/stamps/status`
+        
+        Test-only
         `POST https://test-api.service.hmrc.gov.uk/misc/vaping/stamps/status`
         
         ### Test data
