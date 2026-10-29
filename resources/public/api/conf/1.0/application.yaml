@@ -31,8 +31,12 @@ paths:
       description: |
         This verifies if a purchasing operator is currently authorised to purchase vaping duty stamps.
 
-        **Example request**
+        **Example requests**
 
+        Prod
+        `POST https://api.service.hmrc.gov.uk/misc/vaping/stamps/status`
+        
+        Test-only
         `POST https://test-api.service.hmrc.gov.uk/misc/vaping/stamps/status`
         
         ### Test data
