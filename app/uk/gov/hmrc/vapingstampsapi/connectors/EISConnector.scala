@@ -61,7 +61,7 @@ class EISConnector @Inject() (
           "date"          -> LocalDateTime
             .now()
             .format(
-              DateTimeFormatter.ofPattern("EEE, dd MMM YYYY HH:mm:ss z", Locale.ENGLISH).withZone(ZoneId.of("GMT"))
+              DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss z", Locale.ENGLISH).withZone(ZoneId.of("GMT"))
             ),
           "x-correlation-id" -> randomUUID().toString,
           "x-forwarded-host" -> "MDTP"
