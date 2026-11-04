@@ -43,9 +43,8 @@ class EISConnector @Inject() (
 
   private val logger = LoggerFactory.getLogger(getClass)
 
-  def retrieveStatus(
-    request: VDSDetails
-  )(using hc: HeaderCarrier): EitherT[Future, ApiError, ApprovalSummaryResponse] =
+  def retrieveStatus(request: VDSDetails
+                    )(using hc: HeaderCarrier): EitherT[Future, ApiError, ApprovalSummaryResponse] =
 
     val url = s"${appConfig.eisBaseUrl}/excise/decision/vapingstamps/profile/v1"
 
