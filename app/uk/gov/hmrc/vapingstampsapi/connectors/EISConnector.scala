@@ -43,9 +43,7 @@ class EISConnector @Inject() (
 
   private val logger = LoggerFactory.getLogger(getClass)
 
-  def retrieveStatus(
-    request: VDSDetails
-  )(using hc: HeaderCarrier): EitherT[Future, ApiError, ApprovalSummaryResponse] =
+  def retrieveStatus(request: VDSDetails)(using hc: HeaderCarrier): EitherT[Future, ApiError, ApprovalSummaryResponse] =
 
     val url = s"${appConfig.eisBaseUrl}/excise/decision/vapingstamps/profile/v1"
 
@@ -61,7 +59,7 @@ class EISConnector @Inject() (
           "date"          -> LocalDateTime
             .now()
             .format(
-              DateTimeFormatter.ofPattern("EEE, dd MMM YYYY HH:mm:ss z", Locale.ENGLISH).withZone(ZoneId.of("GMT"))
+              DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss z", Locale.ENGLISH).withZone(ZoneId.of("GMT"))
             ),
           "x-correlation-id" -> randomUUID().toString,
           "x-forwarded-host" -> "MDTP"
