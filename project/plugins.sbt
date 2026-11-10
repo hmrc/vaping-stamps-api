@@ -8,3 +8,4 @@ addSbtPlugin("org.playframework"  % "sbt-plugin"         % "3.0.10")
 addSbtPlugin("org.scoverage"      % "sbt-scoverage"      % "2.0.12")
 addSbtPlugin("org.scalameta"      % "sbt-scalafmt"       % "2.5.2")
 
+libraryDependencies += "org.mockito" %% "mockito-scala-cats" % "1.5.1"

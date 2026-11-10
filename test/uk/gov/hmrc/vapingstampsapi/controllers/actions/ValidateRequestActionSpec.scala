@@ -19,20 +19,23 @@ package uk.gov.hmrc.vapingstampsapi.controllers.actions
 import cats.data.NonEmptyChainImpl
 import cats.data.Validated.{Invalid, Valid}
 import org.mockito.Mockito.when
+import org.scalactic.Prettifier.default
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.libs.json.{JsObject, JsString, Json}
+import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.vapingstampsapi.models.VDSDetails
 import uk.gov.hmrc.vapingstampsapi.models.errors.*
 import uk.gov.hmrc.vapingstampsapi.validators.RequestValidator
+import play.api.test.DefaultAwaitTimeout
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class ValidateRequestActionSpec extends AnyWordSpec with Matchers {
+class ValidateRequestActionSpec extends AnyWordSpec with Matchers with DefaultAwaitTimeout {
 
   val mockRequestValidator: RequestValidator = mock[RequestValidator]
   val validator: ValidateRequestActionImpl = ValidateRequestActionImpl(global, mockRequestValidator)
@@ -81,9 +84,12 @@ class ValidateRequestActionSpec extends AnyWordSpec with Matchers {
             "errors"  -> Seq("001", "003", "005", "007")
           )
 
-          await(validator.filter(request)).map { result =>
-            status(Future.successful(result)) mustBe BAD_REQUEST
-            contentAsJson(Future.successful(result)) mustBe json
+          val result = await(validator.filter(request))
+
+          result mustBe a[Some[Result]]
+          result.map { testResult =>
+            testResult.header.status mustBe BAD_REQUEST
+            contentAsJson(Future.successful(testResult)) mustBe json
           }
         }
       }
