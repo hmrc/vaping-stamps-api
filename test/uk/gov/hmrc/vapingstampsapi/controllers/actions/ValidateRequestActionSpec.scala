@@ -23,6 +23,7 @@ import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.libs.json.{JsObject, JsString, Json}
+import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.vapingstampsapi.models.VDSDetails
@@ -81,9 +82,12 @@ class ValidateRequestActionSpec extends AnyWordSpec with Matchers {
             "errors"  -> Seq("001", "003", "005", "007")
           )
 
-          await(validator.filter(request)).map { result =>
-            status(Future.successful(result)) mustBe BAD_REQUEST
-            contentAsJson(Future.successful(result)) mustBe json
+          val result = await(validator.filter(request))
+
+          result mustBe a[Some[Result]]
+          result.map { testResult =>
+            testResult.header.status mustBe BAD_REQUEST
+            contentAsJson(Future.successful(testResult)) mustBe json
           }
         }
       }
