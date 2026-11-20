@@ -49,7 +49,7 @@ The service exposes a simple health-check endpoint used for monitoring and deplo
 GET /health
 ```
 
-This endpoint reports the operational status of the service and its backing MongoDB instance.
+This endpoint reports the operational status of the service.
 
 Behaviour
 

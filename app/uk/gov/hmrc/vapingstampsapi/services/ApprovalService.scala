@@ -17,7 +17,6 @@
 package uk.gov.hmrc.vapingstampsapi.services
 
 import cats.data.EitherT
-import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.vapingstampsapi.connectors.EISConnector
 import uk.gov.hmrc.vapingstampsapi.models.errors.ApiError
@@ -27,7 +26,7 @@ import javax.inject.*
 import scala.concurrent.Future
 
 @Singleton
-class ApprovalService @Inject() (eisConnector: EISConnector) extends Logging:
+class ApprovalService @Inject() (eisConnector: EISConnector):
 
   def retrieveStatus(
     request: VDSDetails

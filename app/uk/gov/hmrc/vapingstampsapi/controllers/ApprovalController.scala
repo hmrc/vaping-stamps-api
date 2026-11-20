@@ -45,21 +45,9 @@ class ApprovalController @Inject() (
       implicit request: Request[JsValue] =>
         given hc: HeaderCarrier = HeaderCarrierConverter.fromRequest(request)
 
-        request.body
-          .validate[VDSDetails]
-          .fold(
-            _ => {
-              logger.error(s"The request payload is invalid or malformed.");
-              Future.successful(
-                BadRequest(
-                  Json.obj("code" -> "INVALID_REQUEST", "message" -> "The request payload is invalid or malformed.")
-                )
-              )
-            },
-            approvalRequest =>
-              logger.info("[retrieveStatus]: authorisation successful")
-              processRequest(approvalRequest)
-          )
+        val vdsDetails = request.body.as[VDSDetails]
+
+        processRequest(vdsDetails)
 
   private def processRequest(vdsDetails: VDSDetails)(using HeaderCarrier): Future[Result] =
     service

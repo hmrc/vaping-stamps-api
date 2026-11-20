@@ -25,6 +25,9 @@ import uk.gov.hmrc.vapingstampsapi.models.VDSDetails
 import uk.gov.hmrc.vapingstampsapi.models.errors.*
 
 class RequestValidator extends Validator[VDSDetails]:
+
+  private val emailMaxLength: Int = 132
+
   override def fromRequest(request: Request[_]): ValidatedNec[BadRequestError, VDSDetails] =
     (
       validateAcceptHeader(request),
@@ -75,7 +78,7 @@ class RequestValidator extends Validator[VDSDetails]:
           case Some(_) => InvalidStampsReferenceNumber.invalidNec
           case None    => MissingStampsReferenceNumber.invalidNec
         }
-      case _ => InvalidStampsReferenceNumber.invalidNec
+      case _ => MissingStampsReferenceNumber.invalidNec
     }
 
   private def validateVdsEmail(request: Request[_]): ValidatedNec[BadRequestError, String] =
@@ -84,10 +87,10 @@ class RequestValidator extends Validator[VDSDetails]:
     request.body match {
       case JsObject(underlying) =>
         underlying.get("vdsEmail") match {
-          case Some(JsString(value)) if value.matches(vdsEmailRegex) && value.length < 133 => value.validNec
-          case Some(JsString(value)) if value.length > 132                                 => TooLongVdsEmail.invalidNec
-          case Some(_)                                                                     => InvalidVdsEmail.invalidNec
-          case None                                                                        => MissingVdsEmail.invalidNec
+          case Some(JsString(value)) if value.matches(vdsEmailRegex) && value.length <= emailMaxLength => value.validNec
+          case Some(JsString(value)) if value.length > emailMaxLength => TooLongVdsEmail.invalidNec
+          case Some(_)                                                => InvalidVdsEmail.invalidNec
+          case None                                                   => MissingVdsEmail.invalidNec
         }
-      case _ => InvalidVdsEmail.invalidNec
+      case _ => MissingVdsEmail.invalidNec
     }
