@@ -21,7 +21,7 @@ import org.scalatest.wordspec.AnyWordSpec
 import uk.gov.hmrc.vapingstampsapi.models.errors.*
 
 class BadRequestErrorSpec extends AnyWordSpec with Matchers:
-  "BadRequestErrors" should {
+  "BadRequestErrors" must {
     "toString" must
       Seq(
         MissingAcceptHeader          -> "001",

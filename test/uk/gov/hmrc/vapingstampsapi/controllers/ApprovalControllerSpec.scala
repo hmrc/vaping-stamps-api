@@ -113,22 +113,6 @@ class ApprovalControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppP
       status(result) mustBe OK
     }
 
-    "return BadRequest when the request body is missing" in {
-      val request = FakeRequest(POST, "/status")
-        .withBody(JsNull)
-      val result = controller.retrieveStatus().apply(request)
-
-      status(result) mustBe BAD_REQUEST
-    }
-
-    "return BadRequest when the request body has invalid JSON" in {
-      val request = FakeRequest(POST, "/status")
-        .withBody(Json.obj("unexpected" -> "field"))
-      val result = controller.retrieveStatus().apply(request)
-
-      status(result) mustBe BAD_REQUEST
-    }
-
     "return 400 with JSON body when service returns Left(BadRequestApiError)" in {
       val errorResponse =
         BadRequestApiError(errors = Seq(MissingAcceptHeader, IncorrectContentTypeHeader))

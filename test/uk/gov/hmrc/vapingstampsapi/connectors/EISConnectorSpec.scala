@@ -24,7 +24,7 @@ import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.vapingstampsapi.models.ApprovalStatus.{approved, not_approved}
-import uk.gov.hmrc.vapingstampsapi.models.errors.{ServiceUnavailableApiError, StampsReferenceNumberNotFound, UnprocessableEntityApiError}
+import uk.gov.hmrc.vapingstampsapi.models.errors.{InternalServerErrorApiError, ServiceUnavailableApiError, StampsReferenceNumberNotFound, UnprocessableEntityApiError}
 import uk.gov.hmrc.vapingstampsapi.models.{ApprovedSummaryResponse, NotApprovedSummaryResponse, VDSDetails}
 import uk.gov.hmrc.vapingstampsapi.utils.WiremockHelper
 
@@ -170,6 +170,57 @@ class EISConnectorSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuit
         ServiceUnavailableApiError(message =
           s"POST of 'http://localhost:${server.port()}/excise/decision/vapingstamps/profile/v1' timed out with message 'Request timeout to localhost/127.0.0.1:${server.port()} after 1000 ms'"
         )
+      )
+    }
+
+    "handle malformed ApprovalStatus JSON with InternalServerErrorApiError" in {
+      val responseBody =
+        """
+          |{
+          |  "errorDetail": {
+          |    "errorCode": "422",
+          |    "errorMessage": "Unprocessable Entity",
+          |    "source": "Backend",
+          |    "sourceFaultDetail": {
+          |      "detail": [
+          |        "006"
+          |      ]
+          |    },
+          |    "timestamp": "2026-04-14T10:54:12Z",
+          |    "correlationId": "1ae81b45-41b4-4642-ae1c-db1126900001"
+          |  }
+          |}
+          """.stripMargin
+
+      stubEndpointForPost(200, outgoingRequestBody, responseBody)
+
+      val result = Await.result(connector.retrieveStatus(approvalRequest).value, 2.seconds)
+
+      result mustBe Left(InternalServerErrorApiError(message = "Success response received invalid JSON response"))
+    }
+
+    "handle malformed BusinessError JSON with InternalServerErrorApiError" in {
+      val responseBody =
+        """
+          |{
+          |  "approvalStatus": "revoked",
+          |  "businessName": "Acme Vaping Ltd",
+          |  "addressLine1": "1 Business Park",
+          |  "addressLine2": "London",
+          |  "postCode": "SW1A 1AA",
+          |  "contactName": "John Smith",
+          |  "telephoneNumber": "02071234567",
+          |  "stampsThreshold": 10000
+          |}
+          |
+              """.stripMargin
+
+      stubEndpointForPost(422, outgoingRequestBody, responseBody)
+
+      val result = Await.result(connector.retrieveStatus(approvalRequest).value, 2.seconds)
+
+      result mustBe Left(
+        InternalServerErrorApiError(message = "Business error response received invalid JSON response")
       )
     }
   }

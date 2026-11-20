@@ -23,7 +23,7 @@ import play.api.Application
 import play.api.http.Status.*
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.libs.json.Json
+import play.api.libs.json.{JsNull, Json}
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{POST, contentAsJson, defaultAwaitTimeout, route, status, writeableOf_AnyContentAsJson}
@@ -255,7 +255,33 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
       response.map(contentAsJson) mustBe Some(Json.parse(responseBody))
     }
 
-    "return 400 error when Missing a Reference Number and an email" in {
+    "return 400 error when Json body is missing" in {
+      val responseBody =
+        """
+          |{
+          |  "code": "BAD_REQUEST",
+          |  "message": "The request is invalid",
+          |  "errors": ["005", "007"]
+          |}
+          |""".stripMargin
+
+      val request = FakeRequest(POST, "/status")
+        .withHeaders(
+          Seq(
+            "Content-Type"  -> "application/json",
+            "Accept"        -> "application/vnd.hmrc.1.0+json",
+            "Authorization" -> "Bearer 123"
+          )*
+        )
+        .withJsonBody(JsNull)
+
+      val response: Option[Future[Result]] = route(app, request)
+
+      response.map(status) mustBe Some(BAD_REQUEST)
+      response.map(contentAsJson) mustBe Some(Json.parse(responseBody))
+    }
+
+    "return 400 error when Missing a Reference Number and an email from the JSON payload" in {
       val responseBody =
         """
           |{
@@ -277,17 +303,6 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
                                    |{
                                    |}
                                    |""".stripMargin))
-
-      stubEndpointForPost(
-        400,
-        """
-          |{
-          |  "vdsDetails": {
-          |  }
-          |}
-          |""".stripMargin,
-        responseBody
-      )
 
       val response: Option[Future[Result]] = route(app, request)
 

@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory
 import play.api.libs.json.*
 import play.api.libs.ws.writeableOf_JsValue
 import uk.gov.hmrc.http.*
+import uk.gov.hmrc.http.HeaderNames.*
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.vapingstampsapi.config.AppConfig
 import uk.gov.hmrc.vapingstampsapi.connectors.parsers.EISParser.{EISResponse, EISResponseReads}
@@ -42,6 +43,9 @@ class EISConnector @Inject() (
 )(using ec: ExecutionContext):
 
   private val logger = LoggerFactory.getLogger(getClass)
+  private val applicationJson: String = "application/json"
+  private val mdtpForwardedHost: String = "MDTP"
+  private val authorizationToken: String = s"Bearer ${appConfig.eisAuthToken}"
 
   def retrieveStatus(request: VDSDetails)(using hc: HeaderCarrier): EitherT[Future, ApiError, ApprovalSummaryResponse] =
 
@@ -53,16 +57,16 @@ class EISConnector @Inject() (
       http
         .post(url"$url")
         .setHeader(
-          "Authorization" -> s"Bearer ${appConfig.eisAuthToken}",
-          "content-type"  -> "application/json",
-          "Accept"        -> "application/json",
-          "date"          -> LocalDateTime
+          authorisation  -> authorizationToken,
+          "content-type" -> applicationJson,
+          "Accept"       -> applicationJson,
+          "date"         -> LocalDateTime
             .now()
             .format(
               DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss z", Locale.ENGLISH).withZone(ZoneId.of("GMT"))
             ),
           "x-correlation-id" -> randomUUID().toString,
-          "x-forwarded-host" -> "MDTP"
+          "x-forwarded-host" -> mdtpForwardedHost
         )
         .withBody(Json.toJson(request))
         .execute[EISResponse]
