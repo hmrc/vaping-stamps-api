@@ -75,11 +75,11 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
         """
           |{
           |  "approvalStatus": "approved",
-          |  "businessName": "Acme Vaping Ltd",
-          |  "addressLine1": "1 Business Park",
-          |  "addressLine2": "London",
-          |  "postCode": "SW1A 1AA",
-          |  "contactName": "John Smith",
+          |  "businessName": "Test Company",
+          |  "addressLine1": "ABC Company",
+          |  "addressLine2": "AB Town",
+          |  "postCode": "ZZ1 1ZZ",
+          |  "contactName": "Firstname Surname",
           |  "telephoneNumber": "02071234567",
           |  "stampsThreshold": 10000
           |}
@@ -90,11 +90,11 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
         """
           |{
           |  "approvalStatus": "APPROVED",
-          |  "businessName": "Acme Vaping Ltd",
-          |  "addressLine1": "1 Business Park",
-          |  "addressLine2": "London",
-          |  "postCode": "SW1A 1AA",
-          |  "contactName": "John Smith",
+          |  "businessName": "Test Company",
+          |  "addressLine1": "ABC Company",
+          |  "addressLine2": "AB Town",
+          |  "postCode": "ZZ1 1ZZ",
+          |  "contactName": "Firstname Surname",
           |  "telephoneNumber": "02071234567",
           |  "stampsThreshold": 10000
           |}
@@ -118,14 +118,14 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
         """
           |{
           |  "approvalStatus": "approved",
-          |  "businessName": "Acme Vaping Ltd",
-          |  "addressLine1": "1 Business Park",
-          |  "addressLine2": "London",
-          |  "addressLine3": "Greater London",
-          |  "addressLine4": "United Kingdom",
-          |  "addressLine5": "Europe",
-          |  "postCode": "SW1A 1AA",
-          |  "contactName": "John Smith",
+          |  "businessName": "Test Company",
+          |  "addressLine1": "ABC Company",
+          |  "addressLine2": "AB Town",
+          |  "addressLine3": "Greater AB Town",
+          |  "addressLine4": "Country",
+          |  "addressLine5": "Continent",
+          |  "postCode": "ZZ1 1ZZ",
+          |  "contactName": "Firstname Surname",
           |  "telephoneNumber": "02071234567",
           |  "stampsThreshold": 10000
           |}
@@ -135,14 +135,14 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
         """
           |{
           |  "approvalStatus": "APPROVED",
-          |  "businessName": "Acme Vaping Ltd",
-          |  "addressLine1": "1 Business Park",
-          |  "addressLine2": "London",
-          |  "addressLine3": "Greater London",
-          |  "addressLine4": "United Kingdom",
-          |  "addressLine5": "Europe",
-          |  "postCode": "SW1A 1AA",
-          |  "contactName": "John Smith",
+          |  "businessName": "Test Company",
+          |  "addressLine1": "ABC Company",
+          |  "addressLine2": "AB Town",
+          |  "addressLine3": "Greater AB Town",
+          |  "addressLine4": "Country",
+          |  "addressLine5": "Continent",
+          |  "postCode": "ZZ1 1ZZ",
+          |  "contactName": "Firstname Surname",
           |  "telephoneNumber": "02071234567",
           |  "stampsThreshold": 10000
           |}
@@ -165,9 +165,9 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
         """
           |{
           |  "approvalStatus": "approved",
-          |  "businessName": "Acme Vaping Ltd",
-          |  "addressLine1": "1 Business Park",
-          |  "postCode": "SW1A 1AA",
+          |  "businessName": "Test Company",
+          |  "addressLine1": "ABC Company",
+          |  "postCode": "ZZ1 1ZZ",
           |  "stampsThreshold": 10000
           |}
           |""".stripMargin
@@ -176,9 +176,9 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
         """
           |{
           |  "approvalStatus": "APPROVED",
-          |  "businessName": "Acme Vaping Ltd",
-          |  "addressLine1": "1 Business Park",
-          |  "postCode": "SW1A 1AA",
+          |  "businessName": "Test Company",
+          |  "addressLine1": "ABC Company",
+          |  "postCode": "ZZ1 1ZZ",
           |  "stampsThreshold": 10000
           |}
           |""".stripMargin
@@ -200,9 +200,9 @@ class ApprovalControllerISpec extends AnyWordSpec with Matchers with GuiceOneApp
         """
           |{
           |  "approvalStatus": "not approved",
-          |  "businessName": "Acme Vaping Ltd",
-          |  "addressLine1": "1 Business Park",
-          |  "postCode": "SW1A 1AA",
+          |  "businessName": "Test Company",
+          |  "addressLine1": "ABC Company",
+          |  "postCode": "ZZ1 1ZZ",
           |  "stampsThreshold": 10000
           |}
           |""".stripMargin

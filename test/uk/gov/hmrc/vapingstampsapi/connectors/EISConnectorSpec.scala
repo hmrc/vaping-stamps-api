@@ -54,11 +54,11 @@ class EISConnectorSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuit
       """
         |{
         |  "approvalStatus": "approved",
-        |  "businessName": "Acme Vaping Ltd",
-        |  "addressLine1": "1 Business Park",
-        |  "addressLine2": "London",
-        |  "postCode": "SW1A 1AA",
-        |  "contactName": "John Smith",
+        |  "businessName": "Test Company",
+        |  "addressLine1": "ABC Company",
+        |  "addressLine2": "AB Town",
+        |  "postCode": "ZZ1 1ZZ",
+        |  "contactName": "Firstname Surname",
         |  "telephoneNumber": "02071234567",
         |  "stampsThreshold": 10000
         |}
@@ -69,11 +69,11 @@ class EISConnectorSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuit
       """
         |{
         |  "approvalStatus": "not approved",
-        |  "businessName": "Acme Vaping Ltd",
-        |  "addressLine1": "1 Business Park",
-        |  "addressLine2": "London",
-        |  "postCode": "SW1A 1AA",
-        |  "contactName": "John Smith",
+        |  "businessName": "Test Company",
+        |  "addressLine1": "ABC Company",
+        |  "addressLine2": "AB Town",
+        |  "postCode": "ZZ1 1ZZ",
+        |  "contactName": "Firstname Surname",
         |  "telephoneNumber": "02071234567",
         |  "stampsThreshold": 10000
         |}
@@ -97,14 +97,14 @@ class EISConnectorSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuit
       result mustBe Right(
         ApprovedSummaryResponse(
           approved,
-          "Acme Vaping Ltd",
-          "1 Business Park",
-          Some("London"),
+          "Test Company",
+          "ABC Company",
+          Some("AB Town"),
           None,
           None,
           None,
-          "SW1A 1AA",
-          Some("John Smith"),
+          "ZZ1 1ZZ",
+          Some("Firstname Surname"),
           Some("02071234567"),
           10000
         )
@@ -204,11 +204,11 @@ class EISConnectorSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuit
         """
           |{
           |  "approvalStatus": "revoked",
-          |  "businessName": "Acme Vaping Ltd",
-          |  "addressLine1": "1 Business Park",
-          |  "addressLine2": "London",
-          |  "postCode": "SW1A 1AA",
-          |  "contactName": "John Smith",
+          |  "businessName": "Test Company",
+          |  "addressLine1": "ABC Company",
+          |  "addressLine2": "AB Town",
+          |  "postCode": "ZZ1 1ZZ",
+          |  "contactName": "Firstname Surname",
           |  "telephoneNumber": "02071234567",
           |  "stampsThreshold": 10000
           |}
