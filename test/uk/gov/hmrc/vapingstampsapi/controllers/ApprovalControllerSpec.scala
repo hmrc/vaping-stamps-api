@@ -66,15 +66,15 @@ class ApprovalControllerSpec extends AnyWordSpec with Matchers with GuiceOneAppP
 
   val approvedSummary = ApprovedSummaryResponse(
     approvalStatus = approved,
-    businessName = "Acme Vaping Ltd",
+    businessName = "Test Company",
     addressLine1 = "123 Main Street",
     addressLine2 = Some("Any Town"),
     addressLine3 = None,
     addressLine4 = None,
     addressLine5 = None,
     postCode = "SW98 1XY",
-    contactName = Some("John Doe"),
-    telephoneNumber = Some("0123456789"),
+    contactName = Some("Firstname Surname"),
+    telephoneNumber = Some("020712345678"),
     stampsThreshold = 10000L
   )
 

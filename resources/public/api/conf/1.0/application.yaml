@@ -114,9 +114,9 @@ paths:
                         addressLine3: "Address Line 3",
                         addressLine4: "Address Line 4",
                         addressLine5: "Address Line 5",
-                        postCode: "SW1A 1AA",
-                        contactName: "Jane Smith",
-                        telephoneNumber: "+44 20 7946 0123",
+                        postCode: "ZZ1 1ZZ",
+                        contactName: "Firstname Surname",
+                        telephoneNumber: "+44 20 7123 4567",
                         stampsThreshold: 500000
                       }
                   NotApproved:
@@ -303,8 +303,8 @@ components:
           addressLine3: "Address Line 3",
           addressLine4: "Address Line 4",
           addressLine5: "Address Line 5",
-          postCode: "SW1A 1AA",
-          contactName: "Jane Smith",
+          postCode: "ZZ1 1ZZ",
+          contactName: "Firstname Surname",
           telephoneNumber: "+44 20 7946 0123",
           stampsThreshold: 500000
         }
